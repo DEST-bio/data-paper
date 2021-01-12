@@ -17,4 +17,4 @@ module load intel/18.0
 module load intelmpi/18.0
 module load R/4.0.0
 
-Rscript 2.1.AlleleFreq.PoolSNP.goodsamps.0.05.R
+Rscript 2.1.AlleleFreq.PoolSNP.goodsamps.0.001.R

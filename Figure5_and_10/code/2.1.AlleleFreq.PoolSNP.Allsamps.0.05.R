@@ -78,7 +78,7 @@ names(priv.dt) = c(
 )
 
 ## Restrict any further analyses to the 4 main chromosomes				
-priv.dt = priv.dt[which(priv.dt$chr %in% c("2L","2R","3L","3R")),]					
+priv.dt = priv.dt[which(priv.dt$chr %in% c("2L","2R","3L","3R","X")),]					
 
 #Parse the allele frequency data 
 unlist_vect = lapply( priv.dt[,8] , unlist )

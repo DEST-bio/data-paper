@@ -1,0 +1,177 @@
+---
+title: "Endemism New Figures"
+author: "Jcb Nunez"
+date: "12/5/2020"
+output: html_document
+---
+
+# Load Packages
+```{r}
+#############################
+#############################
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(vroom)
+library(rcompanion)
+library(patchwork)
+library(viridis)
+```
+
+# Load Data
+```{r}
+#############################
+#############################
+wd="/Users/jcbnunez/Documents/GitHub/DEST/Analyses/GeographicEndemism/Extended_endemism"
+#load AF data
+
+
+load(paste(wd,"PoolSNP.0.001.AllSamps.Rdata", sep = "/"))
+PoolSNP.0.001.AllSamps.Rdata=o
+
+load(paste(wd,"PoolSNP.0.001.good.samps.Rdata", sep = "/"))
+PoolSNP.0.001.good.samps.Rdata = o
+
+load(paste(wd,"PoolSNP.0.05.AllSamps.Rdata", sep = "/"))
+PoolSNP.0.05.AllSamps.Rdata = o
+
+load(paste(wd,"PoolSNP.0.05.good.samps.Rdata", sep = "/"))
+PoolSNP.0.05.good.samps.Rdata = o
+
+load(paste(wd,"SNAPE.0.001.AllSamps.Rdata", sep = "/"))
+SNAPE.0.001.AllSamps.Rdata = o
+
+load(paste(wd,"SNAPE.0.001.good.samps.Rdata", sep = "/"))
+SNAPE.0.001.good.samps.Rdata = o
+
+load(paste(wd,"SNAPE.0.05.AllSamps.Rdata", sep = "/"))
+SNAPE.0.05.AllSamps.Rdata = o
+
+load(paste(wd,"SNAPE.0.05.good.samps.Rdata", sep = "/"))
+SNAPE.0.05.good.samps.Rdata = o
+
+```
+
+#Merge datasets
+```{r}
+rbind(
+  PoolSNP.0.001.AllSamps.Rdata,
+  PoolSNP.0.001.good.samps.Rdata,
+  PoolSNP.0.05.AllSamps.Rdata,
+  PoolSNP.0.05.good.samps.Rdata,
+  SNAPE.0.001.AllSamps.Rdata,
+  SNAPE.0.001.good.samps.Rdata,
+  SNAPE.0.05.AllSamps.Rdata,
+  SNAPE.0.05.good.samps.Rdata
+) -> o_AF_both
+```
+
+
+# Plot site spectrum
+```{r}
+o_AF_both  %>% 
+  group_by(caller, nPop,chr, ind.filter,MAF) %>% 
+  summarize(Nloc = sum(Freq)) %>%
+  ggplot(aes(x=nPop, y=log10(Nloc), color = chr)) + 
+  geom_line(size=0.7) + 
+  xlab("Number of populations") +
+  ylab("log10(Number of sites)") +
+  theme_bw() +
+  theme(legend.pos = "top") +
+  scale_color_brewer(palette = "Dark2") +
+  facet_grid(MAF+ind.filter~caller) -> 
+  spectrum
+```
+
+# Plot difference in frequency
+```{r}
+o_AF_both  %>%
+  group_by(caller, nPop,chr, ind.filter,MAF) %>% 
+  summarize(Nloc = sum(Freq)) %>%
+  as.data.frame() %>%
+  dcast(nPop+chr+ind.filter+MAF~caller, value.var = "Nloc" ) %>%
+  .[complete.cases(.),] %>%
+  mutate(difference_raw = PoolSNP-SNAPE) %>%
+  mutate(difference_sig = ifelse(difference_raw>0, "More PoolSNP","More SNAPE") ) %>%
+  group_by(nPop, ind.filter,MAF) %>% 
+  ggplot(aes(x=nPop, color = difference_sig, y=log10(abs(difference_raw)))) +
+  geom_point(size=0.7) + 
+  xlab("Number of populations") +
+  ylab("log10(Excess sites discovered)") +
+  theme_bw() +
+  theme(legend.pos = "top") +
+  scale_color_brewer(palette = "Accent") +
+  facet_grid(MAF+ind.filter~., scales = "free") -> 
+  difference
+```
+
+# Plot maf vs Npop
+```{r}
+
+o_AF_both %>%
+  .[sample(dim(.)[1],70000),] %>%
+mutate(AF_fold = ifelse(.$AF > 0.5, (1-.$AF), .$AF)) %>% 
+ggplot(aes(x=nPop, y=AF_fold, color = log10(Freq))) + 
+geom_point(alpha = 0.8, size = 0.9, shape = 15) + 
+theme_bw() + 
+scale_colour_gradient2(low = "grey2", mid = "blue", high = "green", midpoint = 3) +
+xlab("Number of populations") +
+ylab("Allele frequency bin") +
+facet_grid((MAF+ind.filter~caller))-> 
+rasterMAF
+
+```
+
+# Patchwork
+```{r}
+spectrum+difference+rasterMAF
+```
+
+# ---------
+
+#Numerical Analysis
+```{r}
+o_AF_both  %>%
+  group_by(caller, nPop,chr, ind.filter,MAF) %>% 
+  summarize(Nloc = sum(Freq)) %>%
+  as.data.frame() %>%
+  dcast(nPop+chr+ind.filter+MAF~caller, value.var = "Nloc" ) %>%
+  .[complete.cases(.),] %>%
+  mutate(difference_raw = PoolSNP-SNAPE) %>%
+  mutate(difference_sig = ifelse(difference_raw>0, "More PoolSNP","More SNAPE") ) %>%
+  group_by(nPop, ind.filter,MAF) -> dataset_to_mine
+
+dataset_to_mine %>% 
+  group_by(MAF,difference_sig) %>%
+  summarise(Max_nPop = max(nPop))
+
+o_AF_both %>%
+  .[which(  .$caller == "SNAPE" &
+            .$ind.filter == "good.samps" &
+            .$MAF == 0.001
+            ),] %>% 
+  summarise(N_SNAPE = sum(Freq))
+
+o_AF_both %>%
+  .[which(.$nPop <= 25 &
+            .$caller == "SNAPE" &
+            .$ind.filter == "good.samps" &
+            .$MAF == 0.001),] %>% 
+  summarise(N_SNAPE = sum(Freq))
+
+#############3
+o_AF_both %>%
+  .[which(  .$caller == "SNAPE" &
+            .$ind.filter == "good.samps" &
+            .$MAF == 0.05
+            ),] %>% 
+  summarise(N_SNAPE = sum(Freq))
+
+o_AF_both %>%
+  .[which(.$nPop <= 97 &
+            .$caller == "SNAPE" &
+            .$ind.filter == "good.samps" &
+            .$MAF == 0.05),] %>% 
+  summarise(N_SNAPE = sum(Freq))
+```
+

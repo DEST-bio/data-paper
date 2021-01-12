@@ -1,0 +1,89 @@
+---
+title: "Plot_mutation_counts"
+author: "Jcb Nunez"
+date: "12/9/2020"
+output: html_document
+---
+
+```{sh, eval =F}
+module load gcc/7.1.0  
+module load openmpi/3.1.4
+module load gdal
+module load proj
+module load goolf R/4.0.0
+module load bcftools
+R
+
+```
+
+
+# Load Packages
+```{r}
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(vroom)
+library(rcompanion)
+library(patchwork)
+library(viridis)
+```
+
+#Load Data
+```{r}
+#wd="/scratch/yey2sn/DEST_mutation"
+wd="/Users/jcbnunez/Documents/GitHub/DEST_workspace/Mutation_rate/"
+
+load(paste(wd,"/PoolSNP_mutation_imput.Rdata", sep = "") )
+load(paste(wd,"/SNAPE_mutation_imput.Rdata", sep = "") )
+
+load(paste(wd,"/allSummarySet_endemism.bothCallers.Rdata", sep = "") )
+exp_rare = read.delim2(paste(wd,"./rare_expectation.txt", sep = ""))
+
+mutation_input = rbind(joint_o_poolSNP,joint_o_SNAPE)
+#mutation_input = joint_o_poolSNP
+```
+
+#Stationary Distributions
+```{r}
+names(dgrp.ag)[2] = "mutation"
+dgrp.ag %<>% mutate(type = "common" )
+
+#mutation_input$type = gsub("rare","1.rare", mutation_input$type)
+#mutation_input$type = gsub("common","2.common", mutation_input$type)
+#exp_rare$type = gsub("rare","1.rare", exp_rare$type)
+
+mutation_input %>%
+   ggplot(aes(x=type, y= Perc, fill = paste(type, caller, sep = " ") )) + 
+   geom_bar(stat = "identity", alpha = 0.5, position = "dodge") +
+   facet_wrap(~mutation, scales = "free_x", nrow = 2) +
+   geom_hline(data = dgrp.ag, aes(yintercept = freq), color = "red") +
+   geom_hline(data = exp_rare, aes(yintercept = as.numeric(freq)), color = "blue") +
+   theme_bw() +
+   scale_fill_manual(values = c("steelblue3", "steelblue1","firebrick3", "firebrick1" ))
+   
+
+```
+
+#Correlation Plot
+```{r}
+mutation_input %>% dcast(mutation+type~caller, value.var = "Perc") %>%
+   ggplot(aes(x=PoolSNP,y=SNAPE, label = mutation, color =type )) +
+   geom_abline(intercept = 0, linetype = "dashed") +
+   geom_smooth(method = "lm", se =F, alpha = 0.4) +
+   geom_text() +
+   xlim(0.02,0.16)+
+   ylim(0.02,0.16)+
+   scale_color_manual(values = c("red","blue")) +
+   theme_bw()
+
+mutation_input %>% dcast(mutation+type~caller, value.var = "Perc") -> data_for_cor
+
+cor.test(data_for_cor$PoolSNP[which(data_for_cor$type == "common")], 
+         data_for_cor$SNAPE[which(data_for_cor$type == "common")])
+
+cor.test(data_for_cor$PoolSNP[which(data_for_cor$type == "rare")], 
+         data_for_cor$SNAPE[which(data_for_cor$type == "rare")])
+
+```
+
+

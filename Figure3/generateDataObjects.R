@@ -24,7 +24,7 @@
 	setwd("/Users/alanbergland/Documents/GitHub/")
 
 ### load data
-  samps <- fread("./DEST/populationInfo/samps.csv")
+  samps <- fread("./DEST_freeze1/populationInfo/samps.csv")
 
 ### time plot
 	### find sites with multiple time points
@@ -52,7 +52,6 @@
 		xlab("Collection Date") + ylab("Latitude")
 
 
-		ggsave(multi_sample, file="./DEST/populationInfo/multiSample.pdf")
 
 
 ### world map plot

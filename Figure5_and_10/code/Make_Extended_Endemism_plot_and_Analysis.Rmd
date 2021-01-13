@@ -22,7 +22,7 @@ library(viridis)
 ```{r}
 #############################
 #############################
-wd="/Users/jcbnunez/Documents/GitHub/DEST/Analyses/GeographicEndemism/Extended_endemism"
+wd="/Users/jcbnunez/Documents/GitHub/DEST_workspace"
 #load AF data
 
 

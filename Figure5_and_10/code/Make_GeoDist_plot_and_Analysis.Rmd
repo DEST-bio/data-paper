@@ -19,10 +19,10 @@ library(viridis)
 
 #Load data
 ```{r}
-load("GeoAnalysis.PoolSNP.good.samps.Rdata")
+load("/Users/jcbnunez/Documents/GitHub/data-paper/Figure5_and_10/data/GeoAnalysis.PoolSNP.good.samps.Rdata")
 GeoAnalysis.PoolSNP = o
 
-load("GeoAnalysis.SNAPE.good.samps.Rdata")
+load("/Users/jcbnunez/Documents/GitHub/data-paper/Figure5_and_10/data/GeoAnalysis.SNAPE.good.samps.Rdata")
 GeoAnalysis.SNAPE = o
 ```
 
@@ -145,7 +145,28 @@ GeoAnalysis_both %>%
 MAF01_af+MAF5_af
 ```
 
+#Count mutations
+```{r}
+GeoAnalysis_both %>%
+  .[which(.$caller == "PoolSNP" & .$set == "obs"),] %>%
+  group_by(nPop) %>%
+  summarise(N_muts = sum(n)) %>% 
+  ggplot(aes(x=nPop, 
+             y=N_muts)) +
+  geom_line() +
+  xlim(0,20)
 
+GeoAnalysis_both %>%
+  .[which(.$caller == "PoolSNP" & .$set == "obs"),] %>%
+  group_by(nPop) %>%
+  summarise(N_muts = sum(n)) -> count_PoolSNP
+
+count_PoolSNP[1:6,"N_muts"] %>% sum() -> uptick
+count_PoolSNP[,"N_muts"] %>% sum() -> tot
+
+(uptick/tot)*100
+
+```
 
 
 

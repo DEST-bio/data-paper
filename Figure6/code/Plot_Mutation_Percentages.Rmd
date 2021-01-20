@@ -26,12 +26,13 @@ library(vroom)
 library(rcompanion)
 library(patchwork)
 library(viridis)
+library(ggrepel)
 ```
 
 #Load Data
 ```{r}
 #wd="/scratch/yey2sn/DEST_mutation"
-wd="/Users/jcbnunez/Documents/GitHub/DEST_workspace/Mutation_rate/"
+wd="/Users/jcbnunez/Documents/GitHub/data-paper/Figure6/data"
 
 load(paste(wd,"/PoolSNP_mutation_imput.Rdata", sep = "") )
 load(paste(wd,"/SNAPE_mutation_imput.Rdata", sep = "") )
@@ -69,8 +70,9 @@ mutation_input %>%
 mutation_input %>% dcast(mutation+type~caller, value.var = "Perc") %>%
    ggplot(aes(x=PoolSNP,y=SNAPE, label = mutation, color =type )) +
    geom_abline(intercept = 0, linetype = "dashed") +
-   geom_smooth(method = "lm", se =F, alpha = 0.4) +
-   geom_text() +
+   geom_smooth(method = "lm", se =F, alpha = 0.2) +
+   geom_point() +
+   geom_text_repel() +
    xlim(0.02,0.16)+
    ylim(0.02,0.16)+
    scale_color_manual(values = c("red","blue")) +

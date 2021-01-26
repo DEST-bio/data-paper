@@ -125,7 +125,7 @@ save(dat_filt_maf_LD500_naimp,DEST_DGN_metadata, file="./DEST_DGN_AllSNPs_Metada
 # Part 2 -- PCA Analysis
 ##################################
 
-load("./DEST_DGN_AllSNPs_Metadata.Rdata")
+load("./Figures9_and_11/data/DEST_DGN_AllSNPs_Metadata.Rdata")
 
 dat_filt_maf_LD500_naimp %>% PCA(scale.unit = F, graph = F, ncp = 50) -> LD500_naimp_PCA_50PCs_object
 

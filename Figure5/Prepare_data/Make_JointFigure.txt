@@ -1,0 +1,77 @@
+#Correlations for DEST
+
+ijob -A jcbnunez -c 2 --mem=40G  --partition=standard
+module load gcc/7.1.0  
+module load openmpi/3.1.4
+module load gdal
+module load proj
+module load goolf R/4.0.0
+R
+
+
+#############################
+# Load Packages
+#############################
+
+library(adegenet)
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(vroom)
+library(reshape2)
+library(FactoMineR)
+library(factoextra)
+library(vcfR)
+library(patchwork)
+library(reshape2)
+library(zoo)
+library(matrixStats)
+library(data.table)
+library(SeqArray)
+library(LEA)
+library(gdsfmt)
+library(SNPRelate)
+library(patchwork)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggExtra)
+library(vcfR)
+library(gdata)
+library(ggcorrplot)
+library(epiR)
+library(rcompanion)
+
+#############################
+# Final Graphs
+#############################
+
+load("./SixD_AF.Rdata")
+load("./Heather_AF.Rdata")
+load("./MBE_AF.Rdata")
+
+
+rbind(SixD_AF,Heather_AF,MBE_AF)  %>% data.frame() -> DataDEST_correlations
+
+DataDEST_correlations[,c("AF_CC","NEFF_CC","NCOV_CC","AF_CO","NEFF_CO","NCOV_CO")] = sapply(DataDEST_correlations[,c("AF_CC","NEFF_CC","NCOV_CC","AF_CO","NEFF_CO","NCOV_CO")], as.numeric)
+
+DataDEST_correlations %>% melt(id=c("sample","comparison","type")) -> DataDEST_correlations_m
+
+DataDEST_correlations_m %<>% separate(variable, into = c("Metric","Statistic"), sep = "_", remove = F)
+
+DataDEST_correlations_m %>% groupwiseMean(value ~ type+comparison+variable,
+              data   = .,
+              conf   = 0.95,
+              digits = 3) 
+              
+DataDEST_correlations_m %>% ggplot(aes(x=Metric,y=value^2,fill=type, color = Statistic)) + geom_boxplot(outlier.shape = NA) + facet_wrap(~comparison) + theme_classic() + scale_fill_manual(values = c("red","blue")) + scale_color_manual(values = c("grey","black")) -> final_figure
+ggsave("final_figure.pdf", final_figure, width = 9, height = 3)
+              
+DataDEST_correlations_m %>% ggplot(aes(x=variable,y=value,fill=type)) + geom_boxplot() + facet_wrap(~comparison) + theme_classic() -> final_figure
+ggsave("final_figure.pdf", final_figure, width = 9, height = 3)
+
+DataDEST_correlations_m %>% ggplot(aes(x=variable,y=value,color=type)) + geom_violin() + facet_wrap(~comparison) -> final_figure_violin
+ggsave("final_figure_violin.pdf", final_figure_violin, width = 9, height = 3)
+
+DataDEST_correlations_m %>% ggplot(aes(x=(value),fill=type, linetype =Statistic )) + geom_density(size = 0.6,  adjust = 3, alpha = 0.4) + facet_wrap(Metric~comparison, scales = "free") + theme_classic() + scale_color_brewer(palette = "Dark2") + theme(legend.pos = "bottom") -> hist_inal_figure
+ggsave("hist_inal_figure.pdf", hist_inal_figure, width = 6, height = 5)
+

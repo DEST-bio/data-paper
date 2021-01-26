@@ -1,0 +1,173 @@
+---
+title: "Plot_GeoDist"
+author: "Jcb Nunez"
+date: "12/30/2020"
+output: html_document
+---
+
+#Load Packages
+```{r}
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(vroom)
+library(rcompanion)
+library(patchwork)
+library(viridis)
+
+```
+
+#Load data
+```{r}
+load("/Users/jcbnunez/Documents/GitHub/data-paper/Figure5_and_10/data/GeoAnalysis.PoolSNP.good.samps.Rdata")
+GeoAnalysis.PoolSNP = o
+
+load("/Users/jcbnunez/Documents/GitHub/data-paper/Figure5_and_10/data/GeoAnalysis.SNAPE.good.samps.Rdata")
+GeoAnalysis.SNAPE = o
+```
+
+# Merge Data
+```{r}
+rbind(GeoAnalysis.PoolSNP,
+      GeoAnalysis.SNAPE) -> GeoAnalysis_both
+```
+
+# Plot no MAF
+```{r}
+
+GeoAnalysis_both %<>%
+  mutate(habillage = paste(set,caller,sep="_"))
+
+GeoAnalysis_both$habillage = gsub("exp_PoolSNP","x.exp", GeoAnalysis_both$habillage)
+GeoAnalysis_both$habillage = gsub("exp_SNAPE","x.exp", GeoAnalysis_both$habillage)
+
+GeoAnalysis_both %>%
+  group_by(nPop,habillage ) %>%
+  summarise(dist_m = mean(meanDist),
+            dist_s = sd(meanDist)) %>%
+  ggplot(aes(
+    x=nPop,
+    y=dist_m,
+    ymin=dist_m-dist_s,
+    ymax=dist_m+dist_s,
+    color=habillage,
+    fill=habillage
+  )) + 
+  geom_ribbon(alpha = 0.3) + 
+  geom_smooth(span = 0.1,size =1.5) +
+  #geom_point(size = 0.7) +
+  #facet_wrap(~chr, ncol =1) +
+  ggtitle("MAF=0.001") +
+  theme_bw() +
+  scale_color_brewer(palette = "Accent") +
+  scale_fill_brewer(palette = "Accent") +
+  theme(legend.position = "bottom") -> MAF01
+
+GeoAnalysis_both %>%
+  .[which( (.$af > 0.04)  | .$set == "exp"),] %>%
+  group_by(nPop,habillage ) %>%
+  summarise(dist_m = mean(meanDist),
+            dist_s = sd(meanDist)) %>%
+  ggplot(aes(
+    x=nPop,
+    y=dist_m,
+    ymin=dist_m-dist_s,
+    ymax=dist_m+dist_s,
+    color=habillage,
+    fill=habillage
+  )) + 
+  geom_ribbon(alpha = 0.3) + 
+  geom_smooth(span = 0.2,size =1.5) +
+  #geom_point(size = 0.7) +
+  #facet_wrap(~chr, ncol =1) +
+  ggtitle("MAF=0.05") +
+  theme_bw() +  
+  scale_shape_manual(values = c(21,24)) +
+  scale_color_brewer(palette = "Accent") +
+  scale_fill_brewer(palette = "Accent") +
+  theme(legend.position = "bottom") -> MAF5
+
+MAF01+MAF5
+
+```
+
+# by AF
+```{r}
+
+GeoAnalysis_both %>%
+  mutate(AF_fold = ifelse(.$af > 0.5, (1-.$af), .$af)) %>%
+  .[sample(dim(.)[1], 15000),] %>%
+  group_by(AF_fold,habillage ) %>%
+  summarise(dist_m = mean(meanDist),
+            dist_s = sd(meanDist)) %>%
+  ggplot(aes(
+    x=AF_fold,
+    y=dist_m,
+    ymin=dist_m-dist_s,
+    ymax=dist_m+dist_s,
+    color=habillage,
+    fill=habillage
+  )) + 
+  geom_smooth(span = 0.1,size =1.5) +
+  geom_density_2d(size = 0.7) +
+  #facet_wrap(~chr, ncol =1) +
+  ggtitle("MAF=0.001") +
+  theme_bw() +
+  scale_color_brewer(palette = "Accent") +
+  scale_fill_brewer(palette = "Accent") +
+  theme(legend.position = "bottom") -> MAF01_af
+
+GeoAnalysis_both %>%
+    mutate(AF_fold = ifelse(.$af > 0.5, (1-.$af), .$af)) %>% 
+  .[sample(dim(.)[1], 15000),] %>%
+  .[which( (.$AF_fold > 0.04)  | .$set == "exp"),] %>%
+  group_by(AF_fold,habillage ) %>%
+  summarise(dist_m = mean(meanDist),
+            dist_s = sd(meanDist)) %>%
+  ggplot(aes(
+    x=AF_fold,
+    y=dist_m,
+    ymin=dist_m-dist_s,
+    ymax=dist_m+dist_s,
+    color=habillage,
+    fill=habillage
+  )) + 
+  geom_smooth(span = 0.2,size =1.5) +
+  geom_density_2d(size = 0.7) +
+  #facet_wrap(~chr, ncol =1) +
+  ggtitle("MAF=0.05") +
+  theme_bw() +  
+  scale_shape_manual(values = c(21,24)) +
+  scale_color_brewer(palette = "Accent") +
+  scale_fill_brewer(palette = "Accent") +
+  theme(legend.position = "bottom") -> MAF5_af
+
+MAF01_af+MAF5_af
+```
+
+#Count mutations
+```{r}
+GeoAnalysis_both %>%
+  .[which(.$caller == "PoolSNP" & .$set == "obs"),] %>%
+  group_by(nPop) %>%
+  summarise(N_muts = sum(n)) %>% 
+  ggplot(aes(x=nPop, 
+             y=N_muts)) +
+  geom_line() +
+  xlim(0,20)
+
+GeoAnalysis_both %>%
+  .[which(.$caller == "PoolSNP" & .$set == "obs"),] %>%
+  group_by(nPop) %>%
+  summarise(N_muts = sum(n)) -> count_PoolSNP
+
+count_PoolSNP[1:6,"N_muts"] %>% sum() -> uptick
+count_PoolSNP[,"N_muts"] %>% sum() -> tot
+
+(uptick/tot)*100
+
+```
+
+
+
+

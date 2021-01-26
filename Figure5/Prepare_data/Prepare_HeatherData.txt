@@ -1,0 +1,182 @@
+#Correlations for DEST
+
+ijob -A jcbnunez -c 2 --mem=40G  --partition=standard
+module load gcc/7.1.0  
+module load openmpi/3.1.4
+module load gdal
+module load proj
+module load goolf R/4.0.0
+R
+
+
+#############################
+# Load Packages
+#############################
+
+library(adegenet)
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(vroom)
+library(reshape2)
+library(FactoMineR)
+library(factoextra)
+library(vcfR)
+library(patchwork)
+library(reshape2)
+library(zoo)
+library(matrixStats)
+library(data.table)
+library(SeqArray)
+library(LEA)
+library(gdsfmt)
+library(SNPRelate)
+library(patchwork)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggExtra)
+library(vcfR)
+library(gdata)
+library(ggcorrplot)
+
+#############################
+# Dest data
+#############################
+
+### open DEST data to get new allele frequencies at same sites
+
+  ### open GDS file
+    genofile <- seqOpen("/scratch/aob2x/dest/dest.all.PoolSNP.001.50.ann.gds")
+
+  ### make SNP table
+    seqResetFilter(genofile)
+
+    snps.dt <- data.table(dm6_chr=seqGetData(genofile, "chromosome"),
+                          dm6_pos=seqGetData(genofile, "position"),
+                          variant.id=seqGetData(genofile, "variant.id"),
+                          nAlleles=seqNumAllele(genofile))
+    snps.dt <- snps.dt[nAlleles==2]
+    
+    
+#############################
+# Heather's data
+#############################
+  
+	### load in DrosRTEC data
+dat.drosRTEC <- read.xls("/scratch/yey2sn/DEST/populationInfo/vcf_popinfo_Oct2018.xlsx")
+
+		dat.drosRTEC.dt <- as.data.table(dat.drosRTEC[,c(1, 4, 10, 8, 13, 11, 12, 7, 17, 3, 6)])
+		setnames(dat.drosRTEC.dt,
+				names(dat.drosRTEC.dt),
+				c("sampleName", "sra_sampleName", "country", "city", "collectionDate", "lat", "long", "season", "nFlies", "locality", "InternalName"))
+		dat.drosRTEC.dt[,type:="pooled"]
+		dat.drosRTEC.dt[long>0,continent:="Europe"]
+		dat.drosRTEC.dt[long<0,continent:="NorthAmerica"]
+		dat.drosRTEC.dt[,set:="DrosRTEC"]
+		dat.drosRTEC.dt[,lat:=as.numeric(as.character(lat))]
+		dat.drosRTEC.dt[,long:=as.numeric(as.character(long))]
+		dat.drosRTEC.dt[,collectionDate:=gsub("-", "/", collectionDate)]
+
+		### fix issue with SRA_accession numbers for a few Maine populations
+			dat.drosRTEC.dt[sra_sampleName=="mel14TWA7", sra_sampleName:="mel14TWA7_SPT"]
+
+		### add in SRA accession numbers from separate file
+			### from two bio-projects:
+			### set1: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA256231
+			### set2: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA308584
+			drosRTEC.sra.1 <- fread("/scratch/yey2sn/DEST/populationInfo/drosRTEC_set1_SraRunInfo.txt")
+			drosRTEC.sra.2 <- fread("/scratch/yey2sn/DEST/populationInfo/drosRTEC_set2_SraRunInfo.txt")
+
+			setnames(drosRTEC.sra.1, c("Sample Name", "Run", "Experiment"), c("sra_sampleName", "SRA_accession", "SRA_experiment"))
+			setnames(drosRTEC.sra.2, c("Sample Name", "Run", "Experiment"), c("sra_sampleName", "SRA_accession", "SRA_experiment"))
+
+			drosRTEC.sra.1[SRA_accession=="SRR1525694", sra_sampleName:="FL_rep2"]
+			drosRTEC.sra.2 <- drosRTEC.sra.2[!sra_sampleName%in%c("PA_2012_FAT", "VI_2012_FAT", "mel14TWA7")]
+
+			drosRTEC.sra <- rbind(drosRTEC.sra.1[,c("sra_sampleName", "SRA_accession", "SRA_experiment"),with=F],
+														drosRTEC.sra.2[,c("sra_sampleName", "SRA_accession", "SRA_experiment"),with=F])
+
+			dat.drosRTEC.dt <- merge(dat.drosRTEC.dt, drosRTEC.sra, by="sra_sampleName", all=T)
+
+			setnames(dat.drosRTEC.dt, "sampleName", "sampleId")
+
+			### strip out duplicate Maine library
+				dat.drosRTEC.dt <- dat.drosRTEC.dt[SRA_accession!="SRR2006283"]
+
+        dat.drosRTEC.dt[country%in%c("Spain", "Austria", "Ukraine")]
+
+      ### simple.names
+        simple.names <- dat.drosRTEC.dt[,c("sampleId", "InternalName", "nFlies"),with=F]
+
+  ### load in sub-sampled old allele frequency data from Heather's dataset
+# Load DrosRTEC data & Do Lift over
+load("/project/berglandlab/alan/dat_sub.Rdata")
+head(dat.sub)
+
+  ### load liftover table
+liftover <- fread("/scratch/yey2sn/DEST/utils/dest.all.PoolSNP.001.50.dm3.dm6.csv.gz")
+
+    setnames(dat.sub, c("chr", "pos"), c("dm3_chr", "dm3_pos"))
+
+    setkey(dat.sub, dm3_chr, dm3_pos)
+    setkey(liftover, dm3_chr, dm3_pos)
+    dat.sub <- merge(dat.sub, liftover)
+
+    setnames(dat.sub, "pop", "InternalName")
+    dat.sub <- merge(dat.sub, simple.names, "InternalName")
+
+###############################################
+  ### merge Heather's data with DEST data
+###############################################
+  
+    setkey(dat.sub, dm6_chr, dm6_pos)
+    dat.sub <- merge(dat.sub, snps.dt)
+
+  ### get allele frequency estimates from DEST data
+    seqSetFilter(genofile, sample.id=as.character(unique(dat.sub$sampleId)),
+                  variant.id=unique(dat.sub$variant.id))
+
+  ### format data for merge
+    ad <- seqGetData(genofile, "annotation/format/AD")
+    dp <- seqGetData(genofile, "annotation/format/DP")
+
+  ### allele frequencies
+    altAF.dt <- as.data.table(ad$data/dp$data)
+    setnames(altAF.dt, names(altAF.dt), as.character(seqGetData(genofile, "variant.id")) )
+    altAF.dt[,sampleId:=seqGetData(genofile, "sample.id")]
+    altAF.l.dt <- melt(altAF.dt, "sampleId")
+    setnames(altAF.l.dt, c("variable", "value"), c("variant.id", "dest_af"))
+
+  ### read depths
+    dp.dt <- as.data.table(dp$data)
+    setnames(dp.dt, names(dp.dt), as.character(seqGetData(genofile, "variant.id")))
+    dp.dt[,sampleId:=seqGetData(genofile, "sample.id")]
+    dp.l.dt <- melt(dp.dt, "sampleId")
+    setnames(dp.l.dt, c("variable", "value"), c("variant.id", "dest_dp"))
+
+  ### dest
+    setkey(altAF.l.dt, variant.id, sampleId)
+    setkey(dp.l.dt, variant.id, sampleId)
+
+    dest <- merge(altAF.l.dt, dp.l.dt)
+    dest[,variant.id:=as.numeric(as.character(variant.id))]
+
+### merge DrosRTEC + DEST
+  setkey(dest, variant.id, sampleId)
+  setkey(dat.sub, variant.id, sampleId)
+  m <- merge(dat.sub, dest)
+  m[,dest_neff:=(dest_dp*nFlies)/(dest_dp+nFlies)]
+
+### add metadata
+left_join(m, samps) -> m_metadata
+
+### Recover nominal coverage
+names(m_metadata)[9] = "dp_neff"
+
+m_metadata %<>% mutate(dp_nominal = ( (-1*dp_neff*nFlies*2)/(dp_neff- (nFlies*2) )  ) )
+
+HeatherData = m_metadata
+
+### save
+save(HeatherData, file="./HeatherData.Rdata")
+

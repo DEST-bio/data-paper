@@ -1,0 +1,190 @@
+#Correlations for DEST
+
+ijob -A jcbnunez -c 2 --mem=40G  --partition=standard
+module load gcc/7.1.0  
+module load openmpi/3.1.4
+module load gdal
+module load proj
+module load goolf R/4.0.0
+
+#############################
+# Prepare MBE data
+#############################
+
+grep "^2L" DrosEU-mac002-mic10-mc20-mf0001-mif02-filtered-ann.vcf > VCF_2L.vcf
+
+grep "^2R" DrosEU-mac002-mic10-mc20-mf0001-mif02-filtered-ann.vcf > VCF_2R.vcf
+
+grep "^3L" DrosEU-mac002-mic10-mc20-mf0001-mif02-filtered-ann.vcf > VCF_3L.vcf
+
+grep "^3R" DrosEU-mac002-mic10-mc20-mf0001-mif02-filtered-ann.vcf > VCF_3R.vcf
+
+grep "^X" DrosEU-mac002-mic10-mc20-mf0001-mif02-filtered-ann.vcf > VCF_X.vcf
+
+
+#############################
+# Load R
+#############################
+
+R
+
+#############################
+# Load Packages
+#############################
+
+library(adegenet)
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(vroom)
+library(reshape2)
+library(FactoMineR)
+library(factoextra)
+library(vcfR)
+library(patchwork)
+library(reshape2)
+library(zoo)
+library(matrixStats)
+library(data.table)
+library(SeqArray)
+library(LEA)
+library(gdsfmt)
+library(SNPRelate)
+library(patchwork)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggExtra)
+library(vcfR)
+library(gdata)
+library(ggcorrplot)
+
+#############################
+# Parse MBE data
+#############################
+
+headers = c("CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT","1_Mauternbach","2_Mauternbach","3_Yesiloz","4_Yesiloz","5_Viltain","7_Viltain","8_Gotheron","9_Sheffield","10_SouthQueensferry","11_Nicosia","12_MarketHarborough","13_Lutterworth","14_Broggingen","15_Broggingen","16_Yalta","18_Yalta","19_Odessa","20_Odessa","21_Odessa","22_Odessa","23_Kyiv","24_Kyiv","25_Varva","26_Piryuatin","27_Drogobych","28_Chernobyl","29_ChernobylYaniv","30_Lund","31_Munich","32_Munich","33_Recarei","34_Lleida","35_Lleida","36_Akaa","37_Akaa","38_Vesanto","39_Karensminde","41_Karensminde","42_ChaletAGobet","43_ChaletAGobet","44_Seeboden","45_Kharkiv","46_Kharkiv","47_ChernobylApple","48_ChernobylPolisske","49_Kyiv","50_Uman","51_Valday")
+
+chr2L <- vroom("./VCF_2L.vcf", col_names = F, delim = "\t")
+names(chr2L) = headers
+
+chr2R <- vroom("./VCF_2R.vcf", col_names = F, delim = "\t")
+names(chr2R) = headers
+
+chr3L <- vroom("./VCF_3L.vcf", col_names = F, delim = "\t")
+names(chr3L) = headers
+
+chr3R <- vroom("./VCF_3R.vcf", col_names = F, delim = "\t")
+names(chr3R) = headers
+
+chrX <- vroom("./VCF_X.vcf", col_names = F, delim = "\t")
+names(chrX) = headers
+
+rbind(as.data.frame(chr2L), 
+	  as.data.frame(chr2R), 
+	  as.data.frame(chr3L), 
+	  as.data.frame(chr3R), 
+	  as.data.frame(chrX)) -> MBE_data
+
+
+MBE_data[sample(dim(MBE_data)[1], 30000),] -> MBE_data10k
+
+MBE_data10k_m = MBE_data10k %>% melt(id = c("CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT"))
+
+setnames(MBE_data10k_m, c("variable"), c("MBE_name"))
+
+MBE_data10k_m %<>% separate(value, into = c("GT","RD","AD","DP","FREQ"), sep = "\\:")
+MBE_data10k_m[,c("RD","AD","DP","FREQ")] <- sapply(MBE_data10k_m[,c("RD","AD","DP","FREQ")],as.numeric)
+setnames(MBE_data10k_m, c("GT", "RD", "AD", "DP", "FREQ"), c("GT_MBE", "RD_MBE", "AD_MBE", "DP_MBE", "FREQ_MBE"))
+
+MBE_to_DEST_names = read.delim2("./MBE_to_DEST_names.txt")
+MBE_to_DEST_names %<>% mutate(MBE_name = paste(NumberID, "_",Location, sep = ""))
+
+data.frame(target=MBE_to_DEST_names$MBE_name, guide= unique(MBE_data10k_m$MBE_name) )  %>% mutate(check = ifelse(.$target==.$guide,"yes","no")) 
+
+# Add DEST names
+
+MBE_data10k_m_ComName =  left_join(MBE_data10k_m, MBE_to_DEST_names)
+
+save(MBE_data10k_m_ComName, file="./MBE_data10k_m_ComName.Rdata")
+
+
+#############################
+# Dest data
+#############################
+
+### open DEST data to get new allele frequencies at same sites
+
+  ### open GDS file
+    genofile <- seqOpen("/scratch/aob2x/dest/dest.all.PoolSNP.001.50.ann.gds")
+
+  ### make SNP table
+    seqResetFilter(genofile)
+
+    snps.dt <- data.table(dm6_chr=seqGetData(genofile, "chromosome"),
+                          dm6_pos=seqGetData(genofile, "position"),
+                          variant.id=seqGetData(genofile, "variant.id"),
+                          nAlleles=seqNumAllele(genofile))
+    snps.dt <- snps.dt[nAlleles==2]
+    
+    
+#############################
+# MBE data
+#############################
+
+load("./MBE_data10k_m_ComName.Rdata")
+dat.sub = MBE_data10k_m_ComName
+
+###############################################
+  ### merge 6D's data with DEST data
+###############################################
+  
+    setnames(dat.sub, c( "CHROM", "POS"), c("dm6_chr", "dm6_pos"))
+    setDT(dat.sub)
+    setkey(dat.sub, dm6_chr, dm6_pos)
+    dat.sub <- merge(dat.sub, snps.dt)
+
+  ### get allele frequency estimates from DEST data
+    seqSetFilter(genofile, 
+    sample.id=as.character(unique(dat.sub$sampleId)),
+                  variant.id=unique(dat.sub$variant.id))
+
+  ### format data for merge
+    ad <- seqGetData(genofile, "annotation/format/AD")
+    dp <- seqGetData(genofile, "annotation/format/DP")
+
+  ### allele frequencies
+    altAF.dt <- as.data.table(ad$data/dp)
+    setnames(altAF.dt, names(altAF.dt), as.character(seqGetData(genofile, "variant.id")) )
+    altAF.dt[,sampleId:=seqGetData(genofile, "sample.id")]
+    altAF.l.dt <- melt(altAF.dt, "sampleId")
+    setnames(altAF.l.dt, c("variable", "value"), c("variant.id", "dest_af"))
+
+  ### read depths
+    dp.dt <- as.data.table(dp)
+    setnames(dp.dt, names(dp.dt), as.character(seqGetData(genofile, "variant.id")))
+    dp.dt[,sampleId:=seqGetData(genofile, "sample.id")]
+    dp.l.dt <- melt(dp.dt, "sampleId")
+    setnames(dp.l.dt, c("variable", "value"), c("variant.id", "dest_dp"))
+
+  ### dest
+    setkey(altAF.l.dt, variant.id, sampleId)
+    setkey(dp.l.dt, variant.id, sampleId)
+
+    dest <- merge(altAF.l.dt, dp.l.dt)
+    dest[,variant.id:=as.numeric(as.character(variant.id))]
+
+### merge DrosRTEC + DEST
+  ### get target populations
+  samps <- fread("/scratch/yey2sn/DEST/populationInfo/samps.csv")
+  
+  setkey(dest, variant.id, sampleId)
+  setkey(dat.sub, variant.id, sampleId)
+  m <- merge(dat.sub, dest)
+  m_metadata <- left_join(m, samps)
+  m_metadata[,dest_neff:=(dest_dp*nFlies)/(dest_dp+nFlies)]
+  m_metadata[,neff_6D:=(DP_6d*nFlies)/(DP_6d+nFlies)]
+
+MBE_data = m_metadata
+
+### save
+save(MBE_data, file="./MBE_data.Rdata")

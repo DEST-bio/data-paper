@@ -16,15 +16,15 @@ simulans <- fread("./DEST_freeze1/populationInfo/sequencingStats/simulans.csv")[
 setkey(rd, sampleId)
 setkey(pcr, sampleId)
 setkey(simulans, sampleId)
-mps <- merge(rd, pcr)
-mps <- merge(mps, simulans)
+mps <- merge(rd, pcr, all.x=T)
+mps <- merge(mps, simulans, all.x=T)
 
 ### quick fix for Ukrainian samples
   mps[sampleId=="UA_Pir_14_26", sampleId:="UA_Pyr_14_26"]
   mps[sampleId=="UA_Pir_15_21", sampleId:="UA_Pyr_15_21"]
   mps[sampleId=="UA_Pyr_16_48", sampleId:="UA_Pir_16_48"]
 
-mps <- merge(mps, samps[,c("sampleId", "nFlies")], all.y=T, by="sampleId")
+mps <- merge(mps, samps[,c("sampleId", "nFlies", "set")], all.y=T, by="sampleId")
 setnames(mps, "mu.25", "AveReadDepth.25")
 
 ### a few small fixes

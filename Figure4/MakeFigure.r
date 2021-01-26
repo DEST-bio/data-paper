@@ -14,7 +14,7 @@ DATA.poolsnp.group <- DATA.poolsnp %>%
   group_by(MAC) %>%
   summarise(
     n=n(),
-    pnps.m = mean(pNpS), 
+    pnps.m = mean(pNpS),
     pnps.sd=sd(pNpS),
     pnps.se =sd(pNpS)/sqrt(sum(n()))
   )
@@ -27,7 +27,7 @@ DATA.poolsnp.plot <- ggplot(DATA.poolsnp.group,
   geom_jitter(data=filter(DATA.poolsnp,Chrom=="genomewide" & MAF==0.01),
               aes(x=MAC,y=pNpS),
               col=rgb(0,0,0,0.1))+
-  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd), 
+  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
               colour = NA,
               fill=alpha(c("blue"),alpha=0.2))+
   geom_line(lwd=1.5,
@@ -52,7 +52,7 @@ DATA.poolsnp.group.f <- DATA.poolsnp %>%
   group_by(MAC) %>%
   summarise(
     n=n(),
-    pnps.m = mean(pNpS), 
+    pnps.m = mean(pNpS),
     pnps.sd=sd(pNpS),
     pnps.se =sd(pNpS)/sqrt(sum(n()))
   )
@@ -64,7 +64,7 @@ DATA.poolsnp.plot.f <- ggplot(DATA.poolsnp.group.f,
   geom_jitter(data=filter(DATA.poolsnp,Chrom=="genomewide" & MAF==0.01 & !POP %in% LIST),
               aes(x=MAC,y=pNpS),
               col=rgb(0,0,0,0.1))+
-  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd), 
+  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
               colour = NA,
               fill=alpha(c("blue"),alpha=0.2))+
   geom_line(lwd=1.5,
@@ -75,7 +75,7 @@ DATA.poolsnp.plot.f <- ggplot(DATA.poolsnp.group.f,
   theme_bw()+
   theme(axis.title.y = element_text(size = 26, angle = 90),
         axis.title.x = element_text(size = 26, angle = 00),
-        axis.text=element_text(size=18))+ 
+        axis.text=element_text(size=18))+
   scale_y_continuous(labels = scales::number_format(accuracy = 0.05),
                      limits=c(0.2,0.6))
 DATA.poolsnp.plot.f
@@ -90,11 +90,11 @@ DATA.snape.group <- DATA.snape %>%
   group_by(MAF,Chrom) %>%
   summarise(
     n=n(),
-    pnps.m = mean(pNpS), 
+    pnps.m = mean(pNpS),
     pnps.sd=sd(pNpS),
     pnps.se =sd(pNpS)/sqrt(sum(n()))
   )
-DATA.snape.group    
+DATA.snape.group
 
 DATA.snape.group$NAME<-rep("SNAPE",nrow(DATA.snape.group))
 
@@ -108,7 +108,7 @@ DATA.snape.plot <- ggplot(DATA.snape.group,
   geom_jitter(data=filter(DATA.snape,Chrom=="genomewide"),
               aes(x=MAF,y=pNpS),
               col=rgb(0,0,0,0.1))+
-  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd), 
+  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
               colour = NA,
               fill=alpha(c("blue"),alpha=0.2))+
   geom_line(lwd=1.5,
@@ -134,7 +134,7 @@ DATA.snape.group.f <- DATA.snape %>%
   group_by(MAF,Chrom) %>%
   summarise(
     n=n(),
-    pnps.m = mean(pNpS), 
+    pnps.m = mean(pNpS),
     pnps.sd=sd(pNpS),
     pnps.se =sd(pNpS)/sqrt(sum(n()))
   )
@@ -147,7 +147,7 @@ DATA.snape.plot.f <- ggplot(DATA.snape.group.f,
   geom_jitter(data=filter(DATA.snape,Chrom=="genomewide"& !POP %in% LIST),
               aes(x=MAF,y=pNpS),
               col=rgb(0,0,0,0.1))+
-  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd), 
+  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
               colour = NA,
               fill=alpha(c("blue"),alpha=0.2))+
   geom_line(lwd=1.5,

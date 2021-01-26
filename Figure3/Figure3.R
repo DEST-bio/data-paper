@@ -60,7 +60,7 @@
 		setnames(mps, "AveReadDepth.25", "AveReadDepth")
 		setnames(mps, "auto.x", "auto")
 		setnames(mps, "effRD.25", "effRD")
-	
+
 	### wide to long
 	  mpsl <- melt(mps,
 	              id.vars=c("x", "sampleId", "continent", "auto", "set"),
@@ -107,9 +107,9 @@
 
 	### summary plot
 	  summaryStat.plot <- ggplot(data=mpsl, aes(x=xf, y=value, color=continent, fill=continent)) +
-	  geom_point(pch=21, alpha=.95, size=.75) +
+	  geom_point(alpha=.95, size=.75) +
 	  facet_grid(variable~set, scales="free", space="free_x") +
-	  theme_few() + scale_color_tableau() +
+	  theme_few() + scale_colour_manual(values = brewer.pal(8,"Set2")[c(1,2)]) +
 	  theme(axis.text.x = element_blank(),
 					panel.spacing = unit(.25, "lines"),
 					axis.ticks.x = element_blank(),
@@ -122,11 +122,11 @@
 
 		multi_sample <- ggplot() +
 		geom_line(data= samps[J(samps.ag[maxDelta>10])], aes(x=as.Date(yday, origin = as.Date("2018-01-01")), y=lat, group=locality, linetype=continent)) +
-		geom_point(data=samps[J(samps.ag[maxDelta>10])], aes(x=as.Date(yday, origin = as.Date("2018-01-01")), y=lat, group=locality)) +
-		facet_grid(.~year) +
+		geom_point(data=samps[J(samps.ag[maxDelta>10])], aes(x=as.Date(yday, origin = as.Date("2018-01-01")), y=lat, group=locality, color=continent)) +
+		facet_grid(.~year) + scale_colour_manual(values = brewer.pal(8,"Set2")[c(1,2)]) +
 		scale_x_date(date_labels = "%b", limits = as.Date(c(110,355), origin = as.Date("2018-01-01"))) +
 		xlab("Collection Date") + ylab("Latitude") +
-		theme_bw() + scale_colour_colorblind() +
+		theme_bw() +
 		theme(axis.text = element_text(angle = 45, hjust = 1, size=8),
 					legend.text=element_text(size=8))
 

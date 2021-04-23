@@ -7,9 +7,9 @@
 #SBATCH -t 5:00:00 # Running time of 1 hours
 #SBATCH --mem 6G # Memory request of 8 GB
 #SBATCH -p standard
-#SBATCH --account jcbnunez
+#SBATCH --account berglandlab
 
-# sbatch /scratch/aob2x/dest/DEST/Analyses/GeographicEndemism/get_geoEndemic.PoolSNP.sh
+# sbatch /scratch/aob2x/dest/data-paper/SupplementalTable1/identify_problematic_samples/getPrivateSNPs.Allsamps.sh
 # sacct -j 18750850
 
 module load bcftools

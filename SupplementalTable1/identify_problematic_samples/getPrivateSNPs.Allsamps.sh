@@ -14,9 +14,11 @@
 
 module load bcftools
 
+wd=/scratch/aob2x/dest/data-paper
+
+
 bcftools view \
--S ./all.samps.txt \
-/project/berglandlab/DEST/vcf/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.vcf.gz | grep -v "#" | awk '{
+/project/berglandlab/DEST/vcf/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.vcf.gz | grep -v "#" | awk '{
 npoly=0
 nmissing=0
 af=0
@@ -29,6 +31,6 @@ if(length($5)==1) {
     if(sp[1]=="0/1") af=af"+"sp[5]
     if(sp[1]=="./.") nmissing++
     }
-    if(npoly>0) print $1"\t"$2"\t"npoly"\t"nmissing"\t"$4"\t"$5"\t"pops"\t"af
+    if(npoly==1) print $1"\t"$2"\t"npoly"\t"nmissing"\t"$4"\t"$5"\t"pops"\t"af
   }
-}' > ./PoolSNP.AllSamps.0.001.delim
+}' > /scratch/aob2x/SNAPE.AllSamps.0.001.delim

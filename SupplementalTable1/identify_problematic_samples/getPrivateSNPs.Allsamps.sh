@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
 #
 #SBATCH -J geoEndemicPoolSeq # A single job name for the array
-#SBATCH --ntasks-per-node=2 # one core
 #SBATCH -N 1 # on one node
-#SBATCH --cpus-per-task=1 ### standard has 28 or 40 $SLURM_CPUS_PER_TASK
+#SBATCH --cpus-per-task=20 ### standard has 28 or 40 $SLURM_CPUS_PER_TASK
 #SBATCH -t 5:00:00 # Running time of 1 hours
 #SBATCH --mem 6G # Memory request of 8 GB
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
 # sbatch /scratch/aob2x/dest/data-paper/SupplementalTable1/identify_problematic_samples/getPrivateSNPs.Allsamps.sh
-# sacct -j 18750850
+# sacct -j 21692986
 
 module load bcftools
 
 wd=/scratch/aob2x/dest/data-paper
 
 
-bcftools view \
+bcftools view  --threads 20 \
 /project/berglandlab/DEST/vcf/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.vcf.gz | grep -v "#" | awk '{
 npoly=0
 nmissing=0

@@ -2,11 +2,11 @@ library(tidyverse)
 library(gridExtra)
 library(scales)
 
-DATA.poolsnp=read.table("~/GitHub/data-paper/Figure4/data/PoolSNP.pnps.gz",
+DATA.poolsnp=read.table("~/Documents/GitHub/data-paper/Figure2/data/PoolSNP.pnps.gz",
                         header=T,
                         na.strings = "NA")
 #summary(DATA.poolsnp)
-LIST=as.character(read.table("~/GitHub/data-paper/Figure4/data/exlcude.txt",
+LIST=as.character(read.table("~/Documents/GitHub/data-paper/Figure2/data/exlcude.txt",
                              header=F)[,1])
 
 DATA.poolsnp.group <- DATA.poolsnp %>%
@@ -80,7 +80,7 @@ DATA.poolsnp.plot.f <- ggplot(DATA.poolsnp.group.f,
                      limits=c(0.2,0.6))
 DATA.poolsnp.plot.f
 
-DATA.snape=read.table("~/GitHub/data-paper/Figure4/data/SNAPE.pnps.gz",
+DATA.snape=read.table("~/Documents/GitHub/data-paper/Figure2/data/SNAPE.pnps.gz",
                       header=T,
                       stringsAsFactors = F)
 summary(DATA.snape)

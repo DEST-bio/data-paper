@@ -11,11 +11,10 @@
 
 module load bcftools
 
-### fix MAF at 0.05
 bcftools view \
 -S ./all.samps.txt \
 /project/berglandlab/DEST/vcf/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.vcf.gz | \
-grep -v "#" | awk -v maf=0.001 '{
+grep -v "#" | awk -v maf=0 '{
 npoly=0
 nmissing=0
 af=0
@@ -30,5 +29,4 @@ if(length($5)==1) {
     }
     if(npoly>0) print maf"\t"$1"\t"$2"\t"npoly"\t"nmissing"\t"$4"\t"$5"\t"pops"\t"af
   }
-}' > ./SNAPE.AllSamps.0.001.delim
-
+}' > ./SNAPE.AllSamps.delim

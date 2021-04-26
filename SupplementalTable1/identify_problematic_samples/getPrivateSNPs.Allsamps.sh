@@ -9,7 +9,7 @@
 #SBATCH --account berglandlab
 
 # sbatch /scratch/aob2x/dest/data-paper/SupplementalTable1/identify_problematic_samples/getPrivateSNPs.Allsamps.sh
-# sacct -j 21692986
+# sacct -j 21692996
 
 module load bcftools
 

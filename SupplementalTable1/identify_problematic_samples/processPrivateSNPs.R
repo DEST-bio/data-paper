@@ -10,4 +10,13 @@
 ### merge
   dat[,i:=as.numeric(gsub(";", "", V7))]
   samps[,i:=1:dim(samps)[1]]
-  setnames(samps, "V1", "sampleId")
+  setnames(samps, "V1", "POP")
+
+  priv <- merge(dat, samps, by="i")
+
+  priv.ag <- priv[,list(.N), POP]
+
+### save
+  write.csv(priv.ag, file="/scratch/aob2x/number_privateSNPs_nofilter.csv", quote=F, row.names=F)
+
+  scp aob2x@rivanna.hpc.virginia.edu:/scratch/aob2x/number_privateSNPs_nofilter.csv ~/.

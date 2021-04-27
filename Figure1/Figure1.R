@@ -60,7 +60,7 @@
 		setnames(mps, "AveReadDepth.25", "AveReadDepth")
 		setnames(mps, "auto.x", "auto")
 		setnames(mps, "effRD.25", "effRD")
-	
+
 	### wide to long
 	  mpsl <- melt(mps,
 	              id.vars=c("x", "sampleId", "continent", "auto", "set"),

@@ -1,13 +1,122 @@
 library(tidyverse)
 library(gridExtra)
 library(scales)
+library(ggpubr)
 
-DATA.poolsnp=read.table("~/GitHub/data-paper/Figure4/data/PoolSNP.pnps.gz",
+
+## Set global Alpha value
+ALPHA=0.151
+
+## set line color
+linecol="green"
+
+## get expected values for DGRP data
+null.l=read.table("~/Documents/GitHub/data-paper/Figure2/data/null.pnps",header=F)
+colnames(null.l)<-c("x","Chrom","NS","SS","y")
+NL<-filter(null.l,Chrom == "genomewide")
+
+## at first read SNAPE pnps data and filter genomewide values
+DATA.snape=read.table("~/Documents/GitHub/data-paper/Figure2/data/SNAPE_full.pnps.gz",
+                      header=T,
+                      stringsAsFactors = F)
+summary(DATA.snape)
+
+DATA.snape.group <- DATA.snape %>%
+  filter(Chrom =="genomewide") %>%
+  group_by(MAF,Chrom) %>%
+  summarise(
+    n=n(),
+    pnps.m = mean(pNpS),
+    pnps.sd=sd(pNpS),
+    pnps.se =sd(pNpS)/sqrt(sum(n()))
+  )
+#DATA.snape.group
+
+## keep pnps without MAF filtering only
+DATA.snape.group.MAF0 <- DATA.snape %>%
+  filter(MAF == 0 & Chrom =="genomewide")
+#DATA.snape.group.MAF0
+
+## read CSV of private SNPs
+# DATA.ps=read.csv("~/Documents/GitHub/data-paper/SupplementalTable1/identify_problematic_samples/number_privateSNPs_nofilter.csv",
+#                       header=T,
+#                       stringsAsFactors = F)
+
+DATA.ps=read.table("~/Desktop/privateSNPS.txt",
+                 header=T,
+                 stringsAsFactors = F)
+
+DATA=merge(DATA.ps,DATA.snape.group.MAF0, on="POP")
+
+DATA$private=log10(DATA$N)
+
+## calculated Mean/SD and threshold based on Mean+2SD for pNpS data
+Mean.pNpS=mean(DATA$pNpS)
+SD.pNpS=sd(DATA$pNpS)
+th.pNpS=Mean.pNpS+1.96*SD.pNpS
+
+##classify
+DATA$TH.pNpS <-DATA$pNpS
+DATA$TH.pNpS[DATA$TH.pNpS<th.pNpS]<-NA
+DATA$TH.pNpS[DATA$TH.pNpS>=th.pNpS]<-"Exclude"
+DATA$TH.pNpS[is.na(DATA$TH.pNpS)]<-"Keep"
+
+## calculated Mean/SD and threshold based on Mean+1.96SD for private SNP data
+Mean.private=mean(DATA$private)
+SD.private=sd(DATA$private)
+th.private=Mean.private+1.96*SD.private
+
+#classify
+DATA$TH.private <-DATA$private
+DATA$TH.private[DATA$TH.private<th.private]<-NA
+DATA$TH.private[DATA$TH.private>=th.private]<-"Exclude"
+DATA$TH.private[is.na(DATA$TH.private)]<-"Keep"
+
+# make new final classification, where any pop will be excluded that is excluded based on either measurement (pNpS and/or private SNPs)
+DATA$Status <- rep("Keep",length(DATA$TH.private))
+DATA$Status[DATA$TH.pNpS=="Exclude"]<-"Exclude"
+DATA$Status[DATA$TH.private=="Exclude"]<-"Exclude"
+
+write.table(DATA,"~/Documents/GitHub/data-paper/Figure2/data/classify_pops.txt",quote = F,row.names = F)
+
+
+Classify.plot<-ggplot(DATA,aes(x=pNpS,y=private,col=Status))+
+  geom_point(size=10)+
+  xlab(expression(italic("p")["N"]/italic("p")["S"]))+
+  ylab("No. of private SNPs")+
+  theme_bw()+
+  geom_hline(yintercept=th.private,lty=2,col="black",lwd=1)+
+  geom_vline(xintercept=th.pNpS,lty=2,col="black",lwd=1)+
+  geom_vline(xintercept=0.5209075,lty=2,col=linecol,lwd=1)+
+  theme(axis.title.y = element_text(size = 20, angle = 90),
+        axis.title.x = element_text(size = 20, angle = 0),
+        axis.text=element_text(size=18),
+        strip.text =element_text(size=20),
+        legend.position = c(0.88, 0.88), 
+        legend.title = element_text(color = "black", size = 20),
+        legend.text=element_text(size=16))+
+  scale_fill_manual(values=c(alpha(c("red"),
+                                   alpha=ALPHA),
+                             alpha(c("black"),
+                                   alpha=ALPHA)))+
+  scale_colour_manual(values=c(alpha(c("red"),
+                                     alpha=ALPHA),
+                               alpha(c("black"),
+                                     alpha=ALPHA)))
+
+#Classify.plot
+
+LIST<-DATA$POP[DATA$Status=="Exclude"]
+STATUSLIST=data.frame(POP=DATA$POP,Status=DATA$Status)
+
+DATA.poolsnp=read.table("~/Documents/GitHub/data-paper/Figure2/data/PoolSNP.pnps.gz",
                         header=T,
                         na.strings = "NA")
-#summary(DATA.poolsnp)
-LIST=as.character(read.table("~/GitHub/data-paper/Figure4/data/exlcude.txt",
-                             header=F)[,1])
+
+DATA.poolsnp.RAL<-DATA.poolsnp %>%
+  filter(POP=="RAL")
+
+DATA.poolsnp<-merge(DATA.poolsnp,STATUSLIST,by.x="POP",by.y="POP")
 
 DATA.poolsnp.group <- DATA.poolsnp %>%
   filter(Chrom =="genomewide" & MAF==0.01) %>%
@@ -25,89 +134,46 @@ DATA.poolsnp.group$NAME<-rep("PoolSNP",
 DATA.poolsnp.plot <- ggplot(DATA.poolsnp.group,
                             aes(x=MAC,y=pnps.m))+
   geom_jitter(data=filter(DATA.poolsnp,Chrom=="genomewide" & MAF==0.01),
-              aes(x=MAC,y=pNpS),
-              col=rgb(0,0,0,0.1))+
+              aes(x=MAC,y=pNpS,col=Status))+
   geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
               colour = NA,
               fill=alpha(c("blue"),alpha=0.2))+
   geom_line(lwd=1.5,
             col="blue")+
+  geom_point(data=filter(DATA.poolsnp.RAL,Chrom=="genomewide" & MAF==0.01),
+            aes(x=MAC,y=pNpS),col=linecol,shape=18,size=3)+
   xlab("Minor allele count (MAC)")+
   ylab("pN/pS")+
-  #geom_abline(slope = 0,intercept=0.4454857483957618,lty=2,col="red",lwd=1.5)+
+  geom_abline(slope = 0,intercept=0.5209075,lty=2,col=linecol,lwd=1)+
   theme_bw()+
-  theme(axis.title.y = element_text(size = 26, angle = 90),
-        axis.text.x = element_blank(),
-        axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
+  theme(axis.title.y = element_text(size = 20, angle = 90),
+        axis.title.x = element_text(size = 20, angle = 0),
         axis.text=element_text(size=18),
-        strip.text =element_text(size=20))+
+        strip.text =element_text(size=20),
+        legend.title = element_blank(),
+        legend.position = "none")+
   scale_y_continuous(labels = scales::number_format(accuracy = 0.05),
                      limits=c(0,2.5))+
+  scale_fill_manual(values=c(alpha(c("red"),
+                                   alpha=ALPHA),
+                             alpha(c("black"),
+                                   alpha=ALPHA)))+
+  scale_colour_manual(values=c(alpha(c("red"),
+                                     alpha=ALPHA),
+                               alpha(c("black"),
+                                     alpha=ALPHA)))+
   facet_wrap(vars(NAME))
 DATA.poolsnp.plot
 
-DATA.poolsnp.group.f <- DATA.poolsnp %>%
-  filter(!POP %in% LIST & Chrom =="genomewide" & MAF==0.01) %>%
-  group_by(MAC) %>%
-  summarise(
-    n=n(),
-    pnps.m = mean(pNpS),
-    pnps.sd=sd(pNpS),
-    pnps.se =sd(pNpS)/sqrt(sum(n()))
-  )
 
-DATA.poolsnp.group.f$NAME<-rep("PoolSNP",nrow(DATA.poolsnp.group.f))
-
-DATA.poolsnp.plot.f <- ggplot(DATA.poolsnp.group.f,
-                              aes(x=MAC,y=pnps.m))+
-  geom_jitter(data=filter(DATA.poolsnp,Chrom=="genomewide" & MAF==0.01 & !POP %in% LIST),
-              aes(x=MAC,y=pNpS),
-              col=rgb(0,0,0,0.1))+
-  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
-              colour = NA,
-              fill=alpha(c("blue"),alpha=0.2))+
-  geom_line(lwd=1.5,
-            col="blue")+
-  xlab("Minor allele count (MAC)")+
-  ylab("pN/pS")+
-  #geom_abline(slope = 0,intercept=0.4454857483957618,lty=2,col="red",lwd=1.5)+
-  theme_bw()+
-  theme(axis.title.y = element_text(size = 26, angle = 90),
-        axis.title.x = element_text(size = 26, angle = 00),
-        axis.text=element_text(size=18))+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.05),
-                     limits=c(0.2,0.6))
-DATA.poolsnp.plot.f
-
-DATA.snape=read.table("~/GitHub/data-paper/Figure4/data/SNAPE.pnps.gz",
-                      header=T,
-                      stringsAsFactors = F)
-summary(DATA.snape)
-
-DATA.snape.group <- DATA.snape %>%
-  filter(Chrom =="genomewide") %>%
-  group_by(MAF,Chrom) %>%
-  summarise(
-    n=n(),
-    pnps.m = mean(pNpS),
-    pnps.sd=sd(pNpS),
-    pnps.se =sd(pNpS)/sqrt(sum(n()))
-  )
-DATA.snape.group
-
+DATA.snape<-merge(DATA.snape,STATUSLIST,by.x="POP",by.y="POP")
 DATA.snape.group$NAME<-rep("SNAPE",nrow(DATA.snape.group))
 
-null.l=read.table("~/GitHub/data-paper/Figure4/data/null.pnps",header=F)
-colnames(null.l)<-c("x","Chrom","NS","SS","y")
-
-NL<-filter(null.l,Chrom == "genomewide")
 
 DATA.snape.plot <- ggplot(DATA.snape.group,
                           aes(x=MAF,y=pnps.m))+
   geom_jitter(data=filter(DATA.snape,Chrom=="genomewide"),
-              aes(x=MAF,y=pNpS),
-              col=rgb(0,0,0,0.1))+
+              aes(x=MAF,y=pNpS,col=Status))+
   geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
               colour = NA,
               fill=alpha(c("blue"),alpha=0.2))+
@@ -116,59 +182,41 @@ DATA.snape.plot <- ggplot(DATA.snape.group,
   xlab("Minor allele frequency (MAF)")+
   ylab("pN/pS")+
   ylim(0,2.5)+
-  #geom_line(DATA.poolsnp=NL,aes(x=x,y=y),lty=2,col="red",lwd=1.5)+
+  geom_line(data=NL,aes(x=x,y=y),lty=2,col=linecol,lwd=1)+
   theme_bw()+
-  theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.text.y = element_blank(),
-        axis.title.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        strip.text =element_text(size=20))+
+  theme(axis.title.y = element_text(size = 20, angle = 90),
+        axis.title.x = element_text(size = 20, angle = 0),
+        axis.text=element_text(size=18),
+        strip.text =element_text(size=20),
+        legend.title = element_blank(),
+        legend.position = "none")+
+  scale_fill_manual(values=c(alpha(c("red"),
+                                   alpha=ALPHA),
+                             alpha(c("black"),
+                                   alpha=ALPHA)))+
+  scale_colour_manual(values=c(alpha(c("red"),
+                                     alpha=ALPHA),
+                               alpha(c("black"),
+                                     alpha=ALPHA)))+
   facet_wrap(vars(NAME))
 DATA.snape.plot
 
-DATA.snape.group.f <- DATA.snape %>%
-  filter(!POP %in% LIST) %>%
-  filter(Chrom =="genomewide") %>%
-  group_by(MAF,Chrom) %>%
-  summarise(
-    n=n(),
-    pnps.m = mean(pNpS),
-    pnps.sd=sd(pNpS),
-    pnps.se =sd(pNpS)/sqrt(sum(n()))
-  )
 
-DATA.snape.group.f$NAME<-rep("SNAPE",
-                             nrow(DATA.snape.group.f))
+FP<-ggarrange(Classify.plot,
+          ggarrange(DATA.poolsnp.plot,
+                    DATA.snape.plot,
+                    labels = c("B","C"),
+                    font.label = list(size = 28, face = "bold"),
+                    nrow=2),
+          ncol=2,
+          labels="A",
+          common.legend = T,
+          legend = "bottom",
+          font.label = list(size = 28, face = "bold"))
 
-DATA.snape.plot.f <- ggplot(DATA.snape.group.f,
-                            aes(x=MAF,y=pnps.m))+
-  geom_jitter(data=filter(DATA.snape,Chrom=="genomewide"& !POP %in% LIST),
-              aes(x=MAF,y=pNpS),
-              col=rgb(0,0,0,0.1))+
-  geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
-              colour = NA,
-              fill=alpha(c("blue"),alpha=0.2))+
-  geom_line(lwd=1.5,
-            col="blue")+
-  xlab("Minor allele frequency (MAF)")+
-  ylab("pN/pS")+
-  ylim(0.2,0.6)+
-  #geom_line(DATA.poolsnp=NL,aes(x=x,y=y),lty=2,col="red",lwd=1.5)+
-  theme_bw()+
-  theme(axis.text.y = element_blank(),
-        axis.title.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.title.x = element_text(size = 26, angle = 00),
-        axis.text=element_text(size=18))
-DATA.snape.plot.f
+ggsave("~/Documents/GitHub/data-paper/Figure2/Figure2.pdf",
+       FP,
+       device="pdf",
+       width=15,
+       height=9)
 
-pdf("~/GitHub/data-paper/Figure4/Figure4.pdf",width=15,height=9)
-
-grid.arrange(DATA.poolsnp.plot,
-             DATA.snape.plot,
-             DATA.poolsnp.plot.f,
-             DATA.snape.plot.f,
-             layout_matrix = rbind(c(rep(1,15),rep(2,13)),c(rep(1,15),rep(2,13)),c(rep(1,15),rep(2,13)),c(rep(3,15),rep(4,13)),c(rep(3,15),rep(4,13)))) ## by eyeballing
-dev.off()

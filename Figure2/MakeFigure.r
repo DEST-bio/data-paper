@@ -5,15 +5,17 @@ library(ggpubr)
 
 
 ## Set global Alpha value
-ALPHA=0.151
+ALPHA=0.15
 
 ## set line color
 linecol="green"
 
 ## get expected values for DGRP data
-null.l=read.table("~/Documents/GitHub/data-paper/Figure2/data/null.pnps",header=F)
+null.l=read.table("~/Documents/GitHub/data-paper/Figure2/data/null_subset.pnps",header=F)
 colnames(null.l)<-c("x","Chrom","NS","SS","y")
 NL<-filter(null.l,Chrom == "genomewide")
+
+NL.0 <- filter(NL,x==0)$y
 
 ## at first read SNAPE pnps data and filter genomewide values
 DATA.snape=read.table("~/Documents/GitHub/data-paper/Figure2/data/SNAPE_full.pnps.gz",
@@ -37,16 +39,13 @@ DATA.snape.group.MAF0 <- DATA.snape %>%
   filter(MAF == 0 & Chrom =="genomewide")
 #DATA.snape.group.MAF0
 
-## read CSV of private SNPs
-# DATA.ps=read.csv("~/Documents/GitHub/data-paper/SupplementalTable1/identify_problematic_samples/number_privateSNPs_nofilter.csv",
-#                       header=T,
-#                       stringsAsFactors = F)
-
-DATA.ps=read.table("~/Desktop/privateSNPS.txt",
+# read CSV of private SNPs
+DATA.ps=read.csv("~/Documents/GitHub/data-paper/Figure2/data/SNAPE_full.ps",
                  header=T,
-                 stringsAsFactors = F)
+                 stringsAsFactors = F,
+                 sep = "\t")
 
-DATA=merge(DATA.ps,DATA.snape.group.MAF0, on="POP")
+DATA=merge(DATA.ps,DATA.snape.group.MAF0, by.x="POP",by.y="POP")
 
 DATA$private=log10(DATA$N)
 
@@ -79,6 +78,8 @@ DATA$Status[DATA$TH.private=="Exclude"]<-"Exclude"
 
 write.table(DATA,"~/Documents/GitHub/data-paper/Figure2/data/classify_pops.txt",quote = F,row.names = F)
 
+DATA.RAL<-DATA %>%
+  filter(POP=="NC_ra_03_n")
 
 Classify.plot<-ggplot(DATA,aes(x=pNpS,y=private,col=Status))+
   geom_point(size=10)+
@@ -87,12 +88,14 @@ Classify.plot<-ggplot(DATA,aes(x=pNpS,y=private,col=Status))+
   theme_bw()+
   geom_hline(yintercept=th.private,lty=2,col="black",lwd=1)+
   geom_vline(xintercept=th.pNpS,lty=2,col="black",lwd=1)+
-  geom_vline(xintercept=0.5209075,lty=2,col=linecol,lwd=1)+
+  geom_vline(xintercept=NL.0,lty=2,col=linecol,lwd=1)+
+  geom_point(data=DATA.RAL,
+             aes(x=pNpS,y=private),col=linecol,shape=18,size=10)+
   theme(axis.title.y = element_text(size = 20, angle = 90),
         axis.title.x = element_text(size = 20, angle = 0),
         axis.text=element_text(size=18),
         strip.text =element_text(size=20),
-        legend.position = c(0.88, 0.88), 
+        legend.position = c(0.88, 0.88),
         legend.title = element_text(color = "black", size = 20),
         legend.text=element_text(size=16))+
   scale_fill_manual(values=c(alpha(c("red"),
@@ -104,7 +107,9 @@ Classify.plot<-ggplot(DATA,aes(x=pNpS,y=private,col=Status))+
                                alpha(c("black"),
                                      alpha=ALPHA)))
 
-#Classify.plot
+# pdf("~/Desktop/classify.pdf",width=10,height=8)
+# Classify.plot
+# dev.off()
 
 LIST<-DATA$POP[DATA$Status=="Exclude"]
 STATUSLIST=data.frame(POP=DATA$POP,Status=DATA$Status)
@@ -113,8 +118,16 @@ DATA.poolsnp=read.table("~/Documents/GitHub/data-paper/Figure2/data/PoolSNP.pnps
                         header=T,
                         na.strings = "NA")
 
+## keep pnps without MAF filtering only
+DATA.poolsnp.group.MAF0 <- DATA.poolsnp %>%
+  filter(MAF == 0.01 & MAC==10 & MAFc ==0 & Chrom =="genomewide")
+#DATA.snape.group.MAF0
+
+DATA.group <- merge(DATA.poolsnp.group.MAF0,DATA.snape.group.MAF0,by.x="POP",by.y="POP")
+plot(DATA.group$pNpS.x,DATA.group$pNpS.y)
+
 DATA.poolsnp.RAL<-DATA.poolsnp %>%
-  filter(POP=="RAL")
+  filter(POP=="NC_ra_03_n")
 
 DATA.poolsnp<-merge(DATA.poolsnp,STATUSLIST,by.x="POP",by.y="POP")
 
@@ -141,10 +154,10 @@ DATA.poolsnp.plot <- ggplot(DATA.poolsnp.group,
   geom_line(lwd=1.5,
             col="blue")+
   geom_point(data=filter(DATA.poolsnp.RAL,Chrom=="genomewide" & MAF==0.01),
-            aes(x=MAC,y=pNpS),col=linecol,shape=18,size=3)+
+             aes(x=MAC,y=pNpS),col=linecol,shape=18,size=3)+
   xlab("Minor allele count (MAC)")+
   ylab("pN/pS")+
-  geom_abline(slope = 0,intercept=0.5209075,lty=2,col=linecol,lwd=1)+
+  geom_abline(slope = 0,intercept=NL.0,lty=2,col=linecol,lwd=1)+
   theme_bw()+
   theme(axis.title.y = element_text(size = 20, angle = 90),
         axis.title.x = element_text(size = 20, angle = 0),
@@ -169,6 +182,9 @@ DATA.poolsnp.plot
 DATA.snape<-merge(DATA.snape,STATUSLIST,by.x="POP",by.y="POP")
 DATA.snape.group$NAME<-rep("SNAPE",nrow(DATA.snape.group))
 
+DATA.snape.RAL<-DATA.snape %>%
+  filter(POP=="NC_ra_03_n" & Chrom =="genomewide")
+
 
 DATA.snape.plot <- ggplot(DATA.snape.group,
                           aes(x=MAF,y=pnps.m))+
@@ -177,6 +193,8 @@ DATA.snape.plot <- ggplot(DATA.snape.group,
   geom_ribbon(aes(ymin = pnps.m-pnps.sd, ymax = pnps.m+pnps.sd),
               colour = NA,
               fill=alpha(c("blue"),alpha=0.2))+
+  geom_point(data=DATA.snape.RAL,
+             aes(x=MAF,y=pNpS),col=linecol,shape=18,size=3)+
   geom_line(lwd=1.5,
             col="blue")+
   xlab("Minor allele frequency (MAF)")+
@@ -203,20 +221,19 @@ DATA.snape.plot
 
 
 FP<-ggarrange(Classify.plot,
-          ggarrange(DATA.poolsnp.plot,
-                    DATA.snape.plot,
-                    labels = c("B","C"),
-                    font.label = list(size = 28, face = "bold"),
-                    nrow=2),
-          ncol=2,
-          labels="A",
-          common.legend = T,
-          legend = "bottom",
-          font.label = list(size = 28, face = "bold"))
+              ggarrange(DATA.poolsnp.plot,
+                        DATA.snape.plot,
+                        labels = c("B","C"),
+                        font.label = list(size = 28, face = "bold"),
+                        nrow=2),
+              ncol=2,
+              labels="A",
+              common.legend = T,
+              legend = "bottom",
+              font.label = list(size = 28, face = "bold"))
 
 ggsave("~/Documents/GitHub/data-paper/Figure2/Figure2.pdf",
        FP,
        device="pdf",
        width=15,
        height=9)
-

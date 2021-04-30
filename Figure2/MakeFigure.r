@@ -156,7 +156,7 @@ DATA.poolsnp.plot <- ggplot(DATA.poolsnp.group,
   geom_point(data=filter(DATA.poolsnp.RAL,Chrom=="genomewide" & MAF==0.01),
              aes(x=MAC,y=pNpS),col=linecol,shape=18,size=3)+
   xlab("Minor allele count (MAC)")+
-  ylab("pN/pS")+
+  ylab(expression(italic("p")["N"]/italic("p")["S"]))+
   geom_abline(slope = 0,intercept=NL.0,lty=2,col=linecol,lwd=1)+
   theme_bw()+
   theme(axis.title.y = element_text(size = 20, angle = 90),
@@ -198,7 +198,7 @@ DATA.snape.plot <- ggplot(DATA.snape.group,
   geom_line(lwd=1.5,
             col="blue")+
   xlab("Minor allele frequency (MAF)")+
-  ylab("pN/pS")+
+  ylab(expression(italic("p")["N"]/italic("p")["S"]))+
   ylim(0,2.5)+
   geom_line(data=NL,aes(x=x,y=y),lty=2,col=linecol,lwd=1)+
   theme_bw()+

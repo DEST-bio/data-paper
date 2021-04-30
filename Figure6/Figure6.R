@@ -2,6 +2,7 @@
 
 library(ggplot2)
 library("gridExtra")
+library(scales)
 
 dat<-read.table(file="/Users/martinkapun/Documents/GitHub/data-paper/Figure6/Figure6_data.txt",header=T,fill =T,sep="\t")
 
@@ -20,13 +21,15 @@ dat2 <-filter(dat2,Continent %in% c("Africa","North America","Europe"))
 
 plot1<-ggplot(dat2, aes(x=Continent, y=Pi)) +
   geom_boxplot(, show.legend = FALSE) +
-  labs(y = "Nucleotide diversity", tag = "A") +
+  labs(y = expression(paste("Nucleotide diversity (",italic(pi),")")), tag = "A") +
   theme_bw() +
   theme(plot.tag = element_text(size = 22, angle = 0),
-        axis.title.y = element_text(size = 20, angle = 90),
-        axis.title.x=element_blank()) +
+        axis.title.y = element_text(size = 18, angle = 90),
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = 12, angle = 00)) +
   facet_grid(.~FILE,space="free") +
-  scale_x_discrete(limits=c("Africa","North America","Europe")) +
+  scale_x_discrete(limits=c("Africa","North America","Europe"),
+                   labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(0.0037, 0.007),
@@ -38,10 +41,12 @@ plot2<-ggplot(dat2, aes(x=Continent, y=Watterson)) +
   theme_bw()  +
   theme(plot.tag = element_text(size = 22, angle = 0),
         axis.title.x=element_blank(),
-        axis.title.y = element_text(size = 20, angle = 90)) +
+        axis.title.y = element_text(size = 18, angle = 90),
+        axis.text.x = element_text(size = 12, angle = 00)) +
   facet_grid(~ FILE, 
              scales="free") +
-  scale_x_discrete(limits=c("Africa","North America","Europe")) +
+  scale_x_discrete(limits=c("Africa","North America","Europe"),
+                   labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(0.0026, 0.0068),
@@ -53,15 +58,17 @@ plot3<-ggplot(dat2, aes(x=Continent, y=Tajima_D)) +
   theme_bw() +
   theme(plot.tag = element_text(size = 22, angle = 0),
         axis.title.x=element_blank(),
-        axis.title.y = element_text(size = 20, angle = 90)) +
+        axis.title.y = element_text(size = 18, angle = 90),
+        axis.text.x = element_text(size = 12, angle = 00)) +
   facet_wrap(~FILE, scales = "free_x") +
-  #scale_x_discrete(limits=c("Africa","North America","Europe")) +
+  scale_x_discrete(limits=c("Africa","North America","Europe"),
+                   labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(-0.285, 1.65),
     breaks=seq(0, 1.5, 0.5)) 
 
-pdf("~/Documents/GitHub/data-paper/Figure6/figure/Figure6.pdf",widt=12,height=6)
+pdf("~/Documents/GitHub/data-paper/Figure6/figure/Figure6.pdf",widt=10,height=5)
 # make final Figure 6
 grid.arrange(plot1, 
              plot3, 

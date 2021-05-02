@@ -14,9 +14,9 @@ Meta<-read.table(file="~/Documents/GitHub/data-paper/Figure2/data/classify_pops.
 exclude <- filter(Meta,Status=="Exclude")
 dat_SNAPE.sub <-filter(dat_SNAPE, !(POP %in% exclude$POP))
 
-dat2 <-data.frame(rbind(dat_PoolSNP,dat_SNAPE.sub))
+dat2 <-na.omit(data.frame(rbind(dat_PoolSNP,dat_SNAPE.sub)))
 dat2 <-filter(dat2,Continent %in% c("Africa","North America","Europe"))
-
+dat2$Continent <-factor(dat2$Continent,levels= c("Africa","North America","Europe"))
 # PoolSNP plots
 
 plot1<-ggplot(dat2, aes(x=Continent, y=Pi)) +
@@ -28,9 +28,9 @@ plot1<-ggplot(dat2, aes(x=Continent, y=Pi)) +
         axis.title.x=element_blank(),
         axis.text.x = element_text(size = 12, angle = 00),
         axis.text.y = element_text(size = 12, angle = 00)) +
-  facet_grid(.~FILE,space="free") +
-  scale_x_discrete(limits=c("Africa","North America","Europe"),
-                   labels = wrap_format(10)) +
+  facet_wrap(~FILE,scales ="free_x") +
+  #scale_x_discrete(limits=c("Africa","North America","Europe"),
+  #                 labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(0.0037, 0.007),
@@ -45,17 +45,16 @@ plot2<-ggplot(dat2, aes(x=Continent, y=Watterson)) +
         axis.title.y = element_text(size = 18, angle = 90),
         axis.text.x = element_text(size = 12, angle = 00),
         axis.text.y = element_text(size = 12, angle = 0)) +
-  facet_grid(~ FILE, 
-             scales="free") +
-  scale_x_discrete(limits=c("Africa","North America","Europe"),
-                   labels = wrap_format(10)) +
+  facet_wrap(~FILE,scales ="free_x") +
+  #scale_x_discrete(limits=c("Africa","North America","Europe"),
+  #                 labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(0.0026, 0.0068),
     breaks=seq(0.003, 0.006, 0.001))  
 
 plot3<-ggplot(dat2, aes(x=Continent, y=Tajima_D)) +
-  geom_boxplot(, show.legend = FALSE) + 
+  geom_boxplot(show.legend = FALSE) + 
   labs(y = expression(paste("Tajima's ",italic(D))), tag = "B") + 
   theme_bw() +
   theme(plot.tag = element_text(size = 22, angle = 0),
@@ -63,9 +62,9 @@ plot3<-ggplot(dat2, aes(x=Continent, y=Tajima_D)) +
         axis.title.y = element_text(size = 18, angle = 90),
         axis.text.x = element_text(size = 12, angle = 00),
         axis.text.y = element_text(size = 12, angle = 00)) +
-  facet_wrap(~FILE, scales = "free_x") +
-  scale_x_discrete(limits=c("Africa","North America","Europe"),
-                   labels = wrap_format(10)) +
+  facet_wrap(~FILE,scales ="free_x") +
+  #scale_x_discrete(limits=c("Africa","North America","Europe"),
+  #                 labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(-0.285, 1.65),

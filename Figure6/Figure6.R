@@ -29,8 +29,7 @@ plot1<-ggplot(dat2, aes(x=Continent, y=Pi)) +
         axis.text.x = element_text(size = 12, angle = 00),
         axis.text.y = element_text(size = 12, angle = 00)) +
   facet_wrap(~FILE,scales ="free_x") +
-  #scale_x_discrete(limits=c("Africa","North America","Europe"),
-  #                 labels = wrap_format(10)) +
+  scale_x_discrete(labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(0.0037, 0.007),
@@ -46,8 +45,7 @@ plot2<-ggplot(dat2, aes(x=Continent, y=Watterson)) +
         axis.text.x = element_text(size = 12, angle = 00),
         axis.text.y = element_text(size = 12, angle = 0)) +
   facet_wrap(~FILE,scales ="free_x") +
-  #scale_x_discrete(limits=c("Africa","North America","Europe"),
-  #                 labels = wrap_format(10)) +
+  scale_x_discrete(labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(0.0026, 0.0068),
@@ -63,18 +61,17 @@ plot3<-ggplot(dat2, aes(x=Continent, y=Tajima_D)) +
         axis.text.x = element_text(size = 12, angle = 00),
         axis.text.y = element_text(size = 12, angle = 00)) +
   facet_wrap(~FILE,scales ="free_x") +
-  #scale_x_discrete(limits=c("Africa","North America","Europe"),
-  #                 labels = wrap_format(10)) +
+  scale_x_discrete(labels = wrap_format(10)) +
   scale_y_continuous(labels=function(x){
     sprintf("%.3f", x)},
     limits=c(-0.285, 1.65),
     breaks=seq(0, 1.5, 0.5)) 
 
-pdf("~/Documents/GitHub/data-paper/Figure6/figure/Figure6.pdf",widt=10,height=6)
+pdf("~/Documents/GitHub/data-paper/Figure6/figure/Figure6.pdf",widt=10,height=5)
 # make final Figure 6
 grid.arrange(plot1, 
-             plot3, 
              plot2, 
+             plot3, 
              layout_matrix = rbind(c(1,2),
                                    c(1,3)))
 dev.off()

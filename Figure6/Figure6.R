@@ -37,7 +37,7 @@ plot1<-ggplot(dat2, aes(x=Continent, y=Pi)) +
 
 plot2<-ggplot(dat2, aes(x=Continent, y=Watterson)) +
   geom_boxplot(, show.legend = FALSE) +
-  labs(y = expression(paste("Watterson's ", italic(theta))), tag = "C") +
+  labs(y = expression(paste("Watterson's ", italic(theta))), tag = "B") +
   theme_bw()  +
   theme(plot.tag = element_text(size = 22, angle = 0),
         axis.title.x=element_blank(),
@@ -53,7 +53,7 @@ plot2<-ggplot(dat2, aes(x=Continent, y=Watterson)) +
 
 plot3<-ggplot(dat2, aes(x=Continent, y=Tajima_D)) +
   geom_boxplot(show.legend = FALSE) + 
-  labs(y = expression(paste("Tajima's ",italic(D))), tag = "B") + 
+  labs(y = expression(paste("Tajima's ",italic(D))), tag = "C") + 
   theme_bw() +
   theme(plot.tag = element_text(size = 22, angle = 0),
         axis.title.x=element_blank(),

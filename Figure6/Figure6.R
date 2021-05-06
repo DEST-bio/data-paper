@@ -3,6 +3,7 @@
 library(ggplot2)
 library("gridExtra")
 library(scales)
+library(tidyverse)
 
 dat<-read.table(file="/Users/martinkapun/Documents/GitHub/data-paper/Figure6/Figure6_data.txt",header=T,fill =T,sep="\t")
 

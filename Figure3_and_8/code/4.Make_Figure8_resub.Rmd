@@ -1,0 +1,297 @@
+---
+title: "Plot_GeoDist"
+author: "Jcb Nunez"
+date: "12/30/2020"
+output: html_document
+---
+
+#Load Packages
+```{r}
+
+library(data.table)
+library(tidyverse)
+library(magrittr)
+library(reshape2)
+library(vroom)
+library(rcompanion)
+library(patchwork)
+library(viridis)
+
+setwd("/scratch/yey2sn/DEST_resubmission/Figure8")
+
+```
+
+#Load data
+```{r}
+
+load("GeoAnalysis.PoolSNP.Newgood.samps.Rdata")
+GeoAnalysis.PoolSNP = o
+
+load("GeoAnalysis.SNAPE.Newgood.samps.Rdata")
+GeoAnalysis.SNAPE = o
+```
+
+# Compare data
+```{r}
+GeoAnalysis.PoolSNP %>%
+  .[which(.$set == "obs"),] %>%
+  .[,c("n","nPop", "meanDist")]  -> PoolSNP_comp
+PoolSNP_comp %<>%
+  group_by(nPop) %>%
+  summarise(Nsnps_pool = sum(as.numeric(n)),
+            Mean_d_pool = mean(meanDist))
+
+GeoAnalysis.SNAPE %>%
+  .[which(.$set == "obs"),] %>%
+  .[,c("n","nPop", "meanDist")]  -> SNAPE_comp
+SNAPE_comp %<>%
+  group_by(nPop) %>%
+  summarise(Nsnps_snape = sum(as.numeric(n)),
+            Mean_d_snape = mean(meanDist))
+
+left_join(PoolSNP_comp, SNAPE_comp) -> joint_object
+
+require("ggrepel")
+joint_object %>%
+  ggplot(aes(x= Mean_d_pool,
+             y= Mean_d_snape,
+             label = nPop,
+             fill = as.numeric(nPop))) +
+  geom_point(shape = 21, size = 3) +
+  geom_text_repel(data = subset(joint_object, nPop < 25)) +
+  geom_abline(slope =1) + 
+  #geom_text(data = subset(joint_object, nPop > 25), check_overlap = T, nudge_x = 50) +
+   scale_fill_gradient(low = "gold", high = "brown", na.value = NA) +
+  theme_bw()-> geom_diff
+
+ggsave(geom_diff, file = "geom_diff.pdf", width = 6, height = 4)
+
+
+```
+
+
+# Merge Data
+```{r}
+rbind(GeoAnalysis.PoolSNP,
+      GeoAnalysis.SNAPE) -> GeoAnalysis_both
+```
+
+# Plot no MAF
+```{r}
+
+GeoAnalysis_both %<>%
+  mutate(habillage = paste(set,caller,sep="_"))
+
+GeoAnalysis_both$habillage = gsub("exp_PoolSNP","x.exp", GeoAnalysis_both$habillage)
+GeoAnalysis_both$habillage = gsub("exp_SNAPE","x.exp", GeoAnalysis_both$habillage)
+
+GeoAnalysis_both %>%
+  group_by(nPop,habillage ) %>%
+  summarise(dist_m = mean(meanDist),
+            dist_s = sd(meanDist)) %>%
+  ggplot(aes(
+    x=nPop,
+    y=dist_m,
+    ymin=dist_m-dist_s,
+    ymax=dist_m+dist_s,
+    color=habillage,
+    fill=habillage
+  )) + 
+  geom_ribbon(alpha = 0.3) + 
+  geom_smooth(span = 0.1,size =1.5) +
+  #geom_point(size = 0.7) +
+  #facet_wrap(~chr, ncol =1) +
+  ggtitle("MAF=0.001") +
+  theme_bw() +
+  scale_color_brewer(palette = "Accent") +
+  scale_fill_brewer(palette = "Accent") +
+  theme(legend.position = "bottom") -> MAF01
+
+ggsave(MAF01, file="MAF01.pdf")
+
+```
+
+# Probability Plot
+
+```{r}
+
+load("/Users/jcbnunez/Downloads/SNAPE.Probability_CC.Rdata")
+
+```
+
+# Make the random expectations using a binomial sampling approach
+
+```{r}
+output_exp = data.frame(nPop_e = rep(NA, 59),
+                        prob_e = rep(NA, 59)
+                        )
+
+npops=2:60
+
+for(j in 1:59){ 
+  
+tmp_o = as.vector(c())
+for(i  in 1:10000){
+  
+  tmp = rbinom( npops[j] , 1, 0.5)
+  tmp_v =  sd(tmp)
+  tmp_o = append(tmp_o, tmp_v, after = length(tmp_o))
+} #i
+
+  output_exp$nPop_e[j] = npops[j]
+  length(which(tmp_o==0)) -> output_exp$prob_e[j] 
+  output_exp$Total[j] = 10000
+
+} #j
+
+output_exp %<>%
+  mutate(Caller = "EXPECT",
+        conf = BinomCI(prob_e, Total)
+         ) %>% 
+  as.data.frame()
+
+
+save(output_exp, file = "expected_probs.Rdata")
+
+```
+
+# Calculate observed probabilities 
+
+# Generate a guide file for pop names
+
+```{r}
+pops <- names(fread("bcftools view -S ./new_good_samps.txt /project/berglandlab/DEST/vcf/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.vcf.gz | head -n 45",nrows=1, skip="#CHR"))[-(1:9)]
+
+pops = data.frame(sampleId = pops)
+
+regions <- fread("./DEST_Cluster_ids.txt")
+names(regions)[2] = "sampleId"
+
+pops = left_join(pops, regions)
+
+pops[is.na(pops$km.res.cluster),] 
+
+#1 - NoA
+#2 - EUE
+#3 - EUW
+
+pops[which(pops$sampleId %in%  c("AT_gr_12_fall",
+                                 "AT_gr_12_spring",
+                                 "UA_od_13_fall",
+                                 "UA_od_13_spring",
+                                 "UA_Pyr_14_26",
+                                 "UA_Pyr_15_21",
+                                 "UA_Pir_16_48")), "km.res.cluster"] = 2
+
+pops[which(pops$sampleId %in%  c("ES_ba_12_fall",
+                                 "ES_ba_12_spring")), "km.res.cluster"] = 3
+
+```
+
+
+## Import 
+
+```{r}
+
+SNAPE <- vroom("./SNAPE.NewgoodSamps.0.001.delim",
+               col_names = F)
+
+SNAPE %>%
+  .[which(.$X4 >= 2 & .$X4 <= 60),] %>% 
+  .[sample(dim(.)[1], 10000),] -> SNAPE_samp
+SNAPE_samp$X8 = gsub("^;","", SNAPE_samp$X8)
+
+
+####
+SNAPE_out = data.frame(
+            Chr = rep(NA, 10000),
+            Pos = rep(NA, 10000),
+            AF  = rep(NA, 10000),
+            nPop = rep(NA, 10000),
+            Prob = rep(NA, 10000))
+
+for(i in 1:10000){
+  
+guide_vector = as.numeric(strsplit(SNAPE_samp$X8[i], ";")[[1]])
+population_vector = pops$sampleId[guide_vector]
+cluster_vector = pops$km.res.cluster[guide_vector]
+
+ceiling(sd(cluster_vector))
+
+SNAPE_out$Chr[i] = SNAPE_samp$X2[i]
+SNAPE_out$Pos[i] = SNAPE_samp$X3[i]
+SNAPE_out$AF[i] = SNAPE_samp$X1[i]
+SNAPE_out$nPop[i] = SNAPE_samp$X4[i]
+SNAPE_out$Prob[i] = ifelse(sd(cluster_vector) == 0, 1, 0)
+
+} # close i
+
+SNAPE_out %<>%
+  group_by(nPop) %>%
+  summarise(Total = n(),
+            Success = sum(Prob)) %>%
+  mutate(Caller = "SNAPE",
+        conf = BinomCI(Success, Total)
+         ) %>% 
+  as.data.frame()
+
+save(SNAPE_out, file = "SNAPE_out.Rdata")
+
+```
+
+
+```{r}
+
+PoolSNP <- vroom("./PoolSNP.NewgoodSamps.0.001.delim",
+               col_names = F)
+
+PoolSNP %>% 
+  .[which(.$X3 >= 2 & .$X3 <= 30),] %>%
+  .[order(.$X3),] -> PoolSNP_samp
+  #  .[sample(dim(.)[1], 10000),] -> PoolSNP_samp
+PoolSNP_samp$X7 = gsub("^;","", PoolSNP_samp$X7)
+
+
+####
+PoolSNP_out = data.frame(
+            Chr = rep(NA, dim(PoolSNP_samp)[1]),
+            Pos = rep(NA, dim(PoolSNP_samp)[1]),
+            AF  = rep(NA, dim(PoolSNP_samp)[1]),
+            nPop = rep(NA, dim(PoolSNP_samp)[1]),
+            Prob = rep(NA, dim(PoolSNP_samp)[1]))
+
+for(i in 1:dim(PoolSNP_samp)[1]){
+  
+guide_vector = as.numeric(strsplit(PoolSNP_samp$X7[i], ";")[[1]])
+population_vector = pops$sampleId[guide_vector]
+cluster_vector = pops$km.res.cluster[guide_vector]
+
+ceiling(sd(cluster_vector))
+
+PoolSNP_out$Chr[i] = PoolSNP_samp$X1[i]
+PoolSNP_out$Pos[i] = PoolSNP_samp$X2[i]
+PoolSNP_out$AF[i] = 0.001
+PoolSNP_out$nPop[i] = PoolSNP_samp$X3[i]
+PoolSNP_out$Prob[i] = ifelse(sd(cluster_vector) == 0, 1, 0)
+
+} # close i
+
+PoolSNP_out %<>%
+  group_by(nPop) %>%
+  summarise(Total = n(),
+            Success = sum(Prob)) %>%
+  mutate(Caller = "PoolSNP",
+        conf = BinomCI(Success, Total)
+         ) %>% 
+  as.data.frame()
+
+save(PoolSNP_out, file = "PoolSNP_out.Rdata")
+
+```
+
+# Plot
+```{r}
+# ---> plot with PoolSNP_out.Rdata, SNAPE_out.Rdata, expected_probs.Rdata
+```
+
+

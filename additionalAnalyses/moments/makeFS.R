@@ -2,14 +2,13 @@
 
 args = commandArgs(trailingOnly=TRUE)
 i=args[1]
+message(i)
 #i<-2
 
 ### libraries
   library(data.table)
   library(SeqArray)
   library(foreach)
-  library(doMC)
-  registerDoMC(4)
   library(sp)
 
 ### load in pairs file

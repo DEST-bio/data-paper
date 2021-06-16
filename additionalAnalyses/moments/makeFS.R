@@ -81,7 +81,7 @@ message(i)
 
 ### turn in to 2D-SFS
   sfs <- foreach(i=0:(neff$ne[1]), .combine="rbind")%do%{
-    foreach(j=0:(neff$ne[2]), .combine="rbind")%dopar%{
+    foreach(j=0:(neff$ne[2]), .combine="rbind")%do%{
       #i<-
       print(paste(i, j, sep=" / "))
       data.table(N=sum(dat[,1]==i & dat[,2]==j), i=i, j=j)
@@ -96,9 +96,8 @@ message(i)
 
 ### write output
   colnames(dat)
-  setwd(paste("/project/berglandlab/moments/", pairs[i]$type, sep="")
+  setwd(paste("/project/berglandlab/moments/", pairs[i]$type, sep=""))
   fileConn <- file(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[i]$type, ".fs", sep=""))
-
   writeLines(c(paste(c(neff$ne[1]+1, neff$ne[2]+1, "unfolded", dQuote(  colnames(dat), F)), collapse=" "),
                paste(sfs$N, collapse=" "),
                paste(sfs.filter, collapse=" ")), fileConn)

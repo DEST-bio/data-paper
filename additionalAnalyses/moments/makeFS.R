@@ -13,6 +13,8 @@ message(i)
 
 ### load in pairs file
   pairs <- fread("/scratch/aob2x/pairs.csv")
+  head(pairs)
+  pairs[i]
 
 ### open GDS file & make SNP table
   if (pairs[i]$type=="PoolSNP") {

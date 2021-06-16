@@ -16,6 +16,9 @@ message(i)
   head(pairs)
   pairs[i]
 
+### load samps
+  samps <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+
 ### open GDS file & make SNP table
   if (pairs[i]$type=="PoolSNP") {
     message("PoolSNP")
@@ -77,13 +80,13 @@ message(i)
     dat[,2] <- round(dat[,2]*neff$ne[2])
 
 ### turn in to 2D-SFS
-sfs <- foreach(i=0:(neff$ne[1]), .combine="rbind")%do%{
-  foreach(j=0:(neff$ne[2]), .combine="rbind")%dopar%{
-    #i<-
-    print(paste(i, j, sep=" / "))
-    data.table(N=sum(dat[,1]==i & dat[,2]==j), i=i, j=j)
+  sfs <- foreach(i=0:(neff$ne[1]), .combine="rbind")%do%{
+    foreach(j=0:(neff$ne[2]), .combine="rbind")%dopar%{
+      #i<-
+      print(paste(i, j, sep=" / "))
+      data.table(N=sum(dat[,1]==i & dat[,2]==j), i=i, j=j)
+    }
   }
-}
 
 #ggplot(data=sfs, aes(x=i, y=j, fill=log10(N))) + geom_tile()
 

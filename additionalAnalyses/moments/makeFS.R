@@ -17,11 +17,15 @@ i=args[1]
 
 ### open GDS file & make SNP table
   if (pairs[i]$type=="PoolSNP") {
+    message("PoolSNP")
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
   } else if (pairs[i]$type=="SNAPE") {
-    genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
+    message("SNAPE")
 
+    genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
   }
+
+  message("making snp table")
   snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
                         pos=seqGetData(genofile, "position"),
                         variant.id=seqGetData(genofile, "variant.id"),
@@ -32,9 +36,11 @@ i=args[1]
    snps.dt <- snps.dt[nAlleles==2]
 
 ### load pairs file
+  message("loading pairs")
   pairs <- fread("/scratch/aob2x/pairs.csv", )
 
 ### get polymorphism data
+  message("get poly")
   setkey(snps.dt, chr)
   seqSetFilter(genofile, sample.id=as.character(pairs[i, c("V1", "V2"), with=F]),
                 variant.id=snps.dt[J(c("2L", "2R", "3L", "3R"))]$variant.id)
@@ -56,6 +62,7 @@ i=args[1]
   #dat[f.hat>.5, 2] <- 1 - dat[f.hat>.5, 2]
 
 ### turn into integers
+  message("integerize")
   ### load average effective read depth
     dep <- fread("DEST_freeze1/populationInfo/sequencingStats/rd.csv")[auto==T]
     setkey(dep, sampleId)

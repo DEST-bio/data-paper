@@ -65,7 +65,7 @@ message(i)
 ### turn into integers
   message("integerize")
   ### load average effective read depth
-    dep <- fread("DEST_freeze1/populationInfo/sequencingStats/rd.csv")[auto==T]
+    dep <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/sequencingStats/rd.csv")[auto==T]
     setkey(dep, sampleId)
     setkey(samps, sampleId)
     neff <- merge(dep[J(colnames(dat))], samps[J(colnames(dat))], by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]

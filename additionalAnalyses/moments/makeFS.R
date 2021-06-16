@@ -2,7 +2,7 @@
 
 args = commandArgs(trailingOnly=TRUE)
 i=args[1]
-#i<-1
+#i<-2
 
 ### libraries
   library(data.table)
@@ -16,8 +16,12 @@ i=args[1]
   pairs <- fread("/scratch/aob2x/pairs.csv")
 
 ### open GDS file & make SNP table
-  genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.", pairs[i]$type, ".001.50.10Nov2020.ann.gds", sep=""))
+  if (pairs[i]$type=="PoolSNP") {
+    genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
+  } else if (pairs[i]$type=="SNAPE") {
+    genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
 
+  }
   snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
                         pos=seqGetData(genofile, "position"),
                         variant.id=seqGetData(genofile, "variant.id"),

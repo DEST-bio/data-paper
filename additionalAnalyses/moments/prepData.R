@@ -1,0 +1,122 @@
+### libraries
+  library(data.table)
+  library(SeqArray)
+  library(foreach)
+  library(doMC)
+  registerDoMC(4)
+  library(sp)
+
+### open GDS file & make SNP table
+  setwd("~")
+  genofile <- seqOpen("dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds")
+
+  snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
+                        pos=seqGetData(genofile, "position"),
+                        variant.id=seqGetData(genofile, "variant.id"),
+                        nAlleles=seqNumAllele(genofile),
+                        missing=seqMissing(genofile, .progress=T))
+
+  ## choose number of alleles
+   snps.dt <- snps.dt[nAlleles==2]
+
+### load samps
+  setwd("/Users/alanbergland/Documents/GitHub/")
+  samps <- fread("DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+
+### Get E/W cluster IDs
+  clusters <- fread("DEST_freeze1/populationInfo/Cluster_Assingment/DEST_Sample_clusters.txt")
+  samps <- merge(samps, clusters, by="sampleId")
+
+  pairs <- CJ(samps[Continental_clusters=="1.Europe_W" & set=="DrosEU"]$sampleId,
+          samps[Continental_clusters=="3.Europe_E" & set=="DrosEU"]$sampleId)
+
+  setnames(pairs, "V1", "sampleId")
+  pairs <- merge(samps, pairs, by="sampleId")[,c("sampleId", "V2", "lat.x", "long.x"), with=F]
+  setnames(pairs, c("sampleId", "V2", "lat.x", "long.x"), c("V1", "sampleId", "lat.V1", "long.V1"))
+
+  pairs <- merge(samps, pairs, by="sampleId")[,c("V1", "sampleId", "lat.V1", "long.V1", "lat.x", "long.x"), with=F]
+  setnames(pairs, c("sampleId", "lat.x", "long.x"), c("V2", "lat.V2", "long.V2"))
+
+  pairs[,dist:=spDists(x=as.matrix(pairs[,c("long.V1", "lat.V1"), with=F]),
+                        y=as.matrix(pairs[,c("long.V2", "lat.V2"), with=F]), diagonal=T)]
+
+  pairs[,id:=as.character(1:dim(pairs)[1])]
+
+  setkey(1234)
+  pairs.sample <- pairs[,list(id=sample(id, 100, replace=T)), list(dist.bin=round(dist/4)*4)]
+  length(unique(pairs.sample$id))
+  length((pairs.sample$id))
+  setkey(pairs.sample, id)
+  pairs.sample <- pairs.sample[!duplicated(pairs.sample)]
+  pairs.sample <- merge(pairs.sample, pairs, by="id")
+
+### Calculate L (effective genome size for pairs)
+  getL <- function(pop1, pop2) {
+    # pop1 <- "AT_See_14_44"; pop2= "AT_Mau_14_01"
+    
+
+
+  }
+
+
+
+
+
+### get subsample of data to work on
+  i<-1
+  setkey(snps.dt, chr)
+  seqSetFilter(genofile, sample.id=as.character(pairs[i,]),
+                variant.id=snps.dt[J(c("2L", "2R", "3L", "3R"))]$variant.id)
+
+### get allele frequency data
+  ad <- seqGetData(genofile, "annotation/format/AD")
+  dp <- seqGetData(genofile, "annotation/format/DP")
+
+  dat <- ad$data/dp
+  dim(dat)
+  rownames(dat) <- seqGetData(genofile, "sample.id")
+  dat <- t(dat)
+  dat <- na.omit(dat)
+
+### fold
+  #f.hat <- dat[,1]/2 + dat[,2]/2
+  #
+  #dat[f.hat>.5, 1] <- 1 - dat[f.hat>.5, 1]
+  #dat[f.hat>.5, 2] <- 1 - dat[f.hat>.5, 2]
+
+### turn into integers
+  ### load average effective read depth
+    dep <- fread("DEST_freeze1/populationInfo/sequencingStats/rd.csv")[auto==T]
+    setkey(dep, sampleId)
+    setkey(samps, sampleId)
+    neff <- merge(dep[J(colnames(dat))], samps[J(colnames(dat))], by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]
+    neff[,ne:=round((2*nFlies*mu.25)/(2*nFlies+mu.25))]
+    neff[,ne:=floor(ne/2)*2]
+
+  ### integerize
+    dat[,1] <- round(dat[,1]*neff$ne[1])
+    dat[,2] <- round(dat[,2]*neff$ne[2])
+
+### turn in to 2D-SFS
+  sfs <- foreach(i=0:(neff$ne[1]), .combine="rbind")%do%{
+    foreach(j=0:(neff$ne[2]), .combine="rbind")%dopar%{
+      #i<-
+      print(paste(i, j, sep=" / "))
+      data.table(N=sum(dat[,1]==i & dat[,2]==j), i=i, j=j)
+    }
+  }
+
+  ggplot(data=sfs, aes(x=i, y=j, fill=log10(N))) + geom_tile()
+
+### filter
+  sfs.filter <- as.numeric(sfs$N==0)
+  sfs.filter[1] <- 1
+
+### write output
+  colnames(dat)
+  setwd("~/")
+  fileConn <- file(paste(c(colnames(dat), "unfolded"), collapse="."))
+  writeLines(c(paste(c(neff$ne[1]+1, neff$ne[2]+1, "unfolded", dQuote(  colnames(dat), F)), collapse=" "),
+               paste(sfs$N, collapse=" "),
+               paste(sfs.filter, collapse=" ")), fileConn)
+  close(fileConn)

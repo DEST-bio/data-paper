@@ -1,9 +1,9 @@
 # module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3; R
 
 args = commandArgs(trailingOnly=TRUE)
-i=as.numeric(args[1])
-message(i)
-#i<-1
+job=as.numeric(args[1])
+message(job)
+#job<-1
 
 ### libraries
   library(data.table)
@@ -12,11 +12,11 @@ message(i)
   library(sp)
   library(doMC)
   registerDoMC(2)
-  
+
 ### load in pairs file
   pairs <- fread("/scratch/aob2x/pairs.csv")
   head(pairs)
-  pairs[i]
+  pairs[job]
 
 ### load samps
   samps <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/samps_10Nov2020.csv")
@@ -43,12 +43,12 @@ message(i)
 
 ### load pairs file
   message("loading pairs")
-  pairs <- fread("/scratch/aob2x/pairs.csv", )
+  pairs <- fread("/scratch/aob2x/pairs.csv")
 
 ### get polymorphism data
   message("get poly")
   setkey(snps.dt, chr)
-  seqSetFilter(genofile, sample.id=as.character(pairs[i, c("V1", "V2"), with=F]),
+  seqSetFilter(genofile, sample.id=as.character(pairs[job, c("V1", "V2"), with=F]),
                 variant.id=snps.dt[J(c("2L", "2R", "3L", "3R"))]$variant.id)
 
   ### get allele frequency data
@@ -98,10 +98,10 @@ message(i)
 
 ### write output
   colnames(dat)
-  setwd(paste("/project/berglandlab/moments/", pairs[i]$type, sep=""))
+  setwd(paste("/project/berglandlab/moments/", pairs[job]$type, sep=""))
   getwd()
-  fileConn <- file(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[i]$type, ".fs", sep=""))
-  message(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[i]$type, ".fs", sep=""))
+  fileConn <- file(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[job]$type, ".fs", sep=""))
+  message(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[job]$type, ".fs", sep=""))
   writeLines(c(paste(c(neff$ne[1]+1, neff$ne[2]+1, "unfolded", dQuote(  colnames(dat), F)), collapse=" "),
                paste(sfs$N, collapse=" "),
                paste(sfs.filter, collapse=" ")), fileConn)

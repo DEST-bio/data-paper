@@ -22,3 +22,7 @@
 
 
   # scp aob2x@rivanna.hpc.virginia.edu:~/moments_o.Rdata ~/.
+  library(data.table)
+library(ggplot2)
+
+load("~/moments_o.Rdata")

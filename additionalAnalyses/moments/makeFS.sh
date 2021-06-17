@@ -3,7 +3,7 @@
 #SBATCH -J makeFS # A single job name for the array
 #SBATCH --ntasks-per-node=2 # one core
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-00:30  ### 10 minutes
+#SBATCH -t 0-00:45  ### 10 minutes
 #SBATCH --mem 18G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.err # Standard error
@@ -14,9 +14,10 @@
 ### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.sh
 
 ### sacct -j 22799095
-### cat /scratch/aob2x/dest/slurmOutput/makeFS.22795942_1
+### cat /scratch/aob2x/dest/slurmOutput/makeFS.22799095_1.out
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3
 
 ## SLURM_ARRAY_TASK_ID=2
 
 Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R ${SLURM_ARRAY_TASK_ID}
+Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R 1

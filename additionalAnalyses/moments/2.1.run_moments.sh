@@ -59,7 +59,7 @@ cd /project/berglandlab/moments/moments_output
 python /scratch/aob2x/data-paper/additionalAnalyses/moments/2.2.MomentsCode.py \
 $SFS \
 $L \
-500 \
+50 \
 $Pair
 
 

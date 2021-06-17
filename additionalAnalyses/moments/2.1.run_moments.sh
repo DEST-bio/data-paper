@@ -7,12 +7,12 @@
 #SBATCH --mem=5G #<= this may depend on your resources
 #SBATCH -o /scratch/aob2x/slurmOut/moments.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/slurmOut/moments.%A_%a.err # Standard error
-#SBATCH -p largemem
+#SBATCH -p standard
 #SBATCH -A berglandlab
 
 ### sbatch -array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim ) data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sbatch -array=1-20 data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-
+### sbatch --array=1-20 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
+### sacct -j 22828870
 
 echo "began at"  `date`
 

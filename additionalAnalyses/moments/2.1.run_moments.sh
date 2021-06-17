@@ -12,7 +12,7 @@
 
 ### sbatch -array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim ) data-paper/additionalAnalyses/moments/2.1.run_moments.sh
 ### sbatch --array=1-20 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sacct -j 22828885
+### sacct -j 22829843
 
 echo "began at"  `date`
 
@@ -23,7 +23,7 @@ module load anaconda/2020.11-py3.8
 source activate moments_kern
 
 #Load the metadata object into memory
-metadata=/project/berglandlab/moments/moments_jobs.delim #Address to the metadata. What is this? see below:
+metadata=/project/berglandlab/moments/moments_jobs.head.delim #Address to the metadata. What is this? see below:
 
 #The metadata file is as follows:
 # A file with 3 columns and a header
@@ -36,7 +36,7 @@ metadata=/project/berglandlab/moments/moments_jobs.delim #Address to the metadat
 #L => The number of sites from which the SFS was derived. IMPORTANT: This number must be an integer. No scientific notation allowed.
 
 #===> Want to fix SLURM_ARRAY_TASK_ID? this is useful for debugging <====
-#=# SLURM_ARRAY_TASK_ID=1
+#=# SLURM_ARRAY_TASK_ID=12
 
 #Mining the metadata file
 

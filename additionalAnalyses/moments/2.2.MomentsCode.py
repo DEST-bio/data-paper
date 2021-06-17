@@ -36,7 +36,7 @@ data = moments.Spectrum.from_file(fs_file)
 fs_folded = data.fold()
 ns = fs_folded.sample_sizes
 
-# These are the grid point settings will use for extrapolation. 
+# These are the grid point settings will use for extrapolation.
 # They're somewhat arbitrary, but should be big enough that they don't change LL if increased
 pts_l = [100,140,180]
 
@@ -57,7 +57,7 @@ func_moments = split_mig_moments
 #boundaries
 upper_bound = [10, 10, 5, 50]
 lower_bound = [1e-5, 1e-5, 1e-5, 0]
-    
+
 #constants
 mu = 2.8e-9 #from Keightley et al. 2014
 L = int(L_file) #specific to Austria dataset
@@ -83,9 +83,9 @@ for i in range(int(iterations)):
     mig_pop2 = Mij*(2*popt[1]) #number of individuals going j to i
     pop1_size = popt[0]*(theta/(4*mu*L)) #pop1 size
     pop2_size = popt[1]*(theta/(4*mu*L)) #pop2 size
-    
+
     PMmod=open('%s_output.txt' % Pair_name,'a')
-    
+
     PMmod.write(
         str(Pair_name)+'\t'+ #print pair name
         str(fs_file)+'\t'+ #double checking fs is the right one

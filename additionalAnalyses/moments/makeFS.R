@@ -3,14 +3,16 @@
 args = commandArgs(trailingOnly=TRUE)
 i=as.numeric(args[1])
 message(i)
-#i<-2
+#i<-1
 
 ### libraries
   library(data.table)
   library(SeqArray)
   library(foreach)
   library(sp)
-
+  library(doMC)
+  registerDoMC(2)
+  
 ### load in pairs file
   pairs <- fread("/scratch/aob2x/pairs.csv")
   head(pairs)
@@ -81,7 +83,7 @@ message(i)
 
 ### turn in to 2D-SFS
   sfs <- foreach(i=0:(neff$ne[1]), .combine="rbind")%do%{
-    foreach(j=0:(neff$ne[2]), .combine="rbind")%do%{
+    foreach(j=0:(neff$ne[2]), .combine="rbind")%dopar%{
       #i<-
       print(paste(i, j, sep=" / "))
       data.table(N=sum(dat[,1]==i & dat[,2]==j), i=i, j=j)
@@ -97,7 +99,9 @@ message(i)
 ### write output
   colnames(dat)
   setwd(paste("/project/berglandlab/moments/", pairs[i]$type, sep=""))
+  getwd()
   fileConn <- file(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[i]$type, ".fs", sep=""))
+  message(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[i]$type, ".fs", sep=""))
   writeLines(c(paste(c(neff$ne[1]+1, neff$ne[2]+1, "unfolded", dQuote(  colnames(dat), F)), collapse=" "),
                paste(sfs$N, collapse=" "),
                paste(sfs.filter, collapse=" ")), fileConn)

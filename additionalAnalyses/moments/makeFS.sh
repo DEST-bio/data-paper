@@ -20,4 +20,4 @@ module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3
 ## SLURM_ARRAY_TASK_ID=2
 
 Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R ${SLURM_ARRAY_TASK_ID}
-Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R 1
+#Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R 1

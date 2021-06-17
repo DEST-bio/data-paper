@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 #SBATCH -J RunMoments # A single job name for the array
-#SBATCH -c 2
+#SBATCH -c 1
 #SBATCH -N 1 # on one node
 #SBATCH -t 4:00:00 #<= this may depend on your resources
 #SBATCH --mem=5G #<= this may depend on your resources
@@ -12,7 +12,7 @@
 
 ### sbatch -array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim ) data-paper/additionalAnalyses/moments/2.1.run_moments.sh
 ### sbatch --array=1-20 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sacct -j 22828870
+### sacct -j 22828885
 
 echo "began at"  `date`
 

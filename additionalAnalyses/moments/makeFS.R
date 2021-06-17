@@ -22,10 +22,10 @@ message(job)
   samps <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/samps_10Nov2020.csv")
 
 ### open GDS file & make SNP table
-  if (pairs[i]$type=="PoolSNP") {
+  if (pairs[job]$type=="PoolSNP") {
     message("PoolSNP")
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
-  } else if (pairs[i]$type=="SNAPE") {
+  } else if (pairs[job]$type=="SNAPE") {
     message("SNAPE")
 
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))

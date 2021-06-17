@@ -61,7 +61,7 @@ lower_bound = [1e-5, 1e-5, 1e-5, 0]
 #constants
 mu = 2.8e-9 #from Keightley et al. 2014
 L = int(L_file) #specific to Austria dataset
-g = 0.0383562 #equals 2 weeks converted to years
+g = 0.07692308 #equals 13 gen/year
 
 # run X optimizations from uniform-sampled starting params
 for i in range(int(iterations)):

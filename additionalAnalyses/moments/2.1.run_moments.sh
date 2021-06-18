@@ -12,7 +12,7 @@
 
 ### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim ) /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
 ### sbatch --array=1-126 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sacct -j 22843251
+### sacct -j 22847806
 
 echo "began at"  `date`
 
@@ -59,7 +59,7 @@ cd /project/berglandlab/moments/moments_output
 python /scratch/aob2x/data-paper/additionalAnalyses/moments/2.2.MomentsCode.py \
 $SFS \
 $L \
-20 \
+50 \
 $Pair
 
 

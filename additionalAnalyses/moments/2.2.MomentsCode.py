@@ -108,17 +108,17 @@ for i in range(int(iterations)): #iterartions is imported from sys. argument #1
     #mig_pop2 = Mij*(2*popt[1]) #number of individuals going j to i
     
     #Now we are estimated the nominal migration rate based on Mij
-	mig_pop1 = Mij*(popt[0]*(theta/(4*mu*L))) #number of individuals going i to j: migrants = Mij*nu1*Nref
-	mig_pop2 = Mij*(popt[1]*(theta/(4*mu*L))) #number of individuals going j to i: migrants = Mij*nu2*Nref
+    mig_pop1 = Mij*(popt[0]*(theta/(4*mu*L))) #number of individuals going i to j: migrants = Mij*nu1*Nref
+    mig_pop2 = Mij*(popt[1]*(theta/(4*mu*L))) #number of individuals going j to i: migrants = Mij*nu2*Nref
     
     #Now estimate population size
     pop1_size = popt[0]*(theta/(4*mu*L)) #pop1 size
     pop2_size = popt[1]*(theta/(4*mu*L)) #pop2 size
-	
-	#Open the output file
+    
+    #Open the output file
     PMmod=open('%s_output.txt' % Pair_name,'a')
-
-	#Dumping output ot outfile
+    
+    #Dumping output ot outfile
     PMmod.write(
         str(Pair_name)+'\t'+ #print pair name
         str(fs_file)+'\t'+ #double checking fs is the right one

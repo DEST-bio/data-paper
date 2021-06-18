@@ -1,14 +1,14 @@
-#!/bin/sh
-
-#SBATCH -J RunMoments # A single job name for the array
-#SBATCH -c 1
+#!/usr/bin/env bash
+#
+#SBATCH -J makeFS # A single job name for the array
+#SBATCH --ntasks-per-node=2 # one core
 #SBATCH -N 1 # on one node
-#SBATCH -t 4:00:00 #<= this may depend on your resources
-#SBATCH --mem=5G #<= this may depend on your resources
-#SBATCH -o /scratch/aob2x/slurmOut/moments.%A_%a.out # Standard output
-#SBATCH -e /scratch/aob2x/slurmOut/moments.%A_%a.err # Standard error
+#SBATCH -t 0-00:45  ### 10 minutes
+#SBATCH --mem 18G
+#SBATCH -o /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.out # Standard output
+#SBATCH -e /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.err # Standard error
 #SBATCH -p standard
-#SBATCH -A berglandlab
+#SBATCH --account berglandlab
 
 ### sbatch -array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim ) /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
 ### sbatch --array=1-20 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh

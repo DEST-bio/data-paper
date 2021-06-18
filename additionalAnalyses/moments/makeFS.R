@@ -3,7 +3,7 @@
 args = commandArgs(trailingOnly=TRUE)
 job=as.numeric(args[1])
 message(job)
-#job<-1
+#job<-2
 
 ### libraries
   library(data.table)
@@ -14,7 +14,7 @@ message(job)
   registerDoMC(2)
 
 ### load in pairs file
-  pairs <- fread("/scratch/aob2x/pairs.csv")
+  pairs <- fread("/project/berglandlab/moments/pairs.csv")
   head(pairs)
   pairs[job]
 
@@ -25,25 +25,40 @@ message(job)
   if (pairs[job]$type=="PoolSNP") {
     message("PoolSNP")
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
-  } else if (pairs[job]$type=="SNAPE") {
-    message("SNAPE")
 
-    genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
+    ### run once
+      #message("making snp table")
+      #snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
+      #                      pos=seqGetData(genofile, "position"),
+      #                      variant.id=seqGetData(genofile, "variant.id"),
+      #                      nAlleles=seqNumAllele(genofile),
+      #                      missing=seqMissing(genofile, .progress=T))
+#
+      ### choose number of alleles
+      # snps.dt <- snps.dt[nAlleles==2]
+      # save(snps.dt, file="/project/berglandlab/moments/PoolSNP.snp.dt.Rdata")
+      load(file="/project/berglandlab/moments/PoolSNP.snp.dt.Rdata")
+
+
+  } else if (pairs[job]$type=="SNAPE") {
+    q(save="no")
+    message("SNAPE")
+    genofile <- openfn.gds(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
+    #genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
+
+    message("making snp table")
+    snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
+                          pos=seqGetData(genofile, "position"),
+                          variant.id=seqGetData(genofile, "variant.id"),
+                          nAlleles=seqNumAllele(genofile),
+                          missing=seqMissing(genofile, .progress=T))
+
+    ## choose number of alleles
+     snps.dt <- snps.dt[nAlleles==2]
+     save(snps.dt, file="/project/berglandlab/moments/SNAPE.snp.dt.Rdata")
+
   }
 
-  message("making snp table")
-  snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
-                        pos=seqGetData(genofile, "position"),
-                        variant.id=seqGetData(genofile, "variant.id"),
-                        nAlleles=seqNumAllele(genofile),
-                        missing=seqMissing(genofile, .progress=T))
-
-  ## choose number of alleles
-   snps.dt <- snps.dt[nAlleles==2]
-
-### load pairs file
-  message("loading pairs")
-  pairs <- fread("/scratch/aob2x/pairs.csv")
 
 ### get polymorphism data
   message("get poly")

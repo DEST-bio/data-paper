@@ -12,7 +12,7 @@
 
 ### sbatch -array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim ) /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
 ### sbatch --array=1-20 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sacct -j 22829843
+### sacct -j 22840441
 
 echo "began at"  `date`
 

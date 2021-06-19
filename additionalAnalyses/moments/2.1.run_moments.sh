@@ -3,7 +3,7 @@
 #SBATCH -J makeFS # A single job name for the array
 #SBATCH --ntasks-per-node=1 # one core
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-00:45  ### 10 minutes
+#SBATCH -t 0-06:00  ### 10 minutes
 #SBATCH --mem 18G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.err # Standard error
@@ -59,7 +59,7 @@ cd /project/berglandlab/moments/moments_output
 python /scratch/aob2x/data-paper/additionalAnalyses/moments/2.2.MomentsCode.py \
 $SFS \
 $L \
-50 \
+100 \
 $Pair
 
 

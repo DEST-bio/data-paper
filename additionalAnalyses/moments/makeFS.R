@@ -80,10 +80,6 @@ message(job)
     neff[,ne:=floor(ne/2)*2]
 
 
-
-    neff <- merge(dep, samps, by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]
-
-
   ### integerize
     dat[,1] <- round(dat[,1]*neff$ne[1])
     dat[,2] <- round(dat[,2]*neff$ne[2])

@@ -24,7 +24,7 @@ message(job)
 
 ### open GDS file & make SNP table
   if (pairs[job]$type=="PoolSNP") {
-    q(save="no")
+    #q(save="no")
     message("PoolSNP")
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
 

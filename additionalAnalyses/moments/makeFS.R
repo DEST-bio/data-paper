@@ -14,7 +14,8 @@ message(job)
   registerDoMC(2)
 
 ### load in pairs file
-  pairs <- fread("/project/berglandlab/moments/pairs.csv")
+  #pairs <- fread("/project/berglandlab/moments/pairs.csv")
+  pairs <- fread("/scratch/aob2x/pairs.csv")
   head(pairs)
   pairs[job]
 
@@ -23,6 +24,7 @@ message(job)
 
 ### open GDS file & make SNP table
   if (pairs[job]$type=="PoolSNP") {
+    q(save="no")
     message("PoolSNP")
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
 
@@ -41,7 +43,6 @@ message(job)
 
 
   } else if (pairs[job]$type=="SNAPE") {
-    q(save="no")
     message("SNAPE")
     genofile <- openfn.gds(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
     #genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
@@ -55,7 +56,7 @@ message(job)
 
     ## choose number of alleles
      snps.dt <- snps.dt[nAlleles==2]
-     save(snps.dt, file="/project/berglandlab/moments/SNAPE.snp.dt.Rdata")
+     #save(snps.dt, file="/project/berglandlab/moments/SNAPE.snp.dt.Rdata")
 
   }
 
@@ -91,6 +92,11 @@ message(job)
     neff <- merge(dep[J(colnames(dat))], samps[J(colnames(dat))], by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]
     neff[,ne:=round((2*nFlies*mu.25)/(2*nFlies+mu.25))]
     neff[,ne:=floor(ne/2)*2]
+
+
+
+    neff <- merge(dep, samps, by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]
+
 
   ### integerize
     dat[,1] <- round(dat[,1]*neff$ne[1])

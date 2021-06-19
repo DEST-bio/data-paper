@@ -3,7 +3,7 @@
 #SBATCH -J makeFS # A single job name for the array
 #SBATCH --ntasks-per-node=2 # one core
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-00:45  ### 10 minutes
+#SBATCH -t 0-02:00  ### 10 minutes
 #SBATCH --mem 18G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.err # Standard error
@@ -13,7 +13,7 @@
 ### run as: sbatch --array=1-$( cat /scratch/aob2x/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.sh
 ### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.sh
 
-### sacct -j 22825739
+### sacct -j 22842491
 ### cat /scratch/aob2x/dest/slurmOutput/makeFS.22799095_1.out
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3
 

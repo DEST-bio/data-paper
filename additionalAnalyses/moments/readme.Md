@@ -1,0 +1,7 @@
+1. Generate ~1000 pairs of populations between E and W European clusters (`data-paper/additionalAnalyses/moments/generatePairs.R`)
+2. Get median L for moments calculations (`data-paper/additionalAnalyses/moments/getL.R`)
+3. Compute FS files for both SNAPE and PoolSNP datasets (`data-paper/additionalAnalyses/moments/makeFS.sh`)
+4. Make metat-data file for moments (`data-paper/additionalAnalyses/moments/make_moments_metadata.sh`)
+5. Install moments (`data-paper/additionalAnalyses/moments/1.set_up_moments.RunManually.sh`)
+6. Run moments wrapper (`data-paper/additionalAnalyses/moments/2.1.run_moments.sh`)
+7. Collect moments data (`data-paper/additionalAnalyses/moments/collect_moments.R`)

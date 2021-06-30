@@ -3,7 +3,7 @@
 args = commandArgs(trailingOnly=TRUE)
 job=as.numeric(args[1])
 message(job)
-#job<-2
+#job<-1
 
 ### libraries
   library(data.table)
@@ -12,10 +12,11 @@ message(job)
   library(sp)
   library(doMC)
   registerDoMC(2)
+  library(genomalicious)
 
 ### load in pairs file
-  pairs <- fread("/project/berglandlab/moments/pairs.csv")
-  #pairs <- fread("/scratch/aob2x/pairs.csv")
+  #pairs <- fread("/project/berglandlab/moments/pairs.csv")
+  pairs <- fread("/scratch/aob2x/pairs.csv")
   head(pairs)
   pairs[job]
 
@@ -61,7 +62,35 @@ message(job)
   dim(dat)
   rownames(dat) <- seqGetData(genofile, "sample.id")
   dat <- t(dat)
-  dat <- na.omit(dat)
+  #dat <- na.omit(dat)
+
+### convert to format for genomalicious
+  dat <- as.data.table(dat)
+  dat[,locus:=seqGetData(genofile, "variant.id")]
+  dat[,ref:=seqGetData(genofile, "$ref")]
+  dat[,alt:=seqGetData(genofile, "$alt")]
+
+  datl <- melt(dat, id.vars=c("locus", "ref", "alt"))
+  setnames(datl, c("variable", "value"), c("POOL", "FREQ"))
+
+  datl <- merge(datl, samps[,c("sampleId", "nFlies")], by.x="POOL", by.y="sampleId")
+  datl[,FREQ:=1-FREQ]
+  datl <- na.omit(datl)
+
+  dadi <- dadi_inputs_pools(
+    datl,
+    poolCol = "POOL",
+    locusCol = "locus",
+    refCol = "ref",
+    altCol = "alt",
+    freqCol = "FREQ",
+    indsCol = "nFlies",
+    poolSub = NULL,
+    methodSFS = "counts"
+  )
+
+  write.table(dadi, file="/project/berglandlab/moments/dadi_input_test.delim", sep="\t", quote=F, row.names=F)
+
 
 ### fold
   #f.hat <- dat[,1]/2 + dat[,2]/2

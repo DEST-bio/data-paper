@@ -39,7 +39,7 @@ PMmod.write(
 PMmod.close()
 
 #read in data as file
-dd = moments.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+dd = Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
 fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized = False) #takes data dict and folds
 ns = fs_folded.sample_sizes #gets sample sizes of dataset
 

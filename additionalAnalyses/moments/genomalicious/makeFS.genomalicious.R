@@ -88,55 +88,17 @@ message(job)
     poolSub = NULL,
     methodSFS = "counts"
   )
+  dadi <- na.omit(dadi)
 
-  write.table(dadi, file="/project/berglandlab/moments/dadi_input_test.delim", sep="\t", quote=F, row.names=F)
+  write.table(dadi,
+              file=paste("/project/berglandlab/moments/genomalicious/",
+                        seqGetData(genofile, "sample.id")[1],
+                        ".",
+                        seqGetData(genofile, "sample.id")[2],
+                        ".",
+                        pairs[job]$type,
+                        ".delim", sep=""),
+              sep="\t", quote=F, row.names=F)
 
-
-### fold
-  #f.hat <- dat[,1]/2 + dat[,2]/2
-  #
-  #dat[f.hat>.5, 1] <- 1 - dat[f.hat>.5, 1]
-  #dat[f.hat>.5, 2] <- 1 - dat[f.hat>.5, 2]
-
-### turn into integers
-  message("integerize")
-  ### load average effective read depth
-    dep <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/sequencingStats/rd.csv")[auto==T]
-    setkey(dep, sampleId)
-    setkey(samps, sampleId)
-    neff <- merge(dep[J(colnames(dat))], samps[J(colnames(dat))], by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]
-    neff[,ne:=round((2*nFlies*mu.25)/(2*nFlies+mu.25))]
-    neff[,ne:=floor(ne/2)*2]
-
-
-  ### integerize
-    dat.orig <- dat
-    dat[,1] <- round(dat[,1]*neff$ne[1])
-    dat[,2] <- round(dat[,2]*neff$ne[2])
-
-
-### turn in to 2D-SFS
-  sfs <- foreach(i=0:(neff$ne[1]), .combine="rbind")%do%{
-    foreach(j=0:(neff$ne[2]), .combine="rbind")%dopar%{
-      #i<-
-      print(paste(i, j, sep=" / "))
-      data.table(N=sum(dat[,1]==i & dat[,2]==j), i=i, j=j)
-    }
-  }
-
-#ggplot(data=sfs, aes(x=i, y=j, fill=log10(N))) + geom_tile()
-
-### make filter
-  sfs.filter <- as.numeric(sfs$N==0)
-  sfs.filter[1] <- 1
-
-### write output
-  colnames(dat)
-  setwd(paste("/project/berglandlab/moments/", pairs[job]$type, sep=""))
-  getwd()
-  fileConn <- file(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[job]$type, ".fs", sep=""))
-  message(paste(paste(c(colnames(dat), "unfolded"), collapse="."), ".", pairs[job]$type, ".fs", sep=""))
-  writeLines(c(paste(c(neff$ne[1]+1, neff$ne[2]+1, "unfolded", dQuote(  colnames(dat), F)), collapse=" "),
-               paste(sfs$N, collapse=" "),
-               paste(sfs.filter, collapse=" ")), fileConn)
-  close(fileConn)
+### write meta-data file
+  

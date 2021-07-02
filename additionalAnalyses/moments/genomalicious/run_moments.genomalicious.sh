@@ -51,6 +51,8 @@ projection=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ 
 echo "Now Processing" $Pair
 echo "Now Loading" $SFS "=> where" $Pair "SFS is located"
 echo $Pair "has an L parameter of" $L "bp"
+echo $pop_id
+echo $projection
 
 #Run Moments
 # this script takes 4 arguments
@@ -60,10 +62,11 @@ echo $Pair "has an L parameter of" $L "bp"
 #pair_name = sys.argv[4] ==> name of the pair -> $Pair
 
 cd /project/berglandlab/moments/moments_output_genomalicious
-python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh \
+
+python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/moments_script.genomalicious.py \
 $SFS \
 $L \
-100 \
+10 \
 $Pair \
 $pop_id \
 $projection

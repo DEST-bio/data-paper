@@ -1,6 +1,6 @@
 # This script will run the program moments by Jouganous, J., Long, W., Ragsdale, A. P., & Gravel, S. (2017)
 # Written by Keric Lamb, UVA 2021
-# ksl2za@virginia.edu 
+# ksl2za@virginia.edu
 # import packages that'll be used
 import moments
 from moments import Numerics
@@ -38,7 +38,7 @@ PMmod.write(
 PMmod.close()
 
 #read in data as file
-dd = Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+dd = moments.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
 fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized = False) #takes data dict and folds
 ns = fs_folded.sample_sizes #gets sample sizes of dataset
 
@@ -78,12 +78,12 @@ g = 0.07692308 #equals 13 gen/year. Calculated based on biological intuition.
 # run X optimizations from uniform-sampled starting params
 for i in range(int(iterations)): #iterations is imported from sys. argument #1
     print("starting optimization "+str(i))
-    
-    #Start the run by picking random parameters from a uniform distribution. 
+
+    #Start the run by picking random parameters from a uniform distribution.
     #Parameters are set above " nu1, nu2, T, m"
     #The number "4" in range(4) comes from the number of parameters. Change in needed.
     popt=[np.random.uniform(lower_bound[x],upper_bound[x]) for x in range(4)]
-    
+
     #This is the optimization step for moments.
     #popt is the prior.
     #fs folded is a tranform SFS by folding it. The original SFS loaded in sys.arg #1 is quasi-folded. i.e. polarized to reference genome.
@@ -92,41 +92,41 @@ for i in range(int(iterations)): #iterations is imported from sys. argument #1
                                         lower_bound=lower_bound, upper_bound=upper_bound,
                                         verbose=False, maxiter=100,
                                         )
-    
-    #This number is 4. i.e., count parameters. there is an opportunity to streamline the code by propagating this from the beginning.                                    
+
+    #This number is 4. i.e., count parameters. there is an opportunity to streamline the code by propagating this from the beginning.
     params = len(["nu1", "nu2", "Ts", "m"]) #for use in AIC calculation
-    
+
     #This is the moments function.
     model = func_moments(popt, ns)
-    
+
     #Calculate log likelihood of the model fit
     ll_model=moments.Inference.ll_multinom(model, fs_folded)
     #Now calculate AIC of model fit
     aic = 2*params - 2*ll_model
     print('Maximum log composite likelihood: {0}'.format(ll_model))
-    
+
     #Now estimate theta from model fit
     theta = moments.Inference.optimal_sfs_scaling(model, fs_folded)
     #Now calculate Ts from Model fit
     divergence_time = 2*(theta/(4*mu*L))*popt[2]*g #calculates divergence time in years
-    
+
     #Now calculate Migration rate (fraction of migrants that move between pops)
     Mij = popt[3]/(2*(theta/(4*mu*L))) #actual migration rate
     #Below is an old code which had a typo. Keric has since updated it. kept for record keeping. #Jcbn Jun18,2021
     #mig_pop1 = Mij*(2*popt[0]) #number of individuals going i to j
     #mig_pop2 = Mij*(2*popt[1]) #number of individuals going j to i
-    
+
     #Now we are estimated the nominal migration rate based on Mij
     mig_pop1 = Mij*(popt[0]*(theta/(4*mu*L))) #number of individuals going i to j: migrants = Mij*nu1*Nref
     mig_pop2 = Mij*(popt[1]*(theta/(4*mu*L))) #number of individuals going j to i: migrants = Mij*nu2*Nref
-    
+
     #Now estimate population size
     pop1_size = popt[0]*(theta/(4*mu*L)) #pop1 size
     pop2_size = popt[1]*(theta/(4*mu*L)) #pop2 size
-    
+
     #Open the output file
     PMmod=open('%s_output.txt' % Pair_name,'a')
-    
+
     #Dumping output ot outfile
     PMmod.write(
         str(Pair_name)+'\t'+ #print pair name

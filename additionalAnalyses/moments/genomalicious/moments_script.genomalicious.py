@@ -6,6 +6,7 @@ import moments
 from moments import Numerics
 from moments import Integration
 from moments import Spectrum
+from moments import Misc
 import os
 import sys
 import numpy as np

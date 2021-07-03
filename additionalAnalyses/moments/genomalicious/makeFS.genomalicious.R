@@ -90,7 +90,7 @@ message(job)
   )
   dadi <- na.omit(dadi)
 
-  fn <- paste("/project/berglandlab/moments/genomalicious/",
+  fn <- paste("/scratch/aob2x/moments/",
             seqGetData(genofile, "sample.id")[1],
             ".",
             seqGetData(genofile, "sample.id")[2],
@@ -105,18 +105,13 @@ message(job)
 ### write meta-data file
   meta <- data.table(id=paste(seqGetData(genofile, "sample.id"), collapse="|"),
                      file=fn,
-                    L=83960116,
-                    pop1=paste("'",
-                              seqGetData(genofile, "sample.id")[1],
-                              "'", sep=""),
-                    pop2=paste("'",
-                              seqGetData(genofile, "sample.id")[2],
-                              "'", sep=""),
-                    projection1=samps[sampleId==seqGetData(genofile, "sample.id")[1]]$nFlie*2,
-                    projection2=samps[sampleId==seqGetData(genofile, "sample.id")[2]]$nFlie*2 
-                    )
+                     L=83960116,
+                     pop1=seqGetData(genofile, "sample.id")[1],
+                     pop2=seqGetData(genofile, "sample.id")[2],
+                     projection1=samps[sampleId==seqGetData(genofile, "sample.id")[1]]$nFlie*2,
+                     projection2=samps[sampleId==seqGetData(genofile, "sample.id")[2]]$nFlie*2)
 
-    meta.fn <- paste("/project/berglandlab/moments/genomalicious/",
+    meta.fn <- paste("/scratch/aob2x/moments/",
               seqGetData(genofile, "sample.id")[1],
               ".",
               seqGetData(genofile, "sample.id")[2],

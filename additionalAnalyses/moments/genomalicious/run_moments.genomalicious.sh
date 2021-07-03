@@ -45,14 +45,16 @@ metadata=/project/berglandlab/moments/genomalicious/AT_Mau_14_01.AT_See_14_44.Po
 Pair=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $1 }' )
 SFS=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $2 }' )
 L=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $3 }' )
-pop_id=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $4 }' )
-projection=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $5 }' )
+pop1_id=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $4 }' )
+pop2_id=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $5 }' )
+
+projection1=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $6 }' )
+projection2=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $7 }' )
 
 echo "Now Processing" $Pair
 echo "Now Loading" $SFS "=> where" $Pair "SFS is located"
 echo $Pair "has an L parameter of" $L "bp"
-echo $pop_id
-echo $projection
+
 
 #Run Moments
 # this script takes 4 arguments
@@ -63,13 +65,18 @@ echo $projection
 
 cd /project/berglandlab/moments/moments_output_genomalicious
 
-python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/moments_script.genomalicious.py \
-$SFS \
+#head $SFS > $SFS.head
+
+
+python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/moments_genom_test2.py \
+${SFS} \
 $L \
 10 \
 $Pair \
-$pop_id \
-$projection
+$pop1_id \
+$pop2_id \
+$projection1 \
+$projection2
 
 
 #De-Activate moments kernell

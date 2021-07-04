@@ -54,6 +54,22 @@ message(job)
   seqSetFilter(genofile, sample.id=as.character(pairs[job, c("V1", "V2"), with=F]),
                 variant.id=snps.dt[J(c("2L", "2R", "3L", "3R"))]$variant.id)
 
+
+
+
+### does file already exist?
+  fn <- paste("/scratch/aob2x/moments/",
+            seqGetData(genofile, "sample.id")[1],
+            ".",
+            seqGetData(genofile, "sample.id")[2],
+            ".",
+            pairs[job]$type,
+            ".delim", sep="")
+
+  if(file.exists(fn)) q(save="no")
+
+### if not, do the rest
+
   ### get allele frequency data
   ad <- seqGetData(genofile, "annotation/format/AD")
   dp <- seqGetData(genofile, "annotation/format/DP")

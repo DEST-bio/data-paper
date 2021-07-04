@@ -10,14 +10,14 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
-### run as: sbatch --array=1-$( cat /project/berglandlab/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.sh
+### run as: sbatch --array=1-$( cat /project/berglandlab/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/makeFS.genomalicious.sh
 ### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.sh
 
-### sacct -j 22880380
-### cat /scratch/aob2x/dest/slurmOutput/makeFS.22880380_2.out
+### sacct -j 23350473
+### cat /scratch/aob2x/dest/slurmOutput/makeFS.23350473_2.out
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3
 
 ## SLURM_ARRAY_TASK_ID=2
 
-Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R ${SLURM_ARRAY_TASK_ID}
+Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/makeFS.genomalicious.R ${SLURM_ARRAY_TASK_ID}
 #Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R 1

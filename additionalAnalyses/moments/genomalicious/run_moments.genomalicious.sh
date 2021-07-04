@@ -10,10 +10,10 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
-### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sbatch --array=1-254 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sacct -j 22880708
-### cat /scratch/aob2x/dest/slurmOutput/makeFS.22880708_5.out
+### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments.genomalicious.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
+### sbatch /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
+### sacct -j 23350463
+### cat /scratch/aob2x/dest/slurmOutput/makeFS.23350463
 
 
 echo "began at"  `date`
@@ -25,7 +25,7 @@ module load anaconda/2020.11-py3.8
 source activate moments_kern
 
 #Load the metadata object into memory
-metadata=/project/berglandlab/moments/genomalicious/AT_Mau_14_01.AT_See_14_44.PoolSNP.meta #Address to the metadata. What is this? see below:
+metadata=/project/berglandlab/moments/moments.genomalicious.delim #Address to the metadata. What is this? see below:
 
 #The metadata file is as follows:
 # A file with 5 columns and a header
@@ -38,7 +38,7 @@ metadata=/project/berglandlab/moments/genomalicious/AT_Mau_14_01.AT_See_14_44.Po
 #L => The number of sites from which the SFS was derived. IMPORTANT: This number must be an integer. No scientific notation allowed.
 
 #===> Want to fix SLURM_ARRAY_TASK_ID? this is useful for debugging <====
-#=# SLURM_ARRAY_TASK_ID=1
+#=# SLURM_ARRAY_TASK_ID=45
 
 #Mining the metadata file
 
@@ -71,7 +71,7 @@ cd /project/berglandlab/moments/moments_output_genomalicious
 python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/moments_genom_test2.py \
 ${SFS} \
 $L \
-10 \
+100 \
 $Pair \
 $pop1_id \
 $pop2_id \

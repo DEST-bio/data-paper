@@ -4,15 +4,15 @@
 #SBATCH --ntasks-per-node=1 # one core
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-06:00  ### 10 minutes
-#SBATCH --mem 18G
+#SBATCH --mem 48G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.err # Standard error
-#SBATCH -p standard
+#SBATCH -p largemem
 #SBATCH --account berglandlab
 
 ### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments.genomalicious.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
 ### sbatch /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
-### sacct -j 23350463
+### sacct -j 23361291
 ### cat /scratch/aob2x/dest/slurmOutput/makeFS.23350463
 
 

@@ -15,8 +15,8 @@ message(job)
   library(genomalicious)
 
 ### load in pairs file
-  #pairs <- fread("/project/berglandlab/moments/pairs.csv")
-  pairs <- fread("/scratch/aob2x/pairs.csv")
+  pairs <- fread("/project/berglandlab/moments/pairs.csv")
+
   head(pairs)
   pairs[job]
 
@@ -55,8 +55,6 @@ message(job)
                 variant.id=snps.dt[J(c("2L", "2R", "3L", "3R"))]$variant.id)
 
 
-
-
 ### does file already exist?
   fn <- paste("/scratch/aob2x/moments/",
             seqGetData(genofile, "sample.id")[1],
@@ -80,6 +78,21 @@ message(job)
   dat <- t(dat)
   #dat <- na.omit(dat)
 
+### downsample to Neff
+  ### load average effective read depth
+    dep <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/sequencingStats/rd.csv")[auto==T]
+    setkey(dep, sampleId)
+    setkey(samps, sampleId)
+    neff <- merge(dep[J(colnames(dat))], samps[J(colnames(dat))], by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]
+    neff[,ne:=round((2*nFlies*mu.25)/(2*nFlies+mu.25))]
+    neff[,ne:=floor(ne/2)] ### note, this is the number of diploid individuals...
+
+
+#### integerize
+#  dat.orig <- dat
+#  dat[,1] <- round(dat[,1]*neff$ne[1])
+#  dat[,2] <- round(dat[,2]*neff$ne[2])
+
 ### convert to format for genomalicious
   dat <- as.data.table(dat)
   dat[,locus:=seqGetData(genofile, "variant.id")]
@@ -89,7 +102,7 @@ message(job)
   datl <- melt(dat, id.vars=c("locus", "ref", "alt"))
   setnames(datl, c("variable", "value"), c("POOL", "FREQ"))
 
-  datl <- merge(datl, samps[,c("sampleId", "nFlies")], by.x="POOL", by.y="sampleId")
+  datl <- merge(datl, neff[,c("sampleId", "ne")], by.x="POOL", by.y="sampleId")
   datl[,FREQ:=1-FREQ]
   datl <- na.omit(datl)
 
@@ -100,7 +113,7 @@ message(job)
     refCol = "ref",
     altCol = "alt",
     freqCol = "FREQ",
-    indsCol = "nFlies",
+    indsCol = "ne",
     poolSub = NULL,
     methodSFS = "counts"
   )
@@ -124,8 +137,8 @@ message(job)
                      L=83960116,
                      pop1=seqGetData(genofile, "sample.id")[1],
                      pop2=seqGetData(genofile, "sample.id")[2],
-                     projection1=samps[sampleId==seqGetData(genofile, "sample.id")[1]]$nFlie*2,
-                     projection2=samps[sampleId==seqGetData(genofile, "sample.id")[2]]$nFlie*2)
+                     projection1=neff[sampleId==seqGetData(genofile, "sample.id")[1]]$ne*2,
+                     projection2=neff[sampleId==seqGetData(genofile, "sample.id")[2]]$ne*2)
 
     meta.fn <- paste("/scratch/aob2x/moments/",
               seqGetData(genofile, "sample.id")[1],

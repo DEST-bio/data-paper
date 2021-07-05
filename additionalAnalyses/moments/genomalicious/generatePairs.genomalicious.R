@@ -11,6 +11,7 @@
 ### load samps
   setwd("/scratch/aob2x/")
   samps <- fread("DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+  samps <- samps[status=="Keep"]
 
 ### Get E/W cluster IDs
   clusters <- fread("DEST_freeze1/populationInfo/Cluster_Assingment/DEST_Sample_clusters.txt")

@@ -12,7 +12,7 @@
 
 ### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments.genomalicious.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
 ### sbatch /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
-### sacct -j 23361936
+### sacct -j 23375055
 ### cat /scratch/aob2x/dest/slurmOutput/makeFS.23350463
 
 

@@ -10,7 +10,7 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
-### run as: sbatch --array=1-$( cat /project/berglandlab/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious_binom/makeFS.genomalicious.binom.rdSlice.sh
+### run as: sbatch --array=1-$( cat /project/berglandlab/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious_binom_rdSlice/makeFS.genomalicious.binom.rdSlice.sh
 ### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.sh
 
 ### sacct -j 23377047
@@ -19,5 +19,5 @@ module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3
 
 ## SLURM_ARRAY_TASK_ID=2
 
-Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious_binom/makeFS.genomalicious.binom.rdSlice.R ${SLURM_ARRAY_TASK_ID}
+Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious_binom_rdSlice/makeFS.genomalicious.binom.rdSlice.R ${SLURM_ARRAY_TASK_ID}
 #Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.R 1

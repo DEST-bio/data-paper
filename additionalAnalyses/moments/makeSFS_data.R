@@ -33,9 +33,6 @@ message(job)
     message("SNAPE")
     #genofile <- openfn.gds(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
-
-    #save(snps.dt, file="/project/berglandlab/moments/SNAPE.snp.dt.Rdata")
-
   }
 
   message("making snp table")
@@ -112,7 +109,7 @@ message(job)
 
   if(pairs$sfs_method[job]=="counts") {
     sfs_method="counts"
-  } else if(paris$sfs_method[job]=="binom") {
+  } else if(pairs$sfs_method[job]=="binom") {
     sfs_method="probs"
   }
   message(sfs_method)
@@ -130,12 +127,8 @@ message(job)
   )
   dadi <- na.omit(dadi)
 
-  fn <- paste("/scratch/aob2x/moments_general/",
-            paste(pairs[job,c("data_source", "sfs_method", "rd_filter"), with=F], collapse="."),
-            ".",
-            seqGetData(genofile, "sample.id")[1],
-            ".",
-            seqGetData(genofile, "sample.id")[2],
+  fn <- paste("/scratch/aob2x/moments_general/input/",
+            job,
             ".delim", sep="")
   message(fn)
 
@@ -152,18 +145,11 @@ message(job)
                      projection1=neff[sampleId==seqGetData(genofile, "sample.id")[1]]$ne*2,
                      projection2=neff[sampleId==seqGetData(genofile, "sample.id")[2]]$ne*2)
 
-    meta.fn <- paste("/scratch/aob2x/moments_general/",
-              paste(pairs[job,c("data_source", "sfs_method", "rd_filter"), with=F], collapse="."),
-              ".",
-              seqGetData(genofile, "sample.id")[1],
-              ".",
-              seqGetData(genofile, "sample.id")[2],
-              ".",
+    meta.fn <- paste("/scratch/aob2x/moments_general/input/",
+              job,
               ".meta", sep="")
     message(meta.fn)
 
     write.table(meta,
                 file=meta.fn,
                 sep="\t", quote=F, row.names=F, col.names=F)
-
-                

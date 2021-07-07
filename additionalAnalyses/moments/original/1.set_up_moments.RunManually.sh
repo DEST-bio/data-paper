@@ -18,3 +18,6 @@ source activate moments_kern
 
 #Installs moments
 conda install moments -c bioconda
+
+# install pandas
+conda install pandas

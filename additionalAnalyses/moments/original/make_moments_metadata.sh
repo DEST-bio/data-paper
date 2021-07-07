@@ -8,7 +8,7 @@ ls * | sed 's/$/\t83960116/g' | awk '{
 
 
 cat /scratch/aob2x/pairs.csv | sed '1d' | sed 's/"//g' | awk -F',' '{
-  print $4"."$5"."$3"\t/project/berglandlab/moments/"$3"/"$4"."$5".unfolded."$3".fs\t83960116"
+  print $5"."$4"."$3"\t/project/berglandlab/moments/"$3"/"$5"."$4".unfolded."$3".fs\t83960116"
 }' > /project/berglandlab/moments/moments_jobs.delim
 
 

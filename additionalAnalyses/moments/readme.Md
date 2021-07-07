@@ -5,3 +5,4 @@
 5. Install moments (`data-paper/additionalAnalyses/moments/1.set_up_moments.RunManually.sh`)
 6. Run moments wrapper (`data-paper/additionalAnalyses/moments/2.1.run_moments.sh`)
 7. Collect moments data (`data-paper/additionalAnalyses/moments/collect_moments.R`)
+8. Plot moments data (`data-paper/additionalAnalyses/moments/plot_moments.R`)

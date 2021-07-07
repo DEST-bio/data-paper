@@ -11,7 +11,6 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 
 #define sys args
 #DEBUGGED AS FOR LOOPS
@@ -19,13 +18,9 @@ fs_file = sys.argv[1]
 L_file = sys.argv[2]
 iterations = sys.argv[3]
 Pair_name = sys.argv[4]
-pop_id1 = sys.argv[5]
-pop_id2 = sys.argv[6]
-projection1 = sys.argv[7]
-projection2 = sys.argv[8]
+pop_id = sys.argv[5]
+projection = sys.argv[6]
 
-projection1= int(projection1)
-projection2= int(projection2)
 
 #opening output file to give column names
 PMmod=open('%s_output.txt' % Pair_name,'a')
@@ -45,11 +40,7 @@ PMmod.close()
 
 #read in data as file
 dd = Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-
-pop_id=[pop_id1,pop_id2]
-projection=[projection1,projection2]
-
-fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized=False) #takes data dict and folds
+fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized = False) #takes data dict and folds
 ns = fs_folded.sample_sizes #gets sample sizes of dataset
 
 #this code was used to import Alan's custom fs files. Now commented out as we've switched to genomalicious (R package) compiled SNP files

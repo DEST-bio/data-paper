@@ -1,4 +1,5 @@
 
+
 # scp aob2x@rivanna.hpc.virginia.edu:~/moments_o.genomalicious.neff.Rdata ~/.
 
   library(data.table)

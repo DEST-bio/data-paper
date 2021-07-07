@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 #
 #SBATCH -J makeFS # A single job name for the array
-#SBATCH --ntasks-per-node=4 # one core
+#SBATCH --ntasks-per-node=1 # one core
 #SBATCH -N 1 # on one node
 #SBATCH -t 0-06:00  ### 10 minutes
-#SBATCH --mem 36G
+#SBATCH --mem 48G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/makeFS.%A_%a.err # Standard error
-#SBATCH -p standard
+#SBATCH -p largemem
 #SBATCH --account berglandlab
 
-### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments.genomalicious.binom.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious_binom/run_moments.genomalicious.binom.sh
+### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments.genomalicious.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
 ### sbatch /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
-### sacct -j 23379827
+### sacct -j 23375055
 ### cat /scratch/aob2x/dest/slurmOutput/makeFS.23350463
 
 
@@ -25,7 +25,7 @@ module load anaconda/2020.11-py3.8
 source activate moments_kern
 
 #Load the metadata object into memory
-metadata=/project/berglandlab/moments/moments.genomalicious.binom.delim #Address to the metadata. What is this? see below:
+metadata=/project/berglandlab/moments/moments.genomalicious.delim #Address to the metadata. What is this? see below:
 
 #The metadata file is as follows:
 # A file with 5 columns and a header
@@ -63,12 +63,12 @@ echo $Pair "has an L parameter of" $L "bp"
 #iterations = sys.argv[3] ==> number of runs ... a number
 #pair_name = sys.argv[4] ==> name of the pair -> $Pair
 
-cd /project/berglandlab/moments/moments_output_genomalicious_binom
+cd /project/berglandlab/moments/moments_output_genomalicious
 
 #head $SFS > $SFS.head
 
 
-python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious_binom/moments_genom_test2.py \
+python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/moments_genom_test2.py \
 ${SFS} \
 $L \
 100 \

@@ -11,9 +11,9 @@
 #SBATCH --account berglandlab
 
 ### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments_jobs.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sbatch --array=1-254 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
-### sacct -j 22880708
-### cat /scratch/aob2x/dest/slurmOutput/makeFS.22880708_5.out
+### sbatch --array=2 /scratch/aob2x/data-paper/additionalAnalyses/moments/2.1.run_moments.sh
+### sacct -j 23307138
+### cat /scratch/aob2x/dest/slurmOutput/makeFS.23302576_2.err
 
 
 echo "began at"  `date`

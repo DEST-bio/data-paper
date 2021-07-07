@@ -12,8 +12,8 @@
 
 ### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments.sh
 
-### sacct -j 23440593
-### cat /scratch/aob2x/dest/slurmOutput/run_moments.23440593_97.out
+### sacct -j 23444009
+### cat /scratch/aob2x/dest/slurmOutput/run_moments.23444009_97.err
 
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
 
@@ -49,7 +49,7 @@ cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | 
 
   cd /scratch/aob2x/moments_general/output
 
-  python /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/moments_genom_test2.py \
+  python data-paper/additionalAnalyses/moments/moments_genom_test2.py \
   ${SFS} \
   $L \
   50 \

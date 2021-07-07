@@ -3,7 +3,7 @@
 #SBATCH -J makeFS # A single job name for the array
 #SBATCH --ntasks-per-node=3 # one core
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-01:00  ### 10 minutes
+#SBATCH -t 0-08:00  ### 8 hours / job
 #SBATCH --mem 24G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/run_moments.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/run_moments.%A_%a.err # Standard error
@@ -11,10 +11,10 @@
 #SBATCH --account berglandlab
 
 ### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments.sh
-### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/makeFS.sh
 
-### sacct -j 23372806
-### cat /scratch/aob2x/dest/slurmOutput/makeFS.22880380_2.out
+### sacct -j 23420362
+### cat /scratch/aob2x/dest/slurmOutput/run_moments.23420362_5.err
+
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
 
 ## SLURM_ARRAY_TASK_ID=3
@@ -30,14 +30,14 @@ cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | 
   metadata=/scratch/aob2x/moments_general/input/${SLURM_ARRAY_TASK_ID}.meta
   cat ${metadata}
 
-  Pair=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $1 }' )
-  SFS=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $2 }' )
-  L=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $3 }' )
-  pop1_id=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $4 }' )
-  pop2_id=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $5 }' )
+  Pair=$( cat $metadata  | awk -F "\t" '{ print $1 }' )
+  SFS=$( cat $metadata  | awk -F "\t" '{ print $2 }' )
+  L=$( cat $metadata  | awk -F "\t" '{ print $3 }' )
+  pop1_id=$( cat $metadata  | awk -F "\t" '{ print $4 }' )
+  pop2_id=$( cat $metadata  | awk -F "\t" '{ print $5 }' )
 
-  projection1=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $6 }' )
-  projection2=$( cat $metadata  | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $7 }' )
+  projection1=$( cat $metadata  | awk -F "\t" '{ print $6 }' )
+  projection2=$( cat $metadata  | awk -F "\t" '{ print $7 }' )
 
   echo "Now Processing" $Pair
   echo "Now Loading" $SFS "=> where" $Pair "SFS is located"
@@ -62,4 +62,6 @@ cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | 
   conda deactivate
 
 ### Print the time
+  rm $SFS
+  rm $metadata
   echo "ended at"  `date`

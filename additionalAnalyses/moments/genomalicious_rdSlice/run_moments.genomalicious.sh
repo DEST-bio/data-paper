@@ -10,7 +10,7 @@
 #SBATCH -p largemem
 #SBATCH --account berglandlab
 
-### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments.genomalicious.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
+### sbatch --array=1-$( wc -l /project/berglandlab/moments/moments.genomalicious.rdSlice.delim | cut -f1 -d' ' ) /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.rdSlice.sh
 ### sbatch /scratch/aob2x/data-paper/additionalAnalyses/moments/genomalicious/run_moments.genomalicious.sh
 ### sacct -j 23375055
 ### cat /scratch/aob2x/dest/slurmOutput/makeFS.23350463
@@ -25,7 +25,7 @@ module load anaconda/2020.11-py3.8
 source activate moments_kern
 
 #Load the metadata object into memory
-metadata=/project/berglandlab/moments/moments.genomalicious.delim #Address to the metadata. What is this? see below:
+metadata=/project/berglandlab/moments/moments.genomalicious.rdSlice.delim #Address to the metadata. What is this? see below:
 
 #The metadata file is as follows:
 # A file with 5 columns and a header
@@ -63,7 +63,7 @@ echo $Pair "has an L parameter of" $L "bp"
 #iterations = sys.argv[3] ==> number of runs ... a number
 #pair_name = sys.argv[4] ==> name of the pair -> $Pair
 
-cd /project/berglandlab/moments/moments_output_genomalicious
+cd /project/berglandlab/moments/moments_output_genomalicious_rdSlice
 
 #head $SFS > $SFS.head
 

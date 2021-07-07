@@ -3,7 +3,7 @@
 args = commandArgs(trailingOnly=TRUE)
 job=as.numeric(args[1])
 message(job)
-#job<-1
+#job<-5
 
 ### libraries
   library(data.table)
@@ -35,15 +35,30 @@ message(job)
     genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
   }
 
-  message("making snp table")
-  snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
-                        pos=seqGetData(genofile, "position"),
-                        variant.id=seqGetData(genofile, "variant.id"),
-                        nAlleles=seqNumAllele(genofile),
-                        missing=seqMissing(genofile, .progress=T))
 
-  ## choose number of alleles
-   snps.dt <- snps.dt[nAlleles==2]
+
+### make SNP table - old
+  #message("making snp table")
+  #snps.dt <- data.table(chr=seqGetData(genofile, "chromosome"),
+  #                      pos=seqGetData(genofile, "position"),
+  #                      variant.id=seqGetData(genofile, "variant.id"),
+  #                      nAlleles=seqNumAllele(genofile),
+  #                      missing=seqMissing(genofile, .progress=T))
+
+  ### choose number of alleles
+  # snps.dt <- snps.dt[nAlleles==2]
+
+### load premade SNP table
+  if (pairs[job]$data_source=="PoolSNP") {
+    #q(save="no")
+    message("load PoolSNP snp table")
+    load("/scratch/aob2x/moments_general/snp_table_PoolSNP.Rdata")
+
+  } else if (pairs[job]$data_source=="SNAPE") {
+    message("load SNAPE snp table")
+    load("/scratch/aob2x/moments_general/snp_table_SNAPE.Rdata")
+  }
+
 
 ### get polymorphism data
   message("get poly")
@@ -74,6 +89,7 @@ message(job)
     dim(dat)
   } else if(pairs$rd_filter[job]=="all") {
     message("all")
+    tf<-TRUE
     dim(dat)
   }
 
@@ -95,9 +111,9 @@ message(job)
 
 ### convert to format for genomalicious
   dat <- as.data.table(dat)
-  dat[,locus:=seqGetData(genofile, "variant.id")]
-  dat[,ref:=seqGetData(genofile, "$ref")]
-  dat[,alt:=seqGetData(genofile, "$alt")]
+  dat[,locus:=seqGetData(genofile, "variant.id")[tf]]
+  dat[,ref:=seqGetData(genofile, "$ref")[tf]]
+  dat[,alt:=seqGetData(genofile, "$alt")[tf]]
 
   datl <- melt(dat, id.vars=c("locus", "ref", "alt"))
   setnames(datl, c("variable", "value"), c("POOL", "FREQ"))

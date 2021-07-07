@@ -11,7 +11,10 @@
 ### load samps
   setwd("/scratch/aob2x/")
   samps <- fread("DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+
+### some basic sample filtering
   samps <- samps[status=="Keep"]
+  samps <- samps[propSimNorm<=0.01]
 
 ### Get E/W cluster IDs
   clusters <- fread("DEST_freeze1/populationInfo/Cluster_Assingment/DEST_Sample_clusters.txt")
@@ -37,15 +40,26 @@
 
 ### subsample to ~1000 pairs evenly across the distance distribution
     setkey(1234)
-    pairs.sample <- pairs[,list(id=rep(sample(id, 200, replace=T), each=2),
-                                type=rep(c("PoolSNP", "SNAPE"), 200)),
-                            list(dist.bin=round(dist/20)*20)]
+    table(round(pairs$dist/20)*20)
 
-    setkey(pairs.sample, id, type)
-    pairs.sample <- pairs.sample[!duplicated(pairs.sample)]
+
+    pairs.sample <- pairs[,list(id=rep(sample(id, 200, replace=F))),
+                            list(dist.bin=round(dist/20)*20)]
+    job_groups <- expand.grid(data_source=c("PoolSNP", "SNAPE"),
+                                                   sfs_method=c("counts", "binom"),
+                                                   rd_filter=c("all", "median_1sd"))
+
+    pairs.sample <- pairs.sample[,list(data_source=job_groups$data_source,
+                                      sfs_method=job_groups$sfs_method,
+                                      rd_filter=job_groups$rd_filter,
+                                        dist.bin=dist.bin),
+                                  list(id)]
+
+
+
     pairs.sample <- merge(pairs.sample, pairs, by="id")
 
     table(pairs.sample$popset)
 
 ### write file
-  write.csv(pairs.sample, "/project/berglandlab/moments/pairs.csv", row.names=F)
+  write.csv(pairs.sample, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv", row.names=F)

@@ -56,7 +56,7 @@ message(job)
 
 
 ### does file already exist?
-  fn <- paste("/scratch/aob2x/moments/",
+  fn <- paste("/scratch/aob2x/moments_rdSlice/",
             seqGetData(genofile, "sample.id")[1],
             ".",
             seqGetData(genofile, "sample.id")[2],
@@ -72,7 +72,16 @@ message(job)
   ad <- seqGetData(genofile, "annotation/format/AD")
   dp <- seqGetData(genofile, "annotation/format/DP")
 
-  dat <- ad$data/dp$data
+
+  ### truncate to read depth around median
+    med_rd <- apply(dp$data, 1, median, na.rm=T)
+    sd_rd <- apply(dp$data, 1, sd, na.rm=T)
+
+    tf <- dp$data[1,]>= (med_rd[1]-sd_rd[1]) & dp$data[1,]<= (med_rd[1]+sd_rd[1]) &
+          dp$data[2,]>= (med_rd[2]-sd_rd[2]) & dp$data[2,]<= (med_rd[2]+sd_rd[2])
+    table(tf)
+
+  dat <- ad$data[,tf]/dp$data[,tf]
   dim(dat)
   rownames(dat) <- seqGetData(genofile, "sample.id")
   dat <- t(dat)
@@ -119,7 +128,7 @@ message(job)
   )
   dadi <- na.omit(dadi)
 
-  fn <- paste("/scratch/aob2x/moments/",
+  fn <- paste("/scratch/aob2x/moments_rdSlice/",
             seqGetData(genofile, "sample.id")[1],
             ".",
             seqGetData(genofile, "sample.id")[2],
@@ -140,7 +149,7 @@ message(job)
                      projection1=neff[sampleId==seqGetData(genofile, "sample.id")[1]]$ne*2,
                      projection2=neff[sampleId==seqGetData(genofile, "sample.id")[2]]$ne*2)
 
-    meta.fn <- paste("/scratch/aob2x/moments/",
+    meta.fn <- paste("/scratch/aob2x/moments_rdSlice/",
               seqGetData(genofile, "sample.id")[1],
               ".",
               seqGetData(genofile, "sample.id")[2],

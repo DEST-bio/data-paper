@@ -18,7 +18,7 @@ message(job)
 
 ### load in pairs file
   if(popset=="between") {
-    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv")
+    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv")
   } else if(popset=="within") {
     pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv")
   }

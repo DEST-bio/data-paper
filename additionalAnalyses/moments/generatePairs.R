@@ -62,7 +62,7 @@
       table(pairs.sample$popset)
 
   ### write file
-    write.csv(pairs.sample, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv", row.names=F)
+    write.csv(pairs.sample, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv", row.names=F)
 
 #################
 ### E/E & W/W ###

@@ -155,7 +155,7 @@ message(job)
 ### write meta-data file
   meta <- data.table(id=paste(c(paste(pairs[job,c("data_source", "sfs_method", "rd_filter"), with=F], collapse="."), seqGetData(genofile, "sample.id")), collapse="."),
                      file=fn,
-                     L=round(83960116*mean(tf)),
+                     L=round(83960116*mean(tf, na.rm=T)),
                      pop1=seqGetData(genofile, "sample.id")[1],
                      pop2=seqGetData(genofile, "sample.id")[2],
                      projection1=neff[sampleId==seqGetData(genofile, "sample.id")[1]]$ne*2,

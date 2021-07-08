@@ -7,14 +7,14 @@
 #SBATCH --mem 27G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/run_moments.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/run_moments.%A_%a.err # Standard error
-#SBATCH -p standard
+#SBATCH -p dev
 #SBATCH --account berglandlab
 
 ### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_singlePop.sh
 ### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_singlePop.sh
 
 ### within
-### sacct -j 23468413
+### sacct -j 23471460
 ### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
 
 

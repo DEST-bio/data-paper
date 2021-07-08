@@ -11,7 +11,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import  pandas as pd
+import pandas as pd
 
 #define sys args
 #DEBUGGED AS FOR LOOPS

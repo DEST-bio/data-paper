@@ -19,8 +19,16 @@ message(job)
 ### load in pairs file
   if(popset=="between") {
     pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv")
+    dir <- "/scratch/aob2x/moments_general/input/"
+
   } else if(popset=="within") {
     pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv")
+    dir <- "/scratch/aob2x/moments_general/input/"
+
+  } else if(popset=="all") {
+    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv")
+    dir <- "/scratch/aob2x/moments_general/input_singlePop/"
+
   }
 
   head(pairs)
@@ -149,7 +157,7 @@ message(job)
   )
   dadi <- na.omit(dadi)
 
-  fn <- paste("/scratch/aob2x/moments_general/input/",
+  fn <- paste(dir,
             job,
             ".delim", sep="")
   message(fn)
@@ -167,7 +175,7 @@ message(job)
                      projection1=neff[sampleId==seqGetData(genofile, "sample.id")[1]]$ne*2,
                      projection2=neff[sampleId==seqGetData(genofile, "sample.id")[2]]$ne*2)
 
-    meta.fn <- paste("/scratch/aob2x/moments_general/input/",
+    meta.fn <- paste(dir,
               job,
               ".meta", sep="")
     message(meta.fn)

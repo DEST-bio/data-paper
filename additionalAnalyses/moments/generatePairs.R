@@ -120,3 +120,11 @@
 
   ### write file
     write.csv(pairs.sample, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv", row.names=F)
+
+
+### combine
+between <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv")
+within <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv")
+
+all <- rbind(between, within, fill=T)
+write.csv(all, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv", row.names=F)

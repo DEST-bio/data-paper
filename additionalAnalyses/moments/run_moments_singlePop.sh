@@ -3,18 +3,18 @@
 #SBATCH -J makeFS # A single job name for the array
 #SBATCH --ntasks-per-node=3 # one core
 #SBATCH -N 1 # on one node
-#SBATCH -t 0-0:15  ### 8 hours / job
+#SBATCH -t 0-0:30  ### 8 hours / job
 #SBATCH --mem 27G
 #SBATCH -o /scratch/aob2x/dest/slurmOutput/run_moments.%A_%a.out # Standard output
 #SBATCH -e /scratch/aob2x/dest/slurmOutput/run_moments.%A_%a.err # Standard error
-#SBATCH -p largemem
-#SBATCH --account berglandlab
+#SBATCH -p standard
+#SBATCH --account biol8083
 
 ### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_singlePop.sh
 ### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_singlePop.sh
 
 ### within
-### sacct -j 23471469
+### sacct -j 23471566
 ### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
 
 

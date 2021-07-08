@@ -12,12 +12,12 @@
 
 ### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments.sh
 
-### sacct -j 23450352
-### cat /scratch/aob2x/dest/slurmOutput/run_moments.23450352_397.err
+### sacct -j 23454077
+### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
 
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
 
-## SLURM_ARRAY_TASK_ID=3
+## SLURM_ARRAY_TASK_ID=5
 
 echo "began at"  `date`
 

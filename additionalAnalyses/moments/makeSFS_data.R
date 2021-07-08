@@ -2,6 +2,8 @@
 
 args = commandArgs(trailingOnly=TRUE)
 job=as.numeric(args[1])
+popset=(args[2])
+
 message(job)
 #job<-5
 
@@ -15,7 +17,11 @@ message(job)
   library(genomalicious)
 
 ### load in pairs file
-  pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv")
+  if(popset=="between") {
+    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv")
+  } else if(popset=="within") {
+    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv")
+  }
 
   head(pairs)
   pairs[job]

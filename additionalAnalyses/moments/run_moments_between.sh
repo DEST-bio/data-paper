@@ -10,10 +10,12 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
-### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments.sh
+### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_between.sh
 
+### between
 ### sacct -j 23454077
 ### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
+
 
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
 
@@ -24,7 +26,7 @@ echo "began at"  `date`
 cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"
 
 ### format data for moments
-  Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeSFS_data.R ${SLURM_ARRAY_TASK_ID}
+  Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeSFS_data.R ${SLURM_ARRAY_TASK_ID} between
 
 ### define parameters
   metadata=/scratch/aob2x/moments_general/input/${SLURM_ARRAY_TASK_ID}.meta

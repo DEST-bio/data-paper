@@ -6,11 +6,14 @@
   library(SeqArray)
   library(foreach)
   library(sp)
+  library(doMC)
+  registerDoMC(8)
 
 ### get files
   fs <- list.files("/scratch/aob2x/moments_general/output", full.names=T)
 
-  o <- foreach(i=fs, .errorhandling="remove")%do%{
+  o <- foreach(i=fs, .errorhandling="remove")%dopar%{
+    print(which(i==fs))
     #i<-fs[254]
     tmp <- fread(i)
   }
@@ -19,7 +22,7 @@
   o <- o[Pair_name!="Pair_name"]
   o <- na.omit(o)
   o.ag <- o[,list(divergence_time=divergence_time[which.min((AIC))],
-                  theta=theta[which.min((AIC))],
+                  theta=theta[which.min((AIC))]/L[which.min((AIC))],
                   pop1_size=pop1_size[which.min((AIC))],
                   pop2_size=pop2_size[which.min((AIC))],
                   .N),

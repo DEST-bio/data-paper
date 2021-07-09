@@ -29,6 +29,9 @@ message(job)
     pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv")
     dir <- "/scratch/aob2x/moments_general/input_singlePop/"
 
+  } else if(popset=="all_all") {
+    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv")
+    dir <- "/scratch/aob2x/moments_general/input_masked/"
   }
 
   head(pairs)

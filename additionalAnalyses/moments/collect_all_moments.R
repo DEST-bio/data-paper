@@ -64,8 +64,10 @@
     save(o, o.ag, file="~/moments_out.Rdata")
 
 
-    summary(aov(divergence_time~popset, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
-    summary(lm(divergence_time~sameLocale, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
+    o.ag[]
+
+    summary(lm(log10(divergence_time)~popset, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
+    summary(lm(log10(divergence_time)~sameLocale*popset, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
 
 
 

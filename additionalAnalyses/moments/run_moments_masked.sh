@@ -12,11 +12,12 @@
 
 ### cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv | grep -v "median_1sd" > /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv
 
-### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all_all.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_all.sh
+### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all_all.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_masked.sh
+### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_masked.sh
 
 ### between
-### sacct -j 23454077
-### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
+### sacct -j 23528648
+### cat /scratch/aob2x/dest/slurmOutput/run_moments.23528648_1.err
 
 
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
@@ -53,7 +54,7 @@ cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv | sed
 
   cd /scratch/aob2x/moments_general/output_masked
 
-  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_test2_masked.py \
+  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_test2_mask.py \
   ${SFS} \
   $L \
   50 \
@@ -63,7 +64,7 @@ cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv | sed
   $projection1 \
   $projection2
 
-  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_singlePop_masked.py \
+  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_singlePop_mask.py \
   ${SFS} \
   $L \
   ${Pair} \

@@ -20,7 +20,7 @@
   o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][,
       list(mu=10^mean(log10(divergence_time)),
             sd=10^sd(log10(divergence_time))),
-      list(popset)]
+      list(popset, sameLocale)]
 
   t.test(log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EW"]$divergence_time),
          log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EE"]$divergence_time))
@@ -28,8 +28,10 @@
   t.test(log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EW"]$divergence_time),
         log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="WW"]$divergence_time))
 
+###########################
+### basic parameter plot
+###########################
 
-### full set
 ### divergence time plot
   dt.plot <-
   ggplot(data=oow[variable%in%c("divergence_time")][RD_filter=="all"], aes(x=log10(1+SNAPE), y=log10(1+PoolSNP), color=popset)) +
@@ -51,17 +53,19 @@
   labs(x=expression(Theta[SNAPE]),
        y=expression(Theta[PoolSNP]))
 
+  ### mega-plot
 
-### mega-plot
-
-  mega.plot <- dt.plot + theta.plot +
-  theme(legend.position="bottom") + plot_layout(guides = "collect") +
-  plot_annotation(tag_levels = 'A')
+    mega.plot <- dt.plot + theta.plot +
+    theme(legend.position="bottom") + plot_layout(guides = "collect") +
+    plot_annotation(tag_levels = 'A')
 
 
-  ggsave(mega.plot, file="~/moments_full.pdf", height=5, w=10)
+    ggsave(mega.plot, file="~/moments_full.pdf", height=5, w=10)
 
+#######################
 ### best combination
+#######################
+
   ### divergence time plot
     dt.plot <-
     ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="binom"][RD_filter=="all"],
@@ -91,9 +95,6 @@
     ggsave(mega.plot, file="~/moments_best.pdf", height=5, w=10)
 
 
-###
-  o[]
-
 ### Are the clusters of theta & dt the same sets? Yes
   dt.dt <- oow[variable%in%c("divergence_time")][SFS_method=="binom"]
   theta.dt <- oow[variable%in%c("theta")][SFS_method=="binom"]
@@ -108,14 +109,21 @@
 ### time split differences between the clusters
   oow[,popset:=factor(popset, levels=c("WW", "EW", "EE"))]
 
-  poolSNP_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="binom"][RD_filter=="all"],
-        aes(x=popset, y=log10(PoolSNP+1))) +
+  poolSNP_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
+        aes(x=popset, y=log10(PoolSNP+1), group=interaction(popset, sameLocale), fill=sameLocale)) +
   geom_boxplot() +
   ylab("log10(Divergence Time, years)") +
-  geom_signif(comparisons = list(c("EE", "EW")), map_signif_level = F) +
-  geom_signif(comparisons = list(c("WW", "EW")), map_signif_level = F, step_increase=1)
+  ggtitle("PoolSNP")
 
-  ggsave(poolSNP_divtime.boxplot, file="~/box_plot.pdf")
+  SNAPE_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
+        aes(x=popset, y=log10(SNAPE+1), group=interaction(popset, sameLocale), fill=sameLocale)) +
+  geom_boxplot() +
+  ylab("log10(Divergence Time, years)") +
+  ggtitle("SNAPE")
+
+
+
+  ggsave(poolSNP_divtime.boxplot + SNAPE_divtime.boxplot, file="~/box_plot.png", height=4, width=8)
 
   summary(lm((PoolSNP)~popset, oow[variable%in%c("divergence_time")][SFS_method=="binom"][RD_filter=="all"]))
 

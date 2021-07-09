@@ -14,7 +14,7 @@
 ### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_singlePop.sh
 
 ### within
-### sacct -j 23471566
+### sacct -j 23508575
 ### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
 
 

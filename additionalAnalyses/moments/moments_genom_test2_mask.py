@@ -51,8 +51,8 @@ projection=[projection1,projection2]
 
 fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized=False) #takes data dict and folds
 ns = fs_folded.sample_sizes #gets sample sizes of dataset
-fs_folded.mask[:1,:] = True
-fs_folded.mask[ :,:1] = True
+fs_folded.mask[1,:] = True
+fs_folded.mask[:,1] = True
 
 
 

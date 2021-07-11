@@ -9,17 +9,36 @@
   registerDoMC(8)
 
 ### get files
-  fs <- list.files("/scratch/aob2x/moments_general/output", full.names=T)
+  ### unmasked
+    fs <- list.files("/scratch/aob2x/moments_general/output", full.names=T)
 
-  o <- foreach(i=fs, .errorhandling="remove")%dopar%{
-    print(which(i==fs))
-    #i<-fs[254]
-    tmp <- fread(i)
-  }
-  o <- rbindlist(o)
+    o.unmasked <- foreach(i=fs, .errorhandling="remove")%dopar%{
+      print(which(i==fs))
+      #i<-fs[254]
+      tmp <- fread(i)
+    }
+    o.unmasked <- rbindlist(o.unmasked, fill=T)
+    o.unmasked[,mask:=0]
+
+  ### unmasked
+    fs <- list.files("/scratch/aob2x/moments_general/output_masked", full.names=T)
+
+    o.masked <- foreach(i=fs, .errorhandling="remove")%dopar%{
+      print(which(i==fs))
+      #i<-fs[254]
+      tmp <- fread(i)
+    }
+    o.masked <- rbindlist(o.masked, fill=T)
+    o.masked[,mask:=1]
+
+  ### merge
+    o <- rbind(o.unmasked, o.masked, fill=T)
+
+
+
   setnames(o, "-2LL_model", "LL")
   o <- o[Pair_name!="Pair_name"]
-  o <- na.omit(o)
+  #o <- na.omit(o)
   o[,AIC:=as.numeric(AIC)]
   o.ag <- o[,list(divergence_time=as.numeric(divergence_time[which.min((AIC))]),
                   theta=as.numeric(theta[which.min((AIC))])/as.numeric(L[which.min((AIC))]),
@@ -28,7 +47,7 @@
                   pop1_mig=as.numeric(mig_pop1[which.min((AIC))]),
                   pop2_mig=as.numeric(mig_pop2[which.min((AIC))]),
                   .N),
-            list(Pair_name)]
+            list(Pair_name, mask)]
 
   o.ag[,SNP_caller:=tstrsplit(Pair_name, "\\.")[[1]]]
   o.ag[,SFS_method:=tstrsplit(Pair_name, "\\.")[[2]]]
@@ -66,8 +85,8 @@
 
     o.ag[]
 
-    summary(lm(log10(divergence_time)~popset, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
-    summary(lm(log10(divergence_time)~sameLocale*popset, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
+    summary(lm(log10(divergence_time)~popset*mask, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
+    summary(lm(log10(divergence_time)~sameLocale*popset*mask, o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"]))
 
 
 

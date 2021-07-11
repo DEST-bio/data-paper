@@ -11,8 +11,8 @@
 
 ### re-arrange the dimensions of hte data
   oo <- melt(o.ag[,-c("sampleId", "V1", "V2", "locale1", "locale2", "Continental_clusters.x", "Continental_clusters.y"),with=F][N>25],
-              id.vars=c("pair", "SNP_caller", "SFS_method", "RD_filter", "Pair_name", "popset", "sameLocale"))
-  oow <- dcast(oo, variable+pair+SFS_method+RD_filter+popset+sameLocale~SNP_caller, value.var="value")
+              id.vars=c("pair", "SNP_caller", "SFS_method", "RD_filter", "Pair_name", "popset", "sameLocale", "mask"))
+  oow <- dcast(oo, variable+pair+SFS_method+RD_filter+popset+sameLocale+mask~SNP_caller, value.var="value")
 
   oow[SFS_method=="binom", SFS_method:="probs"]
 
@@ -20,13 +20,13 @@
   o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][,
       list(mu=10^mean(log10(divergence_time)),
             sd=10^sd(log10(divergence_time))),
-      list(popset, sameLocale)]
+      list(popset, sameLocale, mask)]
 
-  t.test(log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EW"]$divergence_time),
-         log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EE"]$divergence_time))
+  t.test(log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EW"][mask==F]$divergence_time),
+         log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EE"][mask==F]$divergence_time))
 
-  t.test(log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EW"]$divergence_time),
-        log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="WW"]$divergence_time))
+  t.test(log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="EW"][mask==F]$divergence_time),
+        log10(o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][popset=="WW"][mask==F]$divergence_time))
 
 ###########################
 ### basic parameter plot
@@ -68,10 +68,10 @@
 
   ### divergence time plot
     dt.plot <-
-    ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="binom"][RD_filter=="all"],
+    ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
             aes(x=log10(1+SNAPE), y=log10(1+PoolSNP), color=popset)) +
     geom_point() +
-    facet_grid(SFS_method~RD_filter) +
+    facet_grid(SFS_method~mask) +
     geom_abline(slope=1, intercept=0) +
     theme_bw() +
     theme(legend.position="bottom") +
@@ -79,9 +79,9 @@
     ylim(0,4.2) + xlim(0,4.2)
 
     theta.plot <-
-    ggplot(data=oow[variable%in%c("theta")][SFS_method=="binom"][RD_filter=="all"], aes(x=SNAPE, y=PoolSNP, color=popset)) +
+    ggplot(data=oow[variable%in%c("theta")][SFS_method=="probs"][RD_filter=="all"], aes(x=SNAPE, y=PoolSNP, color=popset)) +
     geom_point() +
-    facet_grid(SFS_method~RD_filter) +
+    facet_grid(SFS_method~mask) +
     geom_abline(slope=1, intercept=0) +
     theme_bw() +
     theme(legend.position="bottom") +
@@ -112,12 +112,14 @@
   poolSNP_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
         aes(x=popset, y=log10(PoolSNP+1), group=interaction(popset, sameLocale), fill=sameLocale)) +
   geom_boxplot() +
+  facet_grid(~mask) +
   ylab("log10(Divergence Time, years)") +
   ggtitle("PoolSNP")
 
   SNAPE_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
         aes(x=popset, y=log10(SNAPE+1), group=interaction(popset, sameLocale), fill=sameLocale)) +
   geom_boxplot() +
+  facet_grid(~mask) +
   ylab("log10(Divergence Time, years)") +
   ggtitle("SNAPE")
 

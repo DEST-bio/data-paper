@@ -10,14 +10,11 @@
 #SBATCH -p standard
 #SBATCH --account berglandlab
 
-### cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv | grep -v "median_1sd" > /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv
+### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_within.sh
 
-### run as: sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv | sed '1d' | wc -l ) /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_masked.sh
-### run as: sbatch --array=1-4 /scratch/aob2x/data-paper/additionalAnalyses/moments/run_moments_masked.sh
-
-### between
-### sacct -j 23572686
-### cat /scratch/aob2x/dest/slurmOutput/run_moments.23528915_4.out
+### within
+### sacct -j 23468413
+### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
 
 
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
@@ -26,13 +23,13 @@ module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
 
 echo "began at"  `date`
 
-cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"
+cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"
 
 ### format data for moments
-  Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeSFS_data.R ${SLURM_ARRAY_TASK_ID} all_all
+  Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeSFS_data.R ${SLURM_ARRAY_TASK_ID} within
 
 ### define parameters
-  metadata=/scratch/aob2x/moments_general/input_masked/${SLURM_ARRAY_TASK_ID}.meta
+  metadata=/scratch/aob2x/moments_general/input/${SLURM_ARRAY_TASK_ID}.meta
   cat ${metadata}
 
   Pair=$( cat $metadata  | awk -F "\t" '{ print $1 }' )
@@ -52,22 +49,13 @@ cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv | sed
 ### run moments
   source activate moments_kern
 
-  cd /scratch/aob2x/moments_general/output_masked2
+  cd /scratch/aob2x/moments_general/output
 
-  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_test2_mask.py \
+  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_test2.py \
   ${SFS} \
   $L \
   50 \
   $Pair \
-  $pop1_id \
-  $pop2_id \
-  $projection1 \
-  $projection2
-
-  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_singlePop_mask.py \
-  ${SFS} \
-  $L \
-  ${Pair} \
   $pop1_id \
   $pop2_id \
   $projection1 \

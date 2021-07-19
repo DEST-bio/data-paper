@@ -20,7 +20,7 @@
     o.unmasked <- rbindlist(o.unmasked, fill=T)
     o.unmasked[,mask:=0]
 
-  ### unmasked
+  ### masked - K
     fs <- list.files("/scratch/aob2x/moments_general/output_masked", full.names=T)
 
     o.masked <- foreach(i=fs, .errorhandling="remove")%dopar%{
@@ -31,8 +31,21 @@
     o.masked <- rbindlist(o.masked, fill=T)
     o.masked[,mask:=1]
 
+  ### masked - A
+    fs <- list.files("/scratch/aob2x/moments_general/output_masked2", full.names=T)
+
+    o.masked2 <- foreach(i=fs, .errorhandling="remove")%dopar%{
+      print(which(i==fs))
+      #i<-fs[254]
+      tmp <- fread(i)
+    }
+    o.masked2 <- rbindlist(o.masked2, fill=T)
+    o.masked2[,mask:=2]
+
   ### merge
-    o <- rbind(o.unmasked, o.masked, fill=T)
+    o <- rbindlist(list(o.unmasked, o.masked, o.masked2), fill=T)
+
+
 
 
 

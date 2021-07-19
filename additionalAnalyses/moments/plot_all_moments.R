@@ -36,7 +36,7 @@
   dt.plot <-
   ggplot(data=oow[variable%in%c("divergence_time")][RD_filter=="all"], aes(x=log10(1+SNAPE), y=log10(1+PoolSNP), color=popset)) +
   geom_point() +
-  facet_grid(SFS_method~.) +
+  facet_grid(SFS_method~mask) +
   geom_abline(slope=1, intercept=0) +
   theme_bw() +
   theme(legend.position="bottom") +
@@ -46,7 +46,7 @@
   theta.plot <-
   ggplot(data=oow[variable%in%c("theta")][RD_filter=="all"], aes(x=SNAPE, y=PoolSNP, color=popset)) +
   geom_point() +
-  facet_grid(SFS_method~.) +
+  facet_grid(SFS_method~mask) +
   geom_abline(slope=1, intercept=0) +
   theme_bw() +
   theme(legend.position="bottom") +
@@ -68,25 +68,23 @@
 
   ### divergence time plot
     dt.plot <-
-    ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
+    ggplot(data=oow[variable%in%c("divergence_time")][RD_filter=="all"][mask<=1],
             aes(x=log10(1+SNAPE), y=log10(1+PoolSNP), color=popset)) +
     geom_point() +
     facet_grid(SFS_method~mask) +
     geom_abline(slope=1, intercept=0) +
     theme_bw() +
     theme(legend.position="bottom") +
-    ggtitle("Divergence Time (years)") +
-    ylim(0,4.2) + xlim(0,4.2)
+    ggtitle("Divergence Time (years)")
 
     theta.plot <-
-    ggplot(data=oow[variable%in%c("theta")][SFS_method=="probs"][RD_filter=="all"], aes(x=SNAPE, y=PoolSNP, color=popset)) +
+    ggplot(data=oow[variable%in%c("theta")][RD_filter=="all"][mask<=1], aes(x=SNAPE, y=PoolSNP, color=popset)) +
     geom_point() +
     facet_grid(SFS_method~mask) +
     geom_abline(slope=1, intercept=0) +
     theme_bw() +
     theme(legend.position="bottom") +
-    ggtitle("theta") +
-    ylim(0.0035,0.0065) + xlim(0.0035,0.0065)
+    ggtitle("theta")
 
   ### mega-plot
 
@@ -109,14 +107,14 @@
 ### time split differences between the clusters
   oow[,popset:=factor(popset, levels=c("WW", "EW", "EE"))]
 
-  poolSNP_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
+  poolSNP_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"][mask<=1],
         aes(x=popset, y=log10(PoolSNP+1), group=interaction(popset, sameLocale), fill=sameLocale)) +
   geom_boxplot() +
   facet_grid(~mask) +
   ylab("log10(Divergence Time, years)") +
   ggtitle("PoolSNP")
 
-  SNAPE_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"],
+  SNAPE_divtime.boxplot <- ggplot(data=oow[variable%in%c("divergence_time")][SFS_method=="probs"][RD_filter=="all"][mask<=1],
         aes(x=popset, y=log10(SNAPE+1), group=interaction(popset, sameLocale), fill=sameLocale)) +
   geom_boxplot() +
   facet_grid(~mask) +

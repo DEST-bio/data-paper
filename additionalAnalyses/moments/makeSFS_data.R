@@ -5,7 +5,7 @@ job=as.numeric(args[1])
 popset=(args[2])
 
 message(job)
-#job<-5
+#job<-1
 
 ### libraries
   library(data.table)
@@ -33,6 +33,9 @@ message(job)
     pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv")
     dir <- "/scratch/aob2x/moments_general/input_masked/"
 
+  } else if(popset=="all_all_testdata") {
+    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv")
+    dir <- "/project/berglandlab/moments/moments_input/"
   }
 
   head(pairs)
@@ -161,9 +164,20 @@ message(job)
   )
   dadi <- na.omit(dadi)
 
-  fn <- paste(dir,
+  if(popset=="all_all_testdata") {
+    fn <- paste(dir,
+            pairs[job]$data_source, ".",
+            pairs[job]$sfs_method, ".",
+            pairs[job]$V1, ".",
+            pairs[job]$V2, ".",
+            pairs[job]$popset,
+            ".delim", sep="")
+  } else {
+    fn <- paste(dir,
             job,
             ".delim", sep="")
+  }
+
   message(fn)
 
   write.table(dadi,
@@ -179,9 +193,23 @@ message(job)
                      projection1=neff[sampleId==seqGetData(genofile, "sample.id")[1]]$ne*2,
                      projection2=neff[sampleId==seqGetData(genofile, "sample.id")[2]]$ne*2)
 
-    meta.fn <- paste(dir,
-              job,
-              ".meta", sep="")
+  if(popset=="all_all_testdata") {
+     meta.fn <- paste(dir,
+             pairs[job]$data_source, ".",
+             pairs[job]$sfs_method, ".",
+             pairs[job]$V1, ".",
+             pairs[job]$V2, ".",
+             pairs[job]$popset,
+             ".meta", sep="")
+   } else {
+     meta.fn <- paste(dir,
+             job,
+             ".delim", sep="")
+   }
+
+
+
+
     message(meta.fn)
 
     write.table(meta,

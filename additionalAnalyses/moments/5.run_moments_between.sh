@@ -58,8 +58,8 @@ cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs.csv | sed '1d' | 
   $Pair \
   $pop1_id \
   $pop2_id \
-  $projection1 \
-  $projection2
+  $pool_n1 \
+  $pool_n2
 
   conda deactivate
 

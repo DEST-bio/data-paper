@@ -1,5 +1,7 @@
 # Instructions for the moments analysis of DEST pool-seq data
 
+Currently under construction by Keric
+
 # Description
 This analysis will use the demographic estimator moments to analyze the demographic history and population genetic parameters from populations of European drosophila part of the DEST dateset. In particular, we focus on the E/W split described in the main text. We have implemented a simple "split-w/-migration" model to estimate divergence time.
 

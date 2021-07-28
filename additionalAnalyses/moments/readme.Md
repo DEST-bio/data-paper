@@ -91,7 +91,7 @@ The script will create a directory, and will output all input files for moments 
 In this step, we will run the script which calls on *moments* to do demographic inference. This code also runs as an array:
 
 ```bash
-sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv | sed '1d' | wc -l ) \
+sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.txt | sed '1d' | wc -l ) \
 ./4.0.run_moments.sh \
 pairs_all.txt \
 4.1.moments_bounds.py \

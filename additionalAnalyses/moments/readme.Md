@@ -103,9 +103,9 @@ sbatch --array=1-1 \
 --account=berglandlab \
 --output=./slurmOutput/moments.%A_%a.out \
 --error slurmOutput/moments.%A_%a.err \
-./4.0.run_moments.sh \
-./pairs_all.txt \
-./4.1.moments_bounds.py \
+4.0.run_moments.sh \
+pairs_all.txt \
+4.1.moments_bounds.py \
 50 \
 /project/berglandlab/moments/moments_input
 ```

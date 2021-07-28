@@ -16,14 +16,13 @@
 ### sacct -j 23745161
 ### cat /scratch/aob2x/dest/slurmOutput/run_moments.23453934_5.err
 
-
 module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
 
 ## SLURM_ARRAY_TASK_ID=5
 
 echo "began at"  `date`
 
-cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"
+cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.txt | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"
 
 ### format data for moments
-  Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeSFS_data.R ${SLURM_ARRAY_TASK_ID} all_all_testdata
+  Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/3.1.makeSFS_data.R ${SLURM_ARRAY_TASK_ID} all_pops

@@ -1,38 +1,105 @@
-# Instructions for the moments analysis of DEST pool-seq data
-
-Currently under construction by Keric
+# Instructions for demographic inference using moments and the DEST pool-seq data
 
 # Description
 This analysis will use the demographic estimator moments to analyze the demographic history and population genetic parameters from populations of European drosophila part of the DEST dateset. In particular, we focus on the E/W split described in the main text. We have implemented a simple "split-w/-migration" model to estimate divergence time.
+
+# Scripts in this analysis
+Here is a summary of the scripts presented in this analysis. **Important**: all analyses were done using SLURM headers which are customized to our cluster. You will have to modify these headers so that they may run in your own cluster.
+
+0. **set_up_moments.RunManually.sh**: this script, meant to be run manually, install the program moments in your machine. You may choose to install it your own way.
+1. **generatePairs.R**: This script draws from the metadata of the DEST repository (https://github.com/DEST-bio/DEST_freeze1) to generate all possible comparisons between populations in the European clusters.
+2. **getL.R**: This script also draws from the DEST repo and its used to estimate the number of bases sequenced used to estimate the SFS.
+3. **make_inputdata.sh**: This script implements an array slurm job to generate the input files for moments. This script has an R companion (3.0.make_inputdata.sh + 3.1.makeSFS_data.R)
+4. **run_moments.sh**: This is the wrapper script which runs the program moments. This wrapper calls on two possible versions of the python moments script: 4.1.moments_param_theta.py + 4.2.moments_bounds.py 
+5. **collect_all_moments.R**
+6. **plot_all_moments.R**
 
 # Script 0. Install moments
 Here we provide you with an example to install the python libraries needed to run moments -- Install moments (`data-paper/additionalAnalyses/moments/0.set_up_moments.RunManually.sh`)
 
 # Script 1. Generate Pairs
-Because the East and West cluster are composed by  populations geographically distributed across west and east Europe, we want to estimate diverge-w/-migration accounting for this spatial separation. For example, we hope to estimate and compare parameters from populations coming from East and West Austria (the boundary region) but also, Spain vs Ukraine (two spatially distant populations within their clades). This script will generate 1000 random pairs among estern and western flies for the analysis. -- Generate ~1000 pairs of populations between E and W European clusters (`data-paper/additionalAnalyses/moments/1.generatePairs.R`)
+Because the East and West cluster are composed by  populations geographically distributed across west and east Europe, we want to estimate diverge-w/-migration accounting for this spatial separation. For example, we hope to estimate and compare parameters from populations coming from East and West Austria (the boundary region) but also, Spain vs Ukraine (two spatially distant populations within their clades). This script will generate 1000 random pairs among estern and western flies for the analysis. -- Generate ~1000 pairs of populations between E and W European clusters (`data-paper/additionalAnalyses/moments/1.generatePairs.R`).
+
+### Note: Other repos are required
+This script draws from the metadata file from the dest dataset "DEST_freeze1/populationInfo/samps_10Nov2020.csv" to create the population pairs. As such, you must download the git repo of the DEST datset.
+
+```bash
+cd <../"where I want my repo to be">
+git clone https://github.com/DEST-bio/DEST_freeze1.git
+```
+Make sure you modify the script such that the file is being pulled from the right location. 
+```bash
+  samps <- fread("<repo>/DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+```
+
+### What is the script output?
+This script outputs various files:
+```R
+"./pairs_between.txt"
+"./pairs_within.txt"
+"./pairs_all.txt"
+``` 
+These files contained different types of comparisons within and between populations in Europe. However, for the purposes of replicating our main text analysis. The file you want is **"./pairs_all.txt"**. This file will instruct the code to do all possible--and relevant--comparisons, 
 
 # Script 2. Get L for moments calculation
-In order to estimate divergence time and other parameters, it is needed to have an estimate of how many bases were lest unmasked after filtration. -- Get median L for moments calculations (`data-paper/additionalAnalyses/moments/2.getL.R`)
+In order to estimate divergence time and other parameters, it is needed to have an estimate of how many bases were lest unmasked after filtration. -- Get median L for moments calculations (`data-paper/additionalAnalyses/moments/2.getL.R`). Same as above, make sure you modify the script such that the file is being pulled from the right location. 
 
-# Script 3. Make metadata file for model run -- this may be obsolete
-Because we intend to run 1000+ comparisons, models, and demographic estimation, we will run the program moments using an array configuration in a HPC environment. This require us to generate a metadata file from which the array job will keep tractability of the runs. If the user is attempting to run this script in a non-HPC environment, they must have to come up with their own solution for computational tractability. although, we always recommend running this in HPC. -- 5. Make metadat-data file for moments (`data-paper/additionalAnalyses/moments/3.make_moments_metadata.sh`)
+# Script 3. Make input data for moments
+Because we intend to run 1000+ comparisons, models, and demographic estimation, we will run the program moments using an array configuration in a HPC environment. This require us to use an array job. Example:
 
-The metadata file has 7 fields, as described in the table below:
+```bash
+sbatch --array=1-$( cat /<workfolder>/pairs_all.all.csv | sed '1d' | wc -l ) \
+/<workfolder>/3.0.make_inputdata.sh
+```
+In this case, we are running an array with as many jobs as pairs in the generate pairs output.
 
-| # | Field        | Description                                                                    | Example                  | Note                                                                                       |
-|---|--------------|--------------------------------------------------------------------------------|--------------------------|--------------------------------------------------------------------------------------------|
-| 1 | Pair Name    | This column contains the names of the two pairs to be compared.                | Aut1.Aut2                | The separator is arbitrary, but it must be constant. In this case the separator is "."     |
-| 2 | SFS Location | This contains the address of the file where the genomalicious output is stored | /home/file/aut.sfs.delim |                                                                                            |
-| 3 | L            | The number of based sequenced. From Script #2                                  | 1234567 (i.e., a number) | This is used for example, to output divergence time in years and not in unit-less numbers. |
-| 4 | Pop 1 name   | The pop name as it appears in the SFS.delim file                               | Aut1                     |                                                                                            |
-| 5 | Pop 2 name   | Same as above, but for pop 2                                                   | Aut2                     |                                                                                            |
-| 6 | Pop 1 #samps | Number of samples in the pop1 pool                                             | 55                       |                                                                                            |
-| 7 | Pop 2 #samps | Number of samples in the pop2 pool                                             | 60                       |                                                                                            |
+### What is the script doing? 
 
-# Script 5. Run moments
-In this step, we will run the script which calls on *moments* to do demographic inference. -- An example script is given here (`data-paper/additionalAnalyses/moments/5.run_moments_between.sh`). We will briefly describe the code in the next section.
+This script implements the R package *genomalicious* (https://github.com/j-a-thia/genomalicious) to discretize allele frequencies from Pool-Seq data. This is a fundamental requirement for SFS estimation and running moments. Similar to our other scripts above, this script depends on data from the DEST repo, as well as data from the DEST pipeline output. So make sure to update the script and link it to the proper metadata file:
 
-## 5.0. Running the *moments* wrapper
+```bash
+#data from the DEST repo:
+samps <- fread("<repo>/DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+#data from the DEST pipeline output. You will have to run all the DEST pipeline to reproduce these results!
+genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
+#or
+genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
+```
+You will also need to install R packages
+
+```R
+library(data.table)
+library(SeqArray)
+library(foreach)
+library(sp)
+library(doMC)
+library(genomalicious)
+```
+
+### What are the script options?
+Aside from the *SLURM_ARRAY_TASK_ID* input, which is derived from the array job itself, we originally designed this script to run comparisons for: all samples, between-, or within-clusters. These options are, respectively, *all_pops, between,* and *within*. As mentioned above, the only option which is probably relevant to you is ***all_pops***. Example:
+```bash
+Rscript /data-paper/additionalAnalyses/moments/3.1.makeSFS_data.R \
+${SLURM_ARRAY_TASK_ID} \
+all_pops
+```
+
+### What is the script output?
+The script will create a directory, and will output all input files for moments there. 
+
+# Script 4. Run *moments*
+In this step, we will run the script which calls on *moments* to do demographic inference. This code also runs as an array:
+
+```bash
+sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv | sed '1d' | wc -l ) \
+./4.0.run_moments.sh \
+pairs_all.txt \
+4.1.moments_bounds.py \
+50
+/project/berglandlab/moments/moments_input
+```
+
+### Whats inside the *moments* wrapper
 The script 5.run_moments_between.sh runs a wrapper of the python code for moments. However, because we are running the program as an array the script provides python with different data for each population pair. For example, we first load all the packages needed to activate python and run the array
 ```
 #Load needed modules
@@ -40,77 +107,82 @@ module load gcc/7.1.0
 openmpi/3.1.4 R/3.6.3 
 anaconda/2020.11-py3.8
 ```
-We then generate the SFS file for each population pair:
 
-## Script 5.1. Generate SFS
-In order to generate the imput files for moment (this would also be true if the user was using δaδi) we used the R library *"genomalicious"*. This library is described [here](https://www.biorxiv.org/content/10.1101/667337v3). In brief, this method can generate SFS files from Pool-Seq in one of two ways. First, is a **counts** method in which allele counts are estimated directly from reads and rounded to the nearest integer, relative to the number of chromosomes. The second method **probs**, uses a probabilistic sampling approach (based on a *binomial distribution*) to produce an expected allele count based on the data.  -- Make SFS data (`data-paper/additionalAnalyses/moments/5.1.makeSFS_data.R`). This script is run as part of step 5. No need for the user to run it independently.
-
-Within the wrapper script this sub-script is called in the line
-```
-### format data for moments
-  Rscript /scratch/aob2x/data-paper/additionalAnalyses/moments/makeSFS_data.R ${SLURM_ARRAY_TASK_ID} between
-```
-Here there are 2 options "${SLURM_ARRAY_TASK_ID}" and "between". SLURM_ARRAY_TASK_ID is just an iterator produced by the array job and will take the value to the array job number.  On the other hand, "between", is one of the following options in the script:
-
-```R
-### load in pairs file
-  if(popset=="between") {
-    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv")
-    dir <- "/scratch/aob2x/moments_general/input/"
-
-  } else if(popset=="within") {
-    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv")
-    dir <- "/scratch/aob2x/moments_general/input/"
-
-  } else if(popset=="all") {
-    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv")
-    dir <- "/scratch/aob2x/moments_general/input_singlePop/"
-
-  } else if(popset=="all_all") {
-    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv")
-    dir <- "/scratch/aob2x/moments_general/input_masked/"
-
-  } else if(popset=="all_all_testdata") {
-    pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.all.csv")
-    dir <- "/project/berglandlab/moments/moments_input/"
-  }
-``` 
-Between evalues samples from E vs W. Within evaluates samples W-v-W or E-v-E. The option "all" are used for testing null models of single populations. **Notice:** That each option requires a metadata file (e.g.,  "pairs_between.csv", or "pairs_within.csv"). These files are generated in step **XX**
-
-## 5.2. Loading the metadata file
-This step, within the wrapper, loads a metadata file which leverages the array job to run each comparison. This occurs at:
+### Provide the metadata, analysis type, and iterations num
+For this script to work it is important to provide two user defined inputs, the metadata file, and the type of analysis to run.
 ```bash
-### define parameters
-  metadata=/scratch/aob2x/moments_general/input/${SLURM_ARRAY_TASK_ID}.meta
-  cat ${metadata}
+sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv | sed '1d' | wc -l ) \
+./4.0.run_moments.sh \
+pairs_all.txt \ <=== Metadata file
+4.1.moments_bounds.py \ <=== Analysis Type
+50 \ <=== Fifty iterations each run
+/project/berglandlab/moments/moments_input <=== Input data
+```
+* The metadata can be: "./pairs_all.txt", "./pairs_between.txt", "./pairs_within.txt"
+* The analyses are the actual python scripts and can be: **"4.1.moments_bounds.py"** or **"4.2.moments_param_theta.py"**. The first, *moments_bounds.py* is close to the *default* way to run moments. And, *moments_param_theta.py* is our modified script which parametrized theta (see main manuscript).
 
-  Pair=$( cat $metadata  | awk -F "\t" '{ print $1 }' )
-  SFS=$( cat $metadata  | awk -F "\t" '{ print $2 }' )
-  L=$( cat $metadata  | awk -F "\t" '{ print $3 }' )
-  pop1_id=$( cat $metadata  | awk -F "\t" '{ print $4 }' )
-  pop2_id=$( cat $metadata  | awk -F "\t" '{ print $5 }' )
+### Importing data into the moments script
+This wrapper will import data from two sources. The metadata file, and the output of 3.0.make_inputdata.sh.
 
-  projection1=$( cat $metadata  | awk -F "\t" '{ print $6 }' )
-  projection2=$( cat $metadata  | awk -F "\t" '{ print $7 }' )
+```bash
+## User provided variables
+metadata=$1
+moments=$2
+iterations=$3
+input_folder=$4
 
+#generate input variables for moments
+  pop1_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $5 }' )
+  echo $pop1_id
+  
+  pop2_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $6 }' )
+  echo $pop2_id
+
+  Pair=$(echo ${pop1_id}.${pop2_id} )
+  echo $Pair
+	
+  SFS_method=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $3 }' )
+  echo $SFS_method
+
+  Caller=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $2 }' )
+  echo $Caller
+
+  Demo=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $11 }' )
+  echo $Demo
+
+### Sample to be analyzed
+head $input_folder/$Caller.$SFS_method.$Pair.$Demo.meta
+head $input_folder/$Caller.$SFS_method.$Pair.$Demo.delim
+
+### Prepare additional metadata
+  SFS=$input_folder/$Caller.$SFS_method.$Pair.$Demo.delim
+
+  L=$( cat $input_folder/$Caller.$SFS_method.$Pair.$Demo.meta   | awk -F "\t" '{ print $3 }' )
+
+  pool_n1=$( cat $input_folder/$Caller.$SFS_method.$Pair.$Demo.meta  | awk -F "\t" '{ print $6 }' )
+  pool_n2=$( cat $input_folder/$Caller.$SFS_method.$Pair.$Demo.meta  | awk -F "\t" '{ print $7 }' )
+
+### Finally a sanity check
   echo "Now Processing" $Pair
   echo "Now Loading" $SFS "=> where" $Pair "SFS is located"
   echo $Pair "has an L parameter of" $L "bp"
 ```
-The file **${SLURM_ARRAY_TASK_ID}.meta** is generated in step **XX**
 
 ## 5.3. Run python--moments 
-Finally, the wrapper runs the python script for moments. This is run using a custom kernel. The custom kernel was generated in step zero (see above).
+Finally, the wrapper runs the python script for moments. This is run using a custom kernel. The custom kernel was generated in step zero (see above). The variable "$moments" is the version of analysis that 
+
 ```bash
 ### run moments
   source activate moments_kern
+  
+  mkdir output
+  
+  cd ./output
 
-  cd /scratch/aob2x/moments_general/output
-
-  python /scratch/aob2x/data-paper/additionalAnalyses/moments/moments_genom_test2.py \
+  python $moments \
   ${SFS} \
   $L \
-  50 \
+  $iterations \
   $Pair \
   $pop1_id \
   $pop2_id \
@@ -118,11 +190,21 @@ Finally, the wrapper runs the python script for moments. This is run using a cus
   $pool_n2
 
   conda deactivate
-```
-### 5.3.1. Inside the black box: what goes into the moments script. 
-Moments runs using the python script "moments_genom_test2.py". We will describe its contents briefly:
 
+```
+Notice that:
+```bash
+  ${SFS} \ ==> this is the SFS
+  $L \ ==> this is the number of sequenced sites used
+  $iterations \ ==> This is the number of iterations moments runs for
+  $Pair \ ==> This is the name of the pair
+  $pop1_id \ ==> This is the id of pop1
+  $pop2_id \ ==> This is the id of pop2 
+  $pool_n1 \ ==> This is the number of inds. pooled in pop1
+  $pool_n2 ==> This is the number of inds. pooled in pop2
+```
 ### Moments --> Dependencies
+
 The script uses standard libraries to run:
 ```python
 import moments
@@ -137,17 +219,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 ```
 ### Moments --> Import parameters
-Notice that the wrapper script in "5.run_moments_between.sh" calls  7 user provided inputs. All but arg #3 is imported from the metadata file.
-```bash
-  ${SFS} \ ==> this is output of genomelacious
-  $L \ ==> this is the number of sequenced sites used
-  50 \ ==> This is the number of iterations moments runs for
-  $Pair \ ==> This is the name of the pair
-  $pop1_id \ ==> This is the id of pop1
-  $pop2_id \ ==> This is the id of pop2 
-  $pool_n1 \ ==> This is the number of inds. pooled in pop1
-  $pool_n2 ==> This is the number of inds. pooled in pop2
-```
 Inside the python script these are passed as sys.arg variables
 ```
 #define sys args
@@ -172,6 +243,10 @@ The output of moments will be capture in a table with the following data.
 * mig_pop1: This the number of individuals in pop1 that derived from pop2  (model output)
 * mig_pop2: This the number of individuals in pop2 that derived from pop1  (model output)
 * theta: Scales parameter used to scale the SFS (4NeμL)
+* nu1: Raw model output that will scale the ancestral pop. size to the size of the new pop1
+* nu2: Raw model output that will scale the ancestral pop. size to the size of the new pop2
+* Ts: raw output for divergence time
+* m12: raw output for migration rate
 * -2LL_model: Composite log likelihood. closer to zero is better 
 * AIC: information criterion.  Weights the model assuming 4 parameters. closer to zero is better.
 ```python
@@ -186,9 +261,14 @@ PMmod.write(
             str("mig_pop1")+'\t'+ #Migration ij
             str("mig_pop2")+'\t'+ #Migration ji
             str("theta")+'\t'+
+            str("nu1")+'\t'+
+            str("nu2")+'\t'+
+            str("Ts")+'\t'+
+            str("m12")+'\t'+
             str("-2LL_model")+'\t'+
             str("AIC")+'\n')
 PMmod.close()
+
 ```
 ### Moments --> Import data
 Make a data dictionary from the SFS file 
@@ -230,11 +310,18 @@ The model is a split with migration type. Which means that we are assuming that 
 The model has 4 parameters (nu1, nu2, T, m) which will be estimated by the model. The nu1, nu2 params are the fractions of the ancestral population (Nref) after the split. These fractions do not need to add up to 1. 
 
 ### Moments --> Setting boundary behavior
-We will set the boundaries from which the model can draw parameters and also constrain the model optimization. Limitations are in place to prevent pathological runaway parameter behavior which tends to converge toward zero and infinity. 
-```
-#boundaries
+We will set the boundaries from which the model can draw parameters and also constrain the model optimization. Limitations are in place to prevent pathological runaway parameter behavior which tends to converge toward zero and infinity.  This is an example from: "4.1.moments_bounds.py". 
+```python
+#boundaries for nu1, nu2, Ts, m12
 upper_bound = [10, 10, 5, 50]
-lower_bound = [1e-5, 1e-5, 1e-5, 0]
+lower_bound = [1e-2, 1e-2, 1e-2, 0]
+```
+In the case of 4.2.moments_param_theta.py there is an aditional parameter for theta:
+
+```python
+#boundaries for nu1, nu2, Ts, m12, theta1
+upper_bound = [10, 10, 5, 50, 5e5]
+lower_bound = [1e-5, 1e-5, 1e-5, 0, 3.75e5]
 ```
 
 ### Moments --> Providing conversion constants
@@ -310,7 +397,12 @@ for i in range(int(iterations)): #iterations is imported from sys. argument name
         str(divergence_time)+'\t'+ #divergence T
         str(mig_pop1)+'\t'+ #Migration ij
         str(mig_pop2)+'\t'+ #Migration ji
-        str(theta)+'\t'+
+        str(theta_model)+'\t'+ #theta as calculated by the model
+        str(theta_param)+'\t'+ #theta as calculated as a parameter. should equal theta model, just doing sanity check
+        str(nu1)+'\t'+ #raw parameter output
+        str(nu2)+'\t'+ #raw parameter output
+        str(Ts)+'\t'+ #raw parameter output
+        str(m12)+'\t'+ #raw parameter output
         str(ll_model)+'\t'+
         str(aic)+'\n')
     PMmod.close()
@@ -323,4 +415,3 @@ Since we are running the moments script over multiple pairs we need to centraliz
 
 # Script 7. Plot and misc.
 We provide scripts for plotting and misc. analysis as shown in the paper. Although we recommend the end user to do this themselves for other analyses. -- Plot moments data (`data-paper/additionalAnalyses/moments/7.plot_all_moments.R`)
-

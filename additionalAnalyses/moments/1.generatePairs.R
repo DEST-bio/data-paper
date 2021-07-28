@@ -8,15 +8,15 @@
   library(sp)
 
 ### load samps
-  setwd("/scratch/aob2x/")
-  samps <- fread("DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+  setwd("/scratch/yey2sn/moments")
+  samps <- fread("../DEST_freeze1/populationInfo/samps_10Nov2020.csv")
 
 ### some basic sample filtering
   samps <- samps[status=="Keep"]
   samps <- samps[propSimNorm<=0.01]
 
 ### Get European cluster IDs
-  clusters <- fread("DEST_freeze1/populationInfo/Cluster_Assingment/DEST_Sample_clusters.txt")
+  clusters <- fread("../DEST_freeze1/populationInfo/Cluster_Assingment/DEST_Sample_clusters.txt")
   samps <- merge(samps, clusters[,c("sampleId", "Continental_clusters"), with=F], by="sampleId")
 
 ###################
@@ -48,12 +48,10 @@
       pairs.sample <- pairs[,list(id=rep(sample(id, 200, replace=F))),
                               list(dist.bin=round(dist/20)*20)]
       job_groups <- expand.grid(data_source=c("PoolSNP", "SNAPE"),
-                                                     sfs_method=c("counts", "binom"),
-                                                     rd_filter=c("all", "median_1sd"))
+                                                     sfs_method=c("counts", "binom"))
 
       pairs.sample <- pairs.sample[,list(data_source=job_groups$data_source,
                                         sfs_method=job_groups$sfs_method,
-                                        rd_filter=job_groups$rd_filter,
                                           dist.bin=dist.bin),
                                     list(id)]
 
@@ -62,7 +60,7 @@
       table(pairs.sample$popset)
 
   ### write file
-    write.csv(pairs.sample, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv", row.names=F)
+    write.table(pairs.sample, "./pairs_between.txt", row.names=F, quote = F, sep = "\t")
 
 #################
 ### E/E & W/W ###
@@ -101,12 +99,10 @@
       pairs.sample <- pairs[,list(id=rep(sample(id, 200, replace=F))),
                               list(dist.bin=round(dist/20)*20)]
       job_groups <- expand.grid(data_source=c("PoolSNP", "SNAPE"),
-                                                     sfs_method=c("counts", "binom"),
-                                                     rd_filter=c("all", "median_1sd"))
+                                                     sfs_method=c("counts", "binom"))
 
       pairs.sample <- pairs.sample[,list(data_source=job_groups$data_source,
                                         sfs_method=job_groups$sfs_method,
-                                        rd_filter=job_groups$rd_filter,
                                           dist.bin=dist.bin),
                                     list(id)]
 
@@ -119,12 +115,12 @@
       table(pairs.sample$popset, pairs.sample$locale1==pairs.sample$locale2)
 
   ### write file
-    write.csv(pairs.sample, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv", row.names=F)
+      write.table(pairs.sample, "./pairs_within.txt", row.names=F, quote = F, sep = "\t")
 
 
 ### combine
-between <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv")
-within <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.csv")
+between <- fread("./pairs_between.txt")
+within <- fread("./pairs_within.txt")
 
 all <- rbind(between, within, fill=T)
-write.csv(all, "/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.csv", row.names=F)
+write.table(all, "./pairs_all.txt", row.names=F, quote = F)

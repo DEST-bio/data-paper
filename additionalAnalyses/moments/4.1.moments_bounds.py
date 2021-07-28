@@ -4,6 +4,7 @@
 # ksl2za@virginia.edu
 # import packages that'll be used
 import moments
+import dadi
 from moments import Numerics
 from moments import Integration
 from moments import Spectrum

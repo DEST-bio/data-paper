@@ -68,7 +68,7 @@ head $input_folder/$Caller.$SFS_method.$Pair.$Demo.delim
   ${SFS} \
   $L \
   $iterations \
-  $Pair \
+  $Caller.$SFS_method.$Pair.$Demo \
   $pop1_id \
   $pop2_id \
   $pool_n1 \

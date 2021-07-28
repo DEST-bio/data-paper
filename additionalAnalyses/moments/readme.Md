@@ -93,20 +93,20 @@ In this step, we will run the script which calls on *moments* to do demographic 
 ```bash
 mkdir slurmOutput
 
-sbatch --array=1-$( cat ./pairs_all.txt | sed '1d' | wc -l ) \
--o ./slurmOutput/slurmOutput/moments.%A_%a.out \ 
--e ./slurmOutput/slurmOutput/moments.%A_%a.err \
--J makeFS \
+sbatch --array=1-1 \
+--partition=standard \
+--job-name makeFS \
 --ntasks-per-node=3 \
--N 1 \
--t 0-08:00 \
---mem 27G \
--p standard \
---account berglandlab \
+--nodes=1 \
+--time=0-08:00 \
+--mem=27G \
+--account=berglandlab \
+--output=./slurmOutput/moments.%A_%a.out \
+--error slurmOutput/moments.%A_%a.err \
 ./4.0.run_moments.sh \
-pairs_all.txt \
-4.1.moments_bounds.py \
-50
+./pairs_all.txt \
+./4.1.moments_bounds.py \
+50 \
 /project/berglandlab/moments/moments_input
 ```
 

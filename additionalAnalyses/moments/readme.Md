@@ -91,7 +91,18 @@ The script will create a directory, and will output all input files for moments 
 In this step, we will run the script which calls on *moments* to do demographic inference. This code also runs as an array:
 
 ```bash
+mkdir slurmOutput
+
 sbatch --array=1-$( cat ./pairs_all.txt | sed '1d' | wc -l ) \
+-o ./slurmOutput/slurmOutput/moments.%A_%a.out \ 
+-e ./slurmOutput/slurmOutput/moments.%A_%a.err \
+-J makeFS \
+--ntasks-per-node=3 \
+-N 1 \
+-t 0-08:00 \
+--mem 27G \
+-p standard \
+--account berglandlab \
 ./4.0.run_moments.sh \
 pairs_all.txt \
 4.1.moments_bounds.py \

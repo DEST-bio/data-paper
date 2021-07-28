@@ -91,7 +91,7 @@ The script will create a directory, and will output all input files for moments 
 In this step, we will run the script which calls on *moments* to do demographic inference. This code also runs as an array:
 
 ```bash
-sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.txt | sed '1d' | wc -l ) \
+sbatch --array=1-$( cat ./pairs_all.txt | sed '1d' | wc -l ) \
 ./4.0.run_moments.sh \
 pairs_all.txt \
 4.1.moments_bounds.py \
@@ -111,7 +111,7 @@ anaconda/2020.11-py3.8
 ### Provide the metadata, analysis type, and iterations num
 For this script to work it is important to provide two user defined inputs, the metadata file, and the type of analysis to run.
 ```bash
-sbatch --array=1-$( cat /scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.csv | sed '1d' | wc -l ) \
+sbatch --array=1-$( cat ./pairs_all.txt  | sed '1d' | wc -l ) \
 ./4.0.run_moments.sh \
 pairs_all.txt \ <=== Metadata file
 4.1.moments_bounds.py \ <=== Analysis Type

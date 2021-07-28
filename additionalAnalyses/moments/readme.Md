@@ -107,7 +107,8 @@ sbatch --array=1-1 \
 pairs_all.txt \
 4.1.moments_bounds.py \
 50 \
-/project/berglandlab/moments/moments_input
+/project/berglandlab/moments/moments_input \
+binom
 ```
 
 ### Whats inside the *moments* wrapper
@@ -127,10 +128,13 @@ sbatch --array=1-$( cat ./pairs_all.txt  | sed '1d' | wc -l ) \
 pairs_all.txt \ <=== Metadata file
 4.1.moments_bounds.py \ <=== Analysis Type
 50 \ <=== Fifty iterations each run
-/project/berglandlab/moments/moments_input <=== Input data
+/project/berglandlab/moments/moments_input \ <=== Input data
+binom <=== Method
+
 ```
 * The metadata can be: "./pairs_all.txt", "./pairs_between.txt", "./pairs_within.txt"
 * The analyses are the actual python scripts and can be: **"4.1.moments_bounds.py"** or **"4.2.moments_param_theta.py"**. The first, *moments_bounds.py* is close to the *default* way to run moments. And, *moments_param_theta.py* is our modified script which parametrized theta (see main manuscript).
+* The methods are "binom" and "counts"
 
 ### Importing data into the moments script
 This wrapper will import data from two sources. The metadata file, and the output of 3.0.make_inputdata.sh.
@@ -141,24 +145,22 @@ metadata=$1
 moments=$2
 iterations=$3
 input_folder=$4
+SFS_method=$5
 
 #generate input variables for moments
-  pop1_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $5 }' )
+  pop1_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $4 }' )
   echo $pop1_id
   
-  pop2_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $6 }' )
+  pop2_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $5 }' )
   echo $pop2_id
 
   Pair=$(echo ${pop1_id}.${pop2_id} )
   echo $Pair
 	
-  SFS_method=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $3 }' )
-  echo $SFS_method
-
-  Caller=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $2 }' )
+  Caller=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $3 }' )
   echo $Caller
 
-  Demo=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $11 }' )
+  Demo=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $10 }' )
   echo $Demo
 
 ### Sample to be analyzed

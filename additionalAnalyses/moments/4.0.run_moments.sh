@@ -16,27 +16,25 @@ metadata=$1
 moments=$2
 iterations=$3
 input_folder=$4
+SFS_method=$5
 
 echo "began at"  `date`
 
 ### pull parameters from the metadata flie
 
-  pop1_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $5 }' )
+  pop1_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $4 }' )
   echo $pop1_id
   
-  pop2_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $6 }' )
+  pop2_id=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $5 }' )
   echo $pop2_id
 
   Pair=$(echo ${pop1_id}.${pop2_id} )
   echo $Pair
 	
-  SFS_method=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $3 }' )
-  echo $SFS_method
-
-  Caller=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $2 }' )
+  Caller=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $3 }' )
   echo $Caller
 
-  Demo=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $11 }' )
+  Demo=$( cat $metadata | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"  | awk -F " " '{ print $10 }' )
   echo $Demo
 
 ### Sample to be analyzed

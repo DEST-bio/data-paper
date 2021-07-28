@@ -5,17 +5,29 @@
   library(data.table)
   library(cowplot)
   library(patchwork)
+  library(tidyverse)
 
 ### load data
-  load("~/moments_out.Rdata")
+  load("/Users/jcbnunez/Downloads/moments_out.Rdata")
 
 ### re-arrange the dimensions of hte data
   oo <- melt(o.ag[,-c("sampleId", "V1", "V2", "locale1", "locale2", "Continental_clusters.x", "Continental_clusters.y"),with=F][N>25],
               id.vars=c("pair", "SNP_caller", "SFS_method", "RD_filter", "Pair_name", "popset", "sameLocale", "mask"))
+
+  oo %>%
+    .[which(.$mask == 0 &
+            .$RD_filter == "all"),] %>%
+    group_by(SNP_caller , SFS_method, RD_filter, popset, mask ) %>%
+    summarise(N = n()) %>% 
+    as.data.frame()
+  
+  
   oow <- dcast(oo, variable+pair+SFS_method+RD_filter+popset+sameLocale+mask~SNP_caller, value.var="value")
 
   oow[SFS_method=="binom", SFS_method:="probs"]
 
+  
+  
 ### some basic stats
   o.ag[SFS_method=="binom"][RD_filter=="all"][SNP_caller=="PoolSNP"][,
       list(mu=10^mean(log10(divergence_time)),

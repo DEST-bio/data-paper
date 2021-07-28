@@ -50,7 +50,7 @@ PMmod.write(
 PMmod.close()
 
 #read in data as file
-dd = Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
 
 pop_id=[pop_id1,pop_id2]
 projection=[projection1,projection2]

@@ -8,12 +8,12 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import dadi
 import moments
 from moments import Numerics
 from moments import Integration
 from moments import Spectrum
-from moments import Misc
+import dadi
+from dadi import Misc
 
 #define sys args
 #DEBUGGED AS FOR LOOPS
@@ -23,14 +23,14 @@ iterations = sys.argv[3]
 Pair_name = sys.argv[4]
 pop_id1 = sys.argv[5]
 pop_id2 = sys.argv[6]
-projection1 = sys.argv[7]
-projection2 = sys.argv[8]
+projection1 = sys.argv[8]
+projection2 = sys.argv[7]
 
 projection1= int(projection1)
 projection2= int(projection2)
 
 #opening output file to give column names
-PMmod=open('%s_output.txt' % Pair_name,'a')
+PMmod=open('./outputs_param/%s_output.txt' % Pair_name,'w')
 PMmod.write(
             str("Pair_name")+'\t'+ #print pair name
             str("fs_name")+'\t'+ #double checking fs_lines[y] is working as I want it to
@@ -40,12 +40,13 @@ PMmod.write(
             str("divergence_time")+'\t'+ #divergence T
             str("mig_pop1")+'\t'+ #Migration ij
             str("mig_pop2")+'\t'+ #Migration ji
-            str("theta_model")+'\t'+
-            str("theta_param")+'\t'+ #sanity check
+            str("theta_model")+'\t'+ #sanity check, should equal ~1
+            str("theta_param")+'\t'+ 
             str("nu1")+'\t'+
             str("nu2")+'\t'+
             str("Ts")+'\t'+
             str("m12")+'\t'+
+            str("fs_sanitycheck")+'\t'+ #sanity checking that 
             str("-2LL_model")+'\t'+
             str("AIC")+'\n')
 PMmod.close()
@@ -58,6 +59,7 @@ projection=[projection1,projection2]
 
 fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized=False) #takes data dict and folds
 ns = fs_folded.sample_sizes #gets sample sizes of dataset
+S = fs_folded.S()
 #fs_folded.mask[:1,:] = True
 #fs_folded.mask[ :,:1] = True
 
@@ -155,7 +157,7 @@ for i in range(int(iterations)): #iterations is imported from sys. argument #1
     pop2_size = nu2*Nref #pop2 size
 
     #Open the output file
-    PMmod=open('%s_output.txt' % Pair_name,'a')
+    PMmod=open('./outputs_param/%s_output.txt' % Pair_name,'a')
 
     #Dumping output ot outfile
     PMmod.write(
@@ -167,12 +169,13 @@ for i in range(int(iterations)): #iterations is imported from sys. argument #1
         str(divergence_time)+'\t'+ #divergence T
         str(mig_pop1)+'\t'+ #Migration ij
         str(mig_pop2)+'\t'+ #Migration ji
-        str(theta_model)+'\t'+ #theta as calculated by the model
+        str(theta_model)+'\t'+ #theta as calculated by the model- sanity check-- should equal ~1
         str(theta_param)+'\t'+ #theta as calculated as a parameter. should equal theta model, just doing sanity check
         str(nu1)+'\t'+ #raw parameter output
         str(nu2)+'\t'+ #raw parameter output
         str(Ts)+'\t'+ #raw parameter output
         str(m12)+'\t'+ #raw parameter output
+        str(S)+'\t'+ #gives number of segregating sites used in sfs... sanity check
         str(ll_model)+'\t'+
         str(aic)+'\n')
     PMmod.close()

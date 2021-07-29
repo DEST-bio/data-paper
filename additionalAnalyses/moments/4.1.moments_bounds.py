@@ -21,10 +21,10 @@ fs_file = sys.argv[1]
 L_file = sys.argv[2]
 iterations = sys.argv[3]
 Pair_name = sys.argv[4]
-pop_id1 = sys.argv[5]
-pop_id2 = sys.argv[6]
-projection1 = sys.argv[7]
-projection2 = sys.argv[8]
+pop_id1 = sys.argv[6]
+pop_id2 = sys.argv[5]
+projection1 = sys.argv[8]
+projection2 = sys.argv[7]
 
 projection1= int(projection1)
 projection2= int(projection2)

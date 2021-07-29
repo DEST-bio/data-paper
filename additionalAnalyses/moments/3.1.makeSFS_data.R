@@ -91,21 +91,21 @@ rownames(dat) <- seqGetData(genofile, "sample.id")
 dat <- t(dat)
 
 ### do we restrict data to a read-depth slice? -- This is now deprecated
-if(pairs$rd_filter[job]=="median_1sd") {
-  message("median_1sd")
-  med_rd <- apply(dp$data, 1, median, na.rm=T)
-  sd_rd <- apply(dp$data, 1, sd, na.rm=T)
-  
-  tf <- dp$data[1,]>= (med_rd[1]-sd_rd[1]) & dp$data[1,]<= (med_rd[1]+sd_rd[1]) &
-    dp$data[2,]>= (med_rd[2]-sd_rd[2]) & dp$data[2,]<= (med_rd[2]+sd_rd[2])
-  table(tf)
-  dat <- dat[tf,]
-  dim(dat)
-} else if(pairs$rd_filter[job]=="all") {
-  message("all")
-  tf<-TRUE
-  dim(dat)
-}
+##if(pairs$rd_filter[job]=="median_1sd") {
+##  message("median_1sd")
+##  med_rd <- apply(dp$data, 1, median, na.rm=T)
+##  sd_rd <- apply(dp$data, 1, sd, na.rm=T)
+##  
+##  tf <- dp$data[1,]>= (med_rd[1]-sd_rd[1]) & dp$data[1,]<= (med_rd[1]+sd_rd[1]) &
+##    dp$data[2,]>= (med_rd[2]-sd_rd[2]) & dp$data[2,]<= (med_rd[2]+sd_rd[2])
+##  table(tf)
+##  dat <- dat[tf,]
+##  dim(dat)
+##} else if(pairs$rd_filter[job]=="all") {
+##  message("all")
+##  tf<-TRUE
+##  dim(dat)
+##}
 
 
 ### Calculate Neff

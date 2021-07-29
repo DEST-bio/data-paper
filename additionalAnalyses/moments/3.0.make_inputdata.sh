@@ -14,10 +14,10 @@ DEST_gds_dir=$5
 
 echo "began at"  `date`
 
-cat $R_script | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"
+cat $Pops | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d"
 
 ### format data for moments
-Rscript \
+Rscript --vanilla \
 $R_script \
 ${SLURM_ARRAY_TASK_ID} \
 $Pops \

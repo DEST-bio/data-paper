@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import dadi
 import moments
 from moments import Numerics
 from moments import Integration
@@ -29,7 +30,7 @@ projection1= int(projection1)
 projection2= int(projection2)
 
 #opening output file to give column names
-PMmod=open('./outputs_param/%s_output.txt' % Pair_name,'w')
+PMmod=open('%s_output.txt' % Pair_name,'a')
 PMmod.write(
             str("Pair_name")+'\t'+ #print pair name
             str("fs_name")+'\t'+ #double checking fs_lines[y] is working as I want it to
@@ -50,7 +51,7 @@ PMmod.write(
 PMmod.close()
 
 #read in data as file
-dd = Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
 
 pop_id=[pop_id1,pop_id2]
 projection=[projection1,projection2]
@@ -154,7 +155,7 @@ for i in range(int(iterations)): #iterations is imported from sys. argument #1
     pop2_size = nu2*Nref #pop2 size
 
     #Open the output file
-    PMmod=open('./outputs_param/%s_output.txt' % Pair_name,'a')
+    PMmod=open('%s_output.txt' % Pair_name,'a')
 
     #Dumping output ot outfile
     PMmod.write(

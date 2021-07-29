@@ -93,7 +93,7 @@ In this step, we will run the script which calls on *moments* to do demographic 
 ```bash
 mkdir slurmOutput
 
-sbatch --array=1-1 \
+sbatch --array=1-$( cat ./pairs_all.txt  | sed '1d' | wc -l ) \
 --partition=standard \
 --job-name makeFS \
 --ntasks-per-node=3 \

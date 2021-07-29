@@ -14,6 +14,8 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import datetime
+from datetime import datetime
 
 #define sys args
 #DEBUGGED AS FOR LOOPS
@@ -28,6 +30,36 @@ projection2 = sys.argv[8]
 
 projection1= int(projection1)
 projection2= int(projection2)
+
+#read in data as file
+dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+
+pop_id=[pop_id1,pop_id2]
+projection=[projection1,projection2]
+
+fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized=False) #takes data dict and folds
+ns = fs_folded.sample_sizes #gets sample sizes of dataset
+S = fs_folded.S()
+#fs_folded.mask[:1,:] = True
+#fs_folded.mask[ :,:1] = True
+
+
+now = datetime.now()
+
+PMmod=("../warnings.txt", 'a')
+PMmod.write(
+	str("%s" % now)+'\t'+ 
+	str("%s" % Pair_name)+'\t'+
+	str("bound")+'\t'+
+	str("%s" % S)+'\n')
+Pmmod.close()
+
+if S = 0:
+	quit()
+else:
+	print("continuing")
+	
+
 
 #opening output file to give column names
 PMmod=open('%s_output.bound.txt' % Pair_name,'w')
@@ -49,20 +81,6 @@ PMmod.write(
             str("-2LL_model")+'\t'+
             str("AIC")+'\n')
 PMmod.close()
-
-#read in data as file
-dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-
-pop_id=[pop_id1,pop_id2]
-projection=[projection1,projection2]
-
-fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized=False) #takes data dict and folds
-ns = fs_folded.sample_sizes #gets sample sizes of dataset
-S = fs_folded.S()
-#fs_folded.mask[:1,:] = True
-#fs_folded.mask[ :,:1] = True
-
-
 
 #this code was used to import Alan's custom fs files. Now commented out as we've switched to genomalicious (R package) compiled SNP files
 # data = moments.Spectrum.from_file(fs_file)

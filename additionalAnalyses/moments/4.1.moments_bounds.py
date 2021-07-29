@@ -65,7 +65,7 @@ PMmod.write(
     str("%s" % Pair_name)+'\t'+
     str("bound")+'\t'+
     str("%s" % S)+'\n')
-Pmmod.close()
+PMmod.close()
 
 if S==0:
     quit()

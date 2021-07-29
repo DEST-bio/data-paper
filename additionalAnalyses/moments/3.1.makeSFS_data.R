@@ -25,6 +25,7 @@ dep <- fread(Meta_dir, "sequencingStats/rd.csv", sep = "/")[auto==T]
 message(job)
 
 ### libraries
+library(tidyverse)
 library(data.table)
 library(SeqArray)
 library(foreach)

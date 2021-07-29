@@ -28,6 +28,7 @@ pop_name2 = sys.argv[5]
 pool_n1 = sys.argv[7]
 pool_n2 = sys.argv[8]
 
+#converting floats to integers
 pool_n1= int(pool_n1)
 pool_n2= int(pool_n2)
 
@@ -35,22 +36,22 @@ pool_n2= int(pool_n2)
 dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
 data = pd.read_csv(fs_file, sep="\t")
 
+#setting up if else check 
+#if names fed by metadat match dd then will run as expected
+#else if names are not equal, it swaps them
+#leaves pool_n1 alone
 if pop_name1==data.columns[3]:
     pop_id1=pop_name1
     pop_id2=pop_name2
-    projection1=pool_n1
-    projection2=pool_n2
 else:
     pop_id1=pop_name2
     pop_id2=pop_name1
-    projection1=pool_n1
-    projection2=pool_n2
 
-##
+#setting pop id's and projections from if/else
 pop_id=[pop_id1,pop_id2]
-projection=[projection1,projection2]
+pools=[pool_n1, pool_n2]
 
-fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized=False) #takes data dict and folds
+fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
 ns = fs_folded.sample_sizes #gets sample sizes of dataset
 S = fs_folded.S()
 #fs_folded.mask[:1,:] = True

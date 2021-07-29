@@ -103,7 +103,7 @@ dat <- t(dat)
 ##  dim(dat)
 ##} else if(pairs$rd_filter[job]=="all") {
 ##  message("all")
-##  tf<-TRUE
+tf<-TRUE
 ##  dim(dat)
 ##}
 

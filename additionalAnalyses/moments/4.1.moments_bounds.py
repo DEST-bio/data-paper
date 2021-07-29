@@ -23,17 +23,30 @@ fs_file = sys.argv[1]
 L_file = sys.argv[2]
 iterations = sys.argv[3]
 Pair_name = sys.argv[4]
-pop_id1 = sys.argv[6]
-pop_id2 = sys.argv[5]
-projection1 = sys.argv[7]
-projection2 = sys.argv[8]
+pop_name1 = sys.argv[6]
+pop_name2 = sys.argv[5]
+pool_n1 = sys.argv[7]
+pool_n2 = sys.argv[8]
 
-projection1= int(projection1)
-projection2= int(projection2)
+pool_n1= int(pool_n1)
+pool_n2= int(pool_n2)
 
 #read in data as file
 dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+data = pd.read_csv(fs_file, sep="\t")
 
+if pop_name1==data.columns[3]:
+	pop_id1=pop_name1
+	pop_id2=pop_name2
+	projection1=pool_n1
+	projection2=pool_n2
+else:
+	pop_id1=pop_name2
+	pop_id2=pop_name1
+	projection1=pool_n2
+	projection2=pool_n1
+
+##
 pop_id=[pop_id1,pop_id2]
 projection=[projection1,projection2]
 
@@ -54,7 +67,7 @@ PMmod.write(
 	str("%s" % S)+'\n')
 Pmmod.close()
 
-if S = 0:
+if S==0:
 	quit()
 else:
 	print("continuing")

@@ -115,8 +115,7 @@ library(doMC)
 ```bash
 mkdir slurmOutput
 
-#sbatch --array=1-$( cat ${wd}/pairs_all.txt  | sed '1d' | wc -l ) \
-sbatch --array=1-1 \
+sbatch --array=1-$( cat ${wd}/pairs_all.txt  | sed '1d' | wc -l ) \
 --partition=standard \
 --job-name MakMomeInputs \
 --ntasks-per-node=3 \

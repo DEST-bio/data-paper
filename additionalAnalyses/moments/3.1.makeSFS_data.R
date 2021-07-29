@@ -2,10 +2,27 @@
 
 args = commandArgs(trailingOnly=TRUE)
 job=as.numeric(args[1])
-popset=(args[2])
+popset=args[2]
+dir= args[3]
+Meta_dir=args[4]
+DEST_gds_dir=args[5]
+
+##########################################
+#acting on the user input:
+#1.Create output the directory
+system(paste("mkdir", dir, sep = " "))
+
+#2. Load the pairs data
+pairs=fread(popset)
+
+#3. load DEST metadata
+samps <- fread(paste(Meta_dir,"samps_10Nov2020.csv", sep = "/"))
+
+#4. Load effective coverage
+dep <- fread(Meta_dir, "sequencingStats/rd.csv", sep = "/")[auto==T]
+
 
 message(job)
-#job<-1
 
 ### libraries
 library(data.table)
@@ -16,39 +33,21 @@ library(doMC)
 registerDoMC(2)
 library(genomalicious)
 
-### load in pairs file
-if(popset=="between") {
-  pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_between.txt")
-  dir <- "/project/berglandlab/moments/moments_input_b/"
-  
-} else if(popset=="within") {
-  pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_within.txt")
-  dir <- "/project/berglandlab/moments/moments_input_w/"
-  
-} else if(popset=="all_pops") {
-  pairs <- fread("/scratch/aob2x/data-paper/additionalAnalyses/moments/pairs_all.txt")
-  dir <- "/project/berglandlab/moments/moments_input/"
-}
-
-#Create the directory
-system(paste("mkdir", dir, sep = " "))
 
 head(pairs)
 pairs[job]
 
-### load samps
-samps <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/samps_10Nov2020.csv")
 
 ### open GDS file & make SNP table
 if (pairs[job]$data_source=="PoolSNP") {
   #q(save="no")
   message("PoolSNP")
-  genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep=""))
+  genofile <- seqOpen(paste(DEST_gds_dir, "dest.PoolSeq.PoolSNP.001.50.10Nov2020.ann.gds", sep="/"))
   
 } else if (pairs[job]$data_source=="SNAPE") {
   message("SNAPE")
   #genofile <- openfn.gds(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
-  genofile <- seqOpen(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
+  genofile <- seqOpen(paste(DEST_gds_dir ,"dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep="/"))
 }
 
 
@@ -111,7 +110,6 @@ if(pairs$rd_filter[job]=="median_1sd") {
 
 ### Calculate Neff
 ### load average effective read depth
-dep <- fread("/scratch/aob2x/DEST_freeze1/populationInfo/sequencingStats/rd.csv")[auto==T]
 setkey(dep, sampleId)
 setkey(samps, sampleId)
 neff <- merge(dep[J(colnames(dat))], samps[J(colnames(dat))], by="sampleId")[,c("sampleId", "nFlies", "mu.25"), with=F]

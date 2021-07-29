@@ -1,12 +1,11 @@
 ### libraries
-library(tidyverse)
-library(data.table)
+library(genomalicious)
 library(SeqArray)
 library(foreach)
 library(sp)
 library(doMC)
+
 registerDoMC(2)
-library(genomalicious)
 
 args = commandArgs(trailingOnly=TRUE)
 

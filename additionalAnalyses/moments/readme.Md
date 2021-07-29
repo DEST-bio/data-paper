@@ -225,6 +225,7 @@ from moments import Numerics
 from moments import Integration
 from moments import Spectrum
 from moments import Misc
+import dadi
 import os
 import sys
 import numpy as np
@@ -286,7 +287,7 @@ PMmod.close()
 ### Moments --> Import data
 Make a data dictionary from the SFS file 
 ```
-dd = Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+dd =dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
 ```
 Load in information about the data. Here, the variable projection1 means the pool sizes.
 ```

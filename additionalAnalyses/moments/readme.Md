@@ -141,7 +141,7 @@ In this step, we will run the script which calls on *moments* to do demographic 
 ```bash
 mkdir slurmOutput
 
-sbatch --array=1-$( cat /scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/pairs_all.txt  | sed '1d' | wc -l ) \
+sbatch --array=1-$( cat ${wd}/data-paper/additionalAnalyses/moments/pairs_all.txt  | sed '1d' | wc -l ) \
 --partition=standard \
 --job-name theParamBinom \
 --ntasks-per-node=3 \
@@ -151,10 +151,10 @@ sbatch --array=1-$( cat /scratch/yey2sn/moments/data-paper/additionalAnalyses/mo
 --account=berglandlab \
 --output ./slurmOutput/moments.%A_%a.out \
 --error ./slurmOutput/moments.%A_%a.err \
-/scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/4.0.run_moments.sh \
-/scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/pairs_all.txt \
-/scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/4.2.moments_param_theta.py \
-500 \
+${wd}/data-paper/additionalAnalyses/moments/4.0.run_moments.sh \
+${wd}/data-paper/additionalAnalyses/moments/pairs_all.txt \
+${wd}/data-paper/additionalAnalyses/moments/4.1.moments_bounds.py \
+50 \
 /project/berglandlab/moments/moments_input \
 binom
 ```
@@ -235,32 +235,10 @@ head $input_folder/$Caller.$SFS_method.$Pair.$Demo.delim
 ```
 
 ## 5.3. Run python--moments 
-Finally, the wrapper runs the python script for moments. This is run using a custom kernel. The custom kernel was generated in step zero (see above). The variable "$moments" is the version of analysis that 
+Finally, the wrapper runs the python script for moments. This is run using a custom kernel. The custom kernel was generated in step zero (see above). The variable "$moments" is the version of analysis that. The data used in the analysis is: 
 
 ```bash
 #exmaple do not run
-### run moments
-  source activate moments_kern
-  
-  mkdir output
-  
-  cd ./output
-
-  python $moments \
-  ${SFS} \
-  $L \
-  $iterations \
-  $Pair \
-  $pop1_id \
-  $pop2_id \
-  $pool_n1 \
-  $pool_n2
-
-  conda deactivate
-  #exmaple do not run
-```
-Notice that:
-```bash
   ${SFS} \ ==> this is the SFS
   $L \ ==> this is the number of sequenced sites used
   $iterations \ ==> This is the number of iterations moments runs for
@@ -269,7 +247,9 @@ Notice that:
   $pop2_id \ ==> This is the id of pop2 
   $pool_n1 \ ==> This is the number of inds. pooled in pop1
   $pool_n2 ==> This is the number of inds. pooled in pop2
+ #exmaple do not run
 ```
+
 ### Moments --> Dependencies
 
 The script uses standard libraries to run:
@@ -287,21 +267,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 #exmaple do not run
-```
-### Moments --> Import parameters
-Inside the python script these are passed as sys.arg variables
-```python
-#define sys args
-#exmaple do not run
-#DEBUGGED AS FOR LOOPS
-fs_file = sys.argv[1]
-L_file = sys.argv[2]
-iterations = sys.argv[3]
-Pair_name = sys.argv[4]
-pop_id1 = sys.argv[5]
-pop_id2 = sys.argv[6]
-projection1 = sys.argv[7]
-projection2 = sys.argv[8]
 ```
 ### Moments --> The output file
 The output of moments will be capture in a table with the following data. 
@@ -491,4 +456,5 @@ Since we are running the moments script over multiple pairs we need to centraliz
 
 # Script 7. Plot and misc.
 We provide scripts for plotting and misc. analysis as shown in the paper. Although we recommend the end user to do this themselves for other analyses. -- Plot moments data (`data-paper/additionalAnalyses/moments/7.plot_all_moments.R`)
+
 

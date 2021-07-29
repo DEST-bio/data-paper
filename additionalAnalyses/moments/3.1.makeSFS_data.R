@@ -33,8 +33,8 @@ samps <- fread(paste(Meta_dir,"samps_10Nov2020.csv", sep = "/"))
 dep <- fread(paste(Meta_dir, "sequencingStats/rd.csv", sep = "/"))[auto==T]
 
 
-message(job)
-head(pairs)
+#message(job)
+#head(pairs)
 pairs[job]
 
 
@@ -49,7 +49,6 @@ if (pairs[job]$data_source=="PoolSNP") {
   #genofile <- openfn.gds(paste("/project/berglandlab/DEST/gds/dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep=""))
   genofile <- seqOpen(paste(DEST_gds_dir ,"dest.PoolSeq.SNAPE.NA.NA.10Nov2020.ann.gds", sep="/"))
 }
-
 
 
 # make SNP table - old
@@ -154,29 +153,24 @@ dadi <- dadi_inputs_pools(
   poolSub = NULL,
   methodSFS = sfs_method
 )
-dadi <- na.omit(dadi)
+dadi <- na.omit(dadi) 
 
-if(popset=="all_all_testdata") {
-  fn <- paste(dir,
-              pairs[job]$data_source, ".",
-              pairs[job]$sfs_method, ".",
-              pairs[job]$V1, ".",
-              pairs[job]$V2, ".",
-              pairs[job]$popset,
-              ".delim", sep="")
-} else {
-  fn <- paste(dir,
-              job,
-              ".delim", sep="")
-}
+### Write dadi file
 
-message(fn)
+fn <- paste(dir,
+            pairs[job]$data_source, ".",
+            pairs[job]$sfs_method, ".",
+            pairs[job]$V1, ".",
+            pairs[job]$V2, ".",
+            pairs[job]$popset,
+            ".delim", sep="")
 
 write.table(dadi,
-            file=fn,
+            file=fn ,
             sep="\t", quote=F, row.names=F)
 
-### write meta-data file
+
+### Write metadata file
 meta <- data.table(id=paste(c(paste(pairs[job,c("data_source", "sfs_method"), with=F], collapse="."), seqGetData(genofile, "sample.id")), collapse="."),
                    file=fn,
                    L=round(83960116*mean(tf, na.rm=T)),
@@ -185,23 +179,14 @@ meta <- data.table(id=paste(c(paste(pairs[job,c("data_source", "sfs_method"), wi
                    projection1=neff[sampleId==seqGetData(genofile, "sample.id")[1]]$ne*2,
                    projection2=neff[sampleId==seqGetData(genofile, "sample.id")[2]]$ne*2)
 
-if(popset=="all_all_testdata") {
-  meta.fn <- paste(dir,
-                   pairs[job]$data_source, ".",
-                   pairs[job]$sfs_method, ".",
-                   pairs[job]$V1, ".",
-                   pairs[job]$V2, ".",
-                   pairs[job]$popset,
-                   ".meta", sep="")
-} else {
-  meta.fn <- paste(dir,
-                   job,
-                   ".delim", sep="")
-}
-
-
-message(meta.fn)
+fn.meta <- paste(dir,
+            pairs[job]$data_source, ".",
+            pairs[job]$sfs_method, ".",
+            pairs[job]$V1, ".",
+            pairs[job]$V2, ".",
+            pairs[job]$popset,
+            ".meta", sep="")
 
 write.table(meta,
-            file=meta.fn,
+            file=fn.meta,
             sep="\t", quote=F, row.names=F, col.names=F)

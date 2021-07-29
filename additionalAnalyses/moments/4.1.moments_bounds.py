@@ -51,15 +51,16 @@ else:
 pop_id=[pop_id1,pop_id2]
 pools=[pool_n1, pool_n2]
 
+#makes sfs
 fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
 ns = fs_folded.sample_sizes #gets sample sizes of dataset
 S = fs_folded.S()
 #fs_folded.mask[:1,:] = True
 #fs_folded.mask[ :,:1] = True
 
-
+#gets time for warning file
 now = datetime.now()
-
+#generates warning file
 PMmod=open("../warnings.txt", 'a')
 PMmod.write(
     str("%s" % now)+'\t'+ 
@@ -68,12 +69,11 @@ PMmod.write(
     str("%s" % S)+'\n')
 PMmod.close()
 
+#tells if sfs is empty and if so, kills job
 if S==0:
     quit()
 else:
     print("continuing")
-
-
 
 #opening output file to give column names
 PMmod=open('%s_output.bound.txt' % Pair_name,'w')

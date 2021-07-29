@@ -1,19 +1,21 @@
 # This script will run the program moments by Jouganous, J., Long, W., Ragsdale, A. P., & Gravel, S. (2017)
-# This script runs theta as a parameter of the model
+# Parameters are constrained at 1e-2 for this run 
 # Written by Keric Lamb, UVA 2021
 # ksl2za@virginia.edu
 # import packages that'll be used
-import os
-import sys
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 import moments
 from moments import Numerics
 from moments import Integration
 from moments import Spectrum
 import dadi
 from dadi import Misc
+import os
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import datetime
+from datetime import datetime
 
 #define sys args
 #DEBUGGED AS FOR LOOPS
@@ -21,16 +23,60 @@ fs_file = sys.argv[1]
 L_file = sys.argv[2]
 iterations = sys.argv[3]
 Pair_name = sys.argv[4]
-pop_id1 = sys.argv[6]
-pop_id2 = sys.argv[5]
-projection1 = sys.argv[7]
-projection2 = sys.argv[8]
+pop_name1 = sys.argv[6]
+pop_name2 = sys.argv[5]
+pool_n1 = sys.argv[7]
+pool_n2 = sys.argv[8]
 
-projection1= int(projection1)
-projection2= int(projection2)
+#converting floats to integers
+pool_n1= int(pool_n1)
+pool_n2= int(pool_n2)
+
+#read in data as file
+dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+data = pd.read_csv(fs_file, sep="\t")
+
+#setting up if else check 
+#if names fed by metadat match dd then will run as expected
+#else if names are not equal, it swaps them
+#leaves pool_n1 alone
+if pop_name1==data.columns[3]:
+    pop_id1=pop_name1
+    pop_id2=pop_name2
+else:
+    pop_id1=pop_name2
+    pop_id2=pop_name1
+
+#setting pop id's and projections from if/else
+pop_id=[pop_id1,pop_id2]
+pools=[pool_n1, pool_n2]
+
+#generate sfs
+fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
+ns = fs_folded.sample_sizes #gets sample sizes of dataset
+S = fs_folded.S()
+#fs_folded.mask[:1,:] = True
+#fs_folded.mask[ :,:1] = True
+
+#generate time
+now = datetime.now()
+#generates warning file
+PMmod=open("../warnings.txt", 'a')
+PMmod.write(
+    str("%s" % now)+'\t'+ 
+    str("%s" % Pair_name)+'\t'+
+    str("bound")+'\t'+
+    str("%s" % S)+'\n')
+PMmod.close()
+
+#if file is not working (sfs is empty), this kills the script
+if S==0:
+    quit()
+else:
+    print("continuing")
 
 #opening output file to give column names
-PMmod=open('%s_output.theta.txt' % Pair_name,'w')
+PMmod=open('%s_output.bound.txt' % Pair_name,'w')
 PMmod.write(
             str("Pair_name")+'\t'+ #print pair name
             str("fs_name")+'\t'+ #double checking fs_lines[y] is working as I want it to
@@ -40,33 +86,26 @@ PMmod.write(
             str("divergence_time")+'\t'+ #divergence T
             str("mig_pop1")+'\t'+ #Migration ij
             str("mig_pop2")+'\t'+ #Migration ji
-            str("theta_model")+'\t'+ #sanity check, should equal ~1
-            str("theta_param")+'\t'+ 
+            str("theta_model")+'\t'+ #scalar from model, should be ~1
+            str("theta_param")+'\t'+ #parameterized theta
             str("nu1")+'\t'+
             str("nu2")+'\t'+
             str("Ts")+'\t'+
             str("m12")+'\t'+
-            str("fs_sanitycheck")+'\t'+ #sanity checking that 
+            str("fs_sanitycheck")+'\t'+
             str("-2LL_model")+'\t'+
             str("AIC")+'\n')
 PMmod.close()
-
-#read in data as file
-dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-
-pop_id=[pop_id1,pop_id2]
-projection=[projection1,projection2]
-
-fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=projection, polarized=False) #takes data dict and folds
-ns = fs_folded.sample_sizes #gets sample sizes of dataset
-S = fs_folded.S()
-#fs_folded.mask[:1,:] = True
-#fs_folded.mask[ :,:1] = True
 
 #this code was used to import Alan's custom fs files. Now commented out as we've switched to genomalicious (R package) compiled SNP files
 # data = moments.Spectrum.from_file(fs_file)
 # fs_folded = data.fold()
 # ns = fs_folded.sample_sizes
+
+# Highlighted out, as pts_l is only relevant for DaDi-- moments doesn't use grid-point extrapolations
+# These are the grid point settings will use for extrapolation.
+# They're somewhat arbitrary, but should be big enough that they don't change LL if increased
+# pts_l = [100,140,180]
 
 #model with symmetric migration from Moments bitbucket
 def split_mig_moments(params, ns, pop_ids=None):

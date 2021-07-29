@@ -65,7 +65,7 @@ PMmod=open("../warnings.txt", 'a')
 PMmod.write(
     str("%s" % now)+'\t'+ 
     str("%s" % Pair_name)+'\t'+
-    str("bound")+'\t'+
+    str("binom")+'\t'+
     str("%s" % S)+'\n')
 PMmod.close()
 

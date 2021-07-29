@@ -59,7 +59,7 @@ S = fs_folded.S()
 
 now = datetime.now()
 
-PMmod=("../warnings.txt", 'a')
+PMmod=open("../warnings.txt", 'a')
 PMmod.write(
     str("%s" % now)+'\t'+ 
     str("%s" % Pair_name)+'\t'+

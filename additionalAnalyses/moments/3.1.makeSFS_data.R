@@ -1,8 +1,5 @@
 ### libraries
 
-library(devtools)
-install_github('j-a-thia/genomalicious')
-
 library(genomalicious)
 library(SeqArray)
 library(foreach)

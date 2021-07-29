@@ -3,8 +3,7 @@
 
 module load intel/18.0 intelmpi/18.0  
 module load goolf/7.1.0_3.1.4  
-module load gdal proj R/4.0.0
-
+module load R/4.0.0
 
 R_script=$1
 Pops=$2

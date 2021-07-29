@@ -90,7 +90,7 @@ dim(dat)
 rownames(dat) <- seqGetData(genofile, "sample.id")
 dat <- t(dat)
 
-### do we restrict data to a read-depth slice?
+### do we restrict data to a read-depth slice? -- This is now deprecated
 if(pairs$rd_filter[job]=="median_1sd") {
   message("median_1sd")
   med_rd <- apply(dp$data, 1, median, na.rm=T)
@@ -177,7 +177,7 @@ write.table(dadi,
             sep="\t", quote=F, row.names=F)
 
 ### write meta-data file
-meta <- data.table(id=paste(c(paste(pairs[job,c("data_source", "sfs_method", "rd_filter"), with=F], collapse="."), seqGetData(genofile, "sample.id")), collapse="."),
+meta <- data.table(id=paste(c(paste(pairs[job,c("data_source", "sfs_method"), with=F], collapse="."), seqGetData(genofile, "sample.id")), collapse="."),
                    file=fn,
                    L=round(83960116*mean(tf, na.rm=T)),
                    pop1=seqGetData(genofile, "sample.id")[1],

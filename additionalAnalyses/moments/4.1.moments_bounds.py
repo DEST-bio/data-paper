@@ -38,8 +38,8 @@ data = pd.read_csv(fs_file, sep="\t")
 if pop_name1==data.columns[3]:
     pop_id1=pop_name1
     pop_id2=pop_name2
-    projection1=pool_n1
-    projection2=pool_n2
+    projection1=pool_n2
+    projection2=pool_n1
 else:
     pop_id1=pop_name2
     pop_id2=pop_name1

@@ -85,7 +85,7 @@ seqSetFilter(genofile, sample.id=as.character(pairs[job, c("V1", "V2"), with=F])
 ad <- seqGetData(genofile, "annotation/format/AD")
 dp <- seqGetData(genofile, "annotation/format/DP")
 
-dat <- ad$data/dp$data
+dat <- ad$data/dp
 dim(dat)
 rownames(dat) <- seqGetData(genofile, "sample.id")
 dat <- t(dat)

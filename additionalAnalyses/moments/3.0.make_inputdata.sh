@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 #
 
-module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3 anaconda/2020.11-py3.8
+module load intel/18.0 intelmpi/18.0  
+module load goolf/7.1.0_3.1.4  
+module load gdal proj R/4.0.0
+module load anaconda/2020.11-py3.8
+
 
 R_script=$1
 Pops=$2

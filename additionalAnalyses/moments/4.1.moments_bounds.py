@@ -34,7 +34,7 @@ pool_n2= int(pool_n2)
 
 #read in data as file
 dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-data = pd.read_csv(fs_file, sep="\t")
+data = pd.read_csv(fs_file, sep="\t", nrows=1)
 
 #setting up if else check 
 #if names fed by metadat match dd then will run as expected

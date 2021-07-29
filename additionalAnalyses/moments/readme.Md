@@ -93,20 +93,20 @@ In this step, we will run the script which calls on *moments* to do demographic 
 ```bash
 mkdir slurmOutput
 
-sbatch --array=1-$( cat ./pairs_all.txt  | sed '1d' | wc -l ) \
+sbatch --array=1-$( cat /scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/pairs_all.txt  | sed '1d' | wc -l ) \
 --partition=standard \
---job-name makeFS \
+--job-name theParamBinom \
 --ntasks-per-node=3 \
 --nodes=1 \
 --time=0-08:00 \
 --mem=27G \
 --account=berglandlab \
---output=./slurmOutput/moments.%A_%a.out \
---error slurmOutput/moments.%A_%a.err \
-4.0.run_moments.sh \
-pairs_all.txt \
-4.1.moments_bounds.py \
-50 \
+--output ./slurmOutput/moments.%A_%a.out \
+--error ./slurmOutput/moments.%A_%a.err \
+/scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/4.0.run_moments.sh \
+/scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/pairs_all.txt \
+/scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/4.2.moments_param_theta.py \
+500 \
 /project/berglandlab/moments/moments_input \
 binom
 ```

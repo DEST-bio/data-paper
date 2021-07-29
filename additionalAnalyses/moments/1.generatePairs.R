@@ -6,17 +6,27 @@
   library(foreach)
   library(bedr)
   library(sp)
+  
+args = commandArgs(trailingOnly=TRUE)
+
+#Path to the Gworking folder
+wd=args[1]
+#Path to the metadata
+DEST_metadata=args[2]
+#Demographic clusters
+DEST_clusters=args[3]
 
 ### load samps
-  setwd("/scratch/yey2sn/moments")
-  samps <- fread("../DEST_freeze1/populationInfo/samps_10Nov2020.csv")
+  setwd(wd)
+  samps <- fread(DEST_metadata)
 
 ### some basic sample filtering
   samps <- samps[status=="Keep"]
   samps <- samps[propSimNorm<=0.01]
 
 ### Get European cluster IDs
-  clusters <- fread("../DEST_freeze1/populationInfo/Cluster_Assingment/DEST_Sample_clusters.txt")
+  clusters <- fread(DEST_clusters)
+  
   samps <- merge(samps, clusters[,c("sampleId", "Continental_clusters"), with=F], by="sampleId")
 
 ###################

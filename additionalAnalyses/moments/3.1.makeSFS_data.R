@@ -1,3 +1,12 @@
+### libraries
+library(tidyverse)
+library(data.table)
+library(SeqArray)
+library(foreach)
+library(sp)
+library(doMC)
+registerDoMC(2)
+library(genomalicious)
 
 args = commandArgs(trailingOnly=TRUE)
 
@@ -25,18 +34,6 @@ dep <- fread(Meta_dir, "sequencingStats/rd.csv", sep = "/")[auto==T]
 
 
 message(job)
-
-### libraries
-library(tidyverse)
-library(data.table)
-library(SeqArray)
-library(foreach)
-library(sp)
-library(doMC)
-registerDoMC(2)
-library(genomalicious)
-
-
 head(pairs)
 pairs[job]
 

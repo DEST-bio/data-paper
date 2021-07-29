@@ -30,7 +30,7 @@ projection1= int(projection1)
 projection2= int(projection2)
 
 #opening output file to give column names
-PMmod=open('./outputs_param/%s_output.txt' % Pair_name,'w')
+PMmod=open('%s_output.theta.txt' % Pair_name,'w')
 PMmod.write(
             str("Pair_name")+'\t'+ #print pair name
             str("fs_name")+'\t'+ #double checking fs_lines[y] is working as I want it to
@@ -157,7 +157,7 @@ for i in range(int(iterations)): #iterations is imported from sys. argument #1
     pop2_size = nu2*Nref #pop2 size
 
     #Open the output file
-    PMmod=open('./outputs_param/%s_output.txt' % Pair_name,'a')
+    PMmod=open('%s_output.theta.txt' % Pair_name,'a')
 
     #Dumping output ot outfile
     PMmod.write(

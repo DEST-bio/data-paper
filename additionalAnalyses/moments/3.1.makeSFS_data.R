@@ -1,11 +1,13 @@
-# module load gcc/7.1.0 openmpi/3.1.4 R/3.6.3; R
 
 args = commandArgs(trailingOnly=TRUE)
+
 job=as.numeric(args[1])
 popset=args[2]
 dir= args[3]
 Meta_dir=args[4]
 DEST_gds_dir=args[5]
+
+print(c(job,popset,dir,Meta_dir,DEST_gds_dir))
 
 ##########################################
 #acting on the user input:
@@ -13,7 +15,7 @@ DEST_gds_dir=args[5]
 system(paste("mkdir", dir, sep = " "))
 
 #2. Load the pairs data
-pairs=fread(popset)
+pairs <- fread(popset)
 
 #3. load DEST metadata
 samps <- fread(paste(Meta_dir,"samps_10Nov2020.csv", sep = "/"))

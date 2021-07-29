@@ -76,7 +76,7 @@ else:
     print("continuing")
 
 #opening output file to give column names
-PMmod=open('%s_output.bound.txt' % Pair_name,'w')
+PMmod=open('%s_output.theta.txt' % Pair_name,'w')
 PMmod.write(
             str("Pair_name")+'\t'+ #print pair name
             str("fs_name")+'\t'+ #double checking fs_lines[y] is working as I want it to

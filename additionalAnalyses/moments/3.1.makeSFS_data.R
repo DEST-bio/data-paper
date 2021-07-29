@@ -29,7 +29,7 @@ pairs <- fread(popset)
 samps <- fread(paste(Meta_dir,"samps_10Nov2020.csv", sep = "/"))
 
 #4. Load effective coverage
-dep <- fread(Meta_dir, "sequencingStats/rd.csv", sep = "/")[auto==T]
+dep <- fread(paste(Meta_dir, "sequencingStats/rd.csv", sep = "/"))[auto==T]
 
 
 message(job)

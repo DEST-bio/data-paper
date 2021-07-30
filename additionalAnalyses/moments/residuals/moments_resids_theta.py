@@ -1,5 +1,6 @@
-#testing genomalicious outputs
-
+#script to print residual graphs
+#import libraries
+#works only for parameterized theta runs
 import moments
 from moments import Numerics
 from moments import Integration
@@ -27,6 +28,7 @@ nu2 = float(sys.argv[8])
 m12 = float(sys.argv[9])
 Ts = float(sys.argv[10])
 theta = float(sys.argv[11]) #note this should be theta_param, not theta_model
+resid = int(sys.argv[12])
 
 #converting floats to integers
 pool_n1= int(pool_n1)
@@ -100,6 +102,6 @@ print("Maximum log composite likelihood: {0}".format(ll_model))
 fig = pylab.figure(1)
 fig.clear()
 moments.Plotting.plot_2d_comp_Poisson(
-    model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+    model, fs_folded, resid_range=resid, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
 )
 fig.savefig("%s_theta_resids.png" % Pair_name, dpi=100)

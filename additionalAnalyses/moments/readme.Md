@@ -450,11 +450,7 @@ for i in range(int(iterations)): #iterations is imported from sys. argument name
 print("Moments finished running")
 #exmaple do not run
 ```
-# Script 6. Collate all outputs 
-Since we are running the moments script over multiple pairs we need to centralize all the  outputs into a single file for data mining. This is done here --  Collect moments data (`data-paper/additionalAnalyses/moments/6.collect_all_moments.R`)
-
-
-# Script 7. Plot and misc.
-We provide scripts for plotting and misc. analysis as shown in the paper. Although we recommend the end user to do this themselves for other analyses. -- Plot moments data (`data-paper/additionalAnalyses/moments/7.plot_all_moments.R`)
-
+# Script 6. Collate, analyze, and plot all outputs 
+Since we are running the moments script over multiple pairs we need to centralize all the  outputs into a single file for data mining. This is done here --  Collect moments data (`data-paper/additionalAnalyses/moments/5.collection_and_analysis_of_moments_output.r`)
+Additional plotting options are given in the folder named "Residuals"
 

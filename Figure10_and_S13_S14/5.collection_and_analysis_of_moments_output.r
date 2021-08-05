@@ -213,7 +213,13 @@ load("./AllDataMerged_FromBounds_and_Theta.Rdata")
 o.best = merged_datasets %>%
 		.[which(.$AIC_label == "Best"),] %>%
 		mutate(theta_est = theta/L )
-		
+
+o.best %>%
+.[which(.$inference_method == "theta-prior"),] ->
+o.best.theta
+
+save(o.best.theta, file = "o.best.models.theta.Rdata")
+
 ################################
 #### Explore theta
 ################################

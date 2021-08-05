@@ -427,6 +427,38 @@ ggsave(((theta_plot_Caller+Ts_plot_Caller+Divergence_plot)/DT_dist_plot),
 		 width = 8,
 	     height = 4)
 
+
+##################################
+# Explore distance vs migration
+##################################
+mu=2.8e-9
+
+o.best %>%
+  .[which(.$inference_method == "theta-prior"),] %>%
+  .[which(.$caller == "PoolSNP"),] %>%
+  .[which(.$SFSmethod == "binom"),] %>%
+  ggplot(aes(
+    x=dist,
+    y=(m12/(2*(theta/4*mu*L))),
+    fill = popset
+  )) +
+  geom_point(alpha = 0.3,
+             shape = 21) +
+  geom_smooth(color = "black",
+              method = "lm") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  facet_wrap(~popset, scales = "free_x") +
+  ylab(expression( M[ij] ) ) +
+  xlab("Distance (Km)") +
+  scale_fill_brewer(palette = "Pastel1")  ->
+  Mij_dist_plot
+
+ggsave(Mij_dist_plot,
+       file="Mij_dist_plot.pdf",
+       width = 9,
+       height = 2.4)
+  
 ##################################
 # Explore world-plots vs divergence
 ##################################

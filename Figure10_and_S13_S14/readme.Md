@@ -77,9 +77,9 @@ This script outputs various files:
 ```R
 "./pairs_between.txt"
 "./pairs_within.txt"
-"./pairs_all.txt"
+"./pairs_poolSNP.txt"
 ``` 
-These files contained different types of comparisons within and between populations in Europe. However, for the purposes of replicating our main text analysis. The file you want is **"./pairs_all.txt"**. This file will instruct the code to do all possible--and relevant--comparisons, 
+These files contained different types of comparisons within and between populations in Europe. However, for the purposes of replicating our main text analysis. The file you want is **"./pairs_poolSNP.txt"**. This file will instruct the code to do all possible--and relevant--comparisons, 
 
 # Script 2. Get L for moments calculation
 In order to estimate divergence time and other parameters, it is needed to have an estimate of how many bases were lest unmasked after filtration. -- Get median L for moments calculations (`data-paper/Figure10_and_S13_S14/2.getL.R`). Same as above, make sure you modify the script such that the file is being pulled from the right location. 
@@ -115,7 +115,7 @@ library(doMC)
 ```bash
 mkdir slurmOutput
 
-sbatch --array=1-$( cat ${wd}/pairs_all.txt  | sed '1d' | wc -l ) \
+sbatch --array=1-$( cat ${wd}/pairs_poolSNP.txt  | sed '1d' | wc -l ) \
 --partition=standard \
 --job-name MakMomeInputs \
 --ntasks-per-node=3 \
@@ -127,7 +127,7 @@ sbatch --array=1-$( cat ${wd}/pairs_all.txt  | sed '1d' | wc -l ) \
 --error ./slurmOutput/makeInp.%A_%a.err \
 ${wd}/data-paper/Figure10_and_S13_S14/3.0.make_inputdata.sh \
 ${wd}/data-paper/Figure10_and_S13_S14/3.1.makeSFS_data.R \
-${wd}/pairs_all.txt \
+${wd}/pairs_poolSNP.txt \
 ${wd}/moments_input/ \
 ${wd}/DEST_freeze1/populationInfo \
 /project/berglandlab/DEST/gds/
@@ -152,7 +152,7 @@ mkdir slurmOutput
 --output ./slurmOutput/moments.%A_%a.out \
 --error ./slurmOutput/moments.%A_%a.err \
 ${wd}/data-paper/Figure10_and_S13_S14/4.0.run_moments.sh \
-${wd}/data-paper/Figure10_and_S13_S14/pairs_all.txt \
+${wd}/data-paper/Figure10_and_S13_S14/pairs_poolSNP.txt \
 ${wd}/data-paper/Figure10_and_S13_S14/4.3.moments_IM_theta.py \
 200 \
 /project/berglandlab/moments/moments_input \
@@ -174,16 +174,16 @@ anaconda/2020.11-py3.8
 For this script to work it is important to provide two user defined inputs, the metadata file, and the type of analysis to run.
 ```bash
 #exmaple do not run
-sbatch --array=1-$( cat ./pairs_all.txt  | sed '1d' | wc -l ) \
+sbatch --array=1-$( cat ./pairs_poolSNP.txt  | sed '1d' | wc -l ) \
 ./4.0.run_moments.sh \
-pairs_all.txt \ <=== Metadata file generated in step 2.0
+pairs_poolSNP.txt \ <=== Metadata file generated in step 2.0
 4.1.moments_bounds.py \ <=== Analysis Type
 50 \ <=== Fifty iterations each run
 /project/berglandlab/moments/moments_input \ <=== Input data; generated in step 3.0
 binom <=== Method
 #exmaple do not run
 ```
-* The metadata can be: "./pairs_all.txt", "./pairs_between.txt", "./pairs_within.txt"
+* The metadata can be: "./pairs_poolSNP.txt", "./pairs_between.txt", "./pairs_within.txt"
 * The analyses are the actual python scripts and can be: **"4.1.moments_bounds.py"** or **"4.2.moments_param_theta.py"**. The first, *moments_bounds.py* is close to the *default* way to run moments. And, *moments_param_theta.py* is our modified script which parametrized theta (see main manuscript).
 * The methods are "binom" and "counts"
 

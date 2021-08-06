@@ -28,10 +28,10 @@ git clone https://github.com/DEST-bio/DEST_freeze1.git
 git clone https://github.com/DEST-bio/data-paper.git
 ```
 # Script 0. Install moments
-Here we provide you with an example to install the python libraries needed to run moments -- Install moments (`data-paper/additionalAnalyses/moments/0.set_up_moments.RunManually.sh`)
+Here we provide you with an example to install the python libraries needed to run moments -- Install moments (`data-paper/Figure10_and_S13_S14/0.set_up_moments.RunManually.sh`)
 
 # Script 1. Generate Pairs
-Because the East and West cluster are composed by  populations geographically distributed across west and east Europe, we want to estimate diverge-w/-migration accounting for this spatial separation. For example, we hope to estimate and compare parameters from populations coming from East and West Austria (the boundary region) but also, Spain vs Ukraine (two spatially distant populations within their clades). This script will generate 1000 random pairs among estern and western flies for the analysis. -- Generate ~1000 pairs of populations between E and W European clusters (`data-paper/additionalAnalyses/moments/1.generatePairs.R`).
+Because the East and West cluster are composed by  populations geographically distributed across west and east Europe, we want to estimate diverge-w/-migration accounting for this spatial separation. For example, we hope to estimate and compare parameters from populations coming from East and West Austria (the boundary region) but also, Spain vs Ukraine (two spatially distant populations within their clades). This script will generate 1000 random pairs among estern and western flies for the analysis. -- Generate ~1000 pairs of populations between E and W European clusters (`data-paper/Figure10_and_S13_S14/1.generatePairs.R`).
 
 ### Running the make pairs file
 This script takes 3 inputs: 
@@ -66,7 +66,7 @@ module load goolf/7.1.0_3.1.4
 module load R/4.0.0
 
 Rscript \
-${wd}/data-paper/additionalAnalyses/moments/1.generatePairs.R \
+${wd}/data-paper/Figure10_and_S13_S14/1.generatePairs.R \
 ${wd} \
 ${wd}/DEST_freeze1/populationInfo/samps_10Nov2020.csv \
 ${wd}/DEST_freeze1/populationInfo/Cluster_Assingment/DEST_Sample_clusters.txt
@@ -82,7 +82,7 @@ This script outputs various files:
 These files contained different types of comparisons within and between populations in Europe. However, for the purposes of replicating our main text analysis. The file you want is **"./pairs_all.txt"**. This file will instruct the code to do all possible--and relevant--comparisons, 
 
 # Script 2. Get L for moments calculation
-In order to estimate divergence time and other parameters, it is needed to have an estimate of how many bases were lest unmasked after filtration. -- Get median L for moments calculations (`data-paper/additionalAnalyses/moments/2.getL.R`). Same as above, make sure you modify the script such that the file is being pulled from the right location. 
+In order to estimate divergence time and other parameters, it is needed to have an estimate of how many bases were lest unmasked after filtration. -- Get median L for moments calculations (`data-paper/Figure10_and_S13_S14/2.getL.R`). Same as above, make sure you modify the script such that the file is being pulled from the right location. 
 
 # Script 3. Make input data for moments
 Because we intend to run 1000+ comparisons, models, and demographic estimation, we will run the program moments using an array configuration in a HPC environment. This require us to use an array job. Example:
@@ -125,8 +125,8 @@ sbatch --array=1-$( cat ${wd}/pairs_all.txt  | sed '1d' | wc -l ) \
 --account=berglandlab \
 --output ./slurmOutput/makeInp.%A_%a.out \
 --error ./slurmOutput/makeInp.%A_%a.err \
-${wd}/data-paper/additionalAnalyses/moments/3.0.make_inputdata.sh \
-${wd}/data-paper/additionalAnalyses/moments/3.1.makeSFS_data.R \
+${wd}/data-paper/Figure10_and_S13_S14/3.0.make_inputdata.sh \
+${wd}/data-paper/Figure10_and_S13_S14/3.1.makeSFS_data.R \
 ${wd}/pairs_all.txt \
 ${wd}/moments_input/ \
 ${wd}/DEST_freeze1/populationInfo \
@@ -141,20 +141,20 @@ In this step, we will run the script which calls on *moments* to do demographic 
 ```bash
 mkdir slurmOutput
 
-sbatch --array=1-$( cat ${wd}/data-paper/additionalAnalyses/moments/pairs_all.txt  | sed '1d' | wc -l ) \
+#sbatch --array=1-$( cat ${wd}/data-paper/Figure10_and_S13_S14/pairs_all.txt  | sed '1d' | wc -l ) \
 --partition=standard \
---job-name theParamBinom \
+--job-name IMtheBinom \
 --ntasks-per-node=3 \
 --nodes=1 \
---time=0-08:00 \
+--time=0-18:00 \
 --mem=27G \
 --account=berglandlab \
 --output ./slurmOutput/moments.%A_%a.out \
 --error ./slurmOutput/moments.%A_%a.err \
-${wd}/data-paper/additionalAnalyses/moments/4.0.run_moments.sh \
-${wd}/data-paper/additionalAnalyses/moments/pairs_all.txt \
-${wd}/data-paper/additionalAnalyses/moments/4.1.moments_bounds.py \
-50 \
+${wd}/data-paper/Figure10_and_S13_S14/4.0.run_moments.sh \
+${wd}/data-paper/Figure10_and_S13_S14/pairs_all.txt \
+${wd}/data-paper/Figure10_and_S13_S14/4.3.moments_IM_theta.py \
+200 \
 /project/berglandlab/moments/moments_input \
 binom
 ```
@@ -451,6 +451,6 @@ print("Moments finished running")
 #exmaple do not run
 ```
 # Script 6. Collate, analyze, and plot all outputs 
-Since we are running the moments script over multiple pairs we need to centralize all the  outputs into a single file for data mining. This is done here --  Collect moments data (`data-paper/additionalAnalyses/moments/5.collection_and_analysis_of_moments_output.r`)
+Since we are running the moments script over multiple pairs we need to centralize all the  outputs into a single file for data mining. This is done here --  Collect moments data (`data-paper/Figure10_and_S13_S14/5.collection_and_analysis_of_moments_output.r`)
 Additional plotting options are given in the folder named "Residuals"
 

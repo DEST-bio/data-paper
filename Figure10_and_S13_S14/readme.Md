@@ -141,7 +141,7 @@ In this step, we will run the script which calls on *moments* to do demographic 
 ```bash
 mkdir slurmOutput
 
-#sbatch --array=1-$( cat ${wd}/data-paper/Figure10_and_S13_S14/pairs_all.txt  | sed '1d' | wc -l ) \
+#sbatch --array=1-$( cat ${wd}/data-paper/Figure10_and_S13_S14/pairs_poolSNP.txt | sed '1d' | wc -l ) \
 --partition=standard \
 --job-name IMtheBinom \
 --ntasks-per-node=3 \

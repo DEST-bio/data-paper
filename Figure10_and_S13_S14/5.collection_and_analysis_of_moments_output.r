@@ -26,9 +26,11 @@ R
 ### get files
 
 	paths <- c(
-	"/project/berglandlab/moments_jcbn_keric/binombound_thetacount_outputs/output/",
-	"/project/berglandlab/moments_jcbn_keric/alan/moments_BoundsCount/output/",
-	"/project/berglandlab/moments_jcbn_keric/jcbn_runs/"
+	#"/project/berglandlab/moments_jcbn_keric/binombound_thetacount_outputs/output/",
+	#"/project/berglandlab/moments_jcbn_keric/alan/moments_BoundsCount/output/",
+	#"/project/berglandlab/moments_jcbn_keric/jcbn_runs/",
+	"/project/berglandlab/moments_jcbn_keric/IM_alan/IMtheBinom/output",
+	"/project/berglandlab/moments_jcbn_keric/IMtheBinom/output"
 	)
 
 o.l <- list()
@@ -48,6 +50,7 @@ for(j in 1:length(paths)){
     	"pop1",
     	"pop2",
     	"Demo_cluster",
+    	"Demo_model", # <---- only activate for IM models
     	"inference_method",
     	"file"
     	), sep ="\\.")
@@ -66,12 +69,17 @@ for(j in 1:length(paths)){
       tmp[,pop1:=fsl[i,"pop1"]]
       tmp[,pop2:=fsl[i,"pop2"]]
       tmp[,Demo_cluster:=fsl[i,"Demo_cluster"]]
+      tmp[,Demo_model:=fsl[i,"Demo_model"]] # <---- only activate for IM models
       tmp[,inference_method:=fsl[i,"inference_method"]]
       
-      if(fsl[i,"inference_method"] == "theta"){
-      names(tmp)[10] = "theta"
-      }
+      #if(fsl[i,"inference_method"] == "theta"){
+      #names(tmp)[10] = "theta"
+      #}
       
+     aic_col = which(names(tmp) == "aic" ) 
+     
+     names(tmp)[aic_col] = "AIC" 
+     
 	  ##Evaluate models      		
       		##Add model fir
       		min_aic = min(tmp$AIC)
@@ -87,12 +95,12 @@ for(j in 1:length(paths)){
 
 o.l.all <- rbindlist(o.l, fill=T)
 
-
 #rm(list = ls())
-save(o.l.all, file = "DataFrom4.1.and4.2.Rdata")
+save(o.l.all, file = "Data.from.IMmodels.Rdata")
 
 ####
-load("./DataFrom4.1.and4.2.Rdata")
+#load("./DataFrom4.1.and4.2.Rdata")
+load("./Data.from.IMmodels.Rdata")
 
 ##### Bring data from first run
 load("/project/berglandlab/moments_jcbn_keric/moments_all_backconvert.RData")
@@ -206,11 +214,16 @@ save(merged_datasets, file = "AllDataMerged_FromBounds_and_Theta.Rdata")
 #### Start here:
 ################################
 
-load("./AllDataMerged_FromBounds_and_Theta.Rdata")
+load("./Data.from.IMmodels.Rdata")
+#load("./AllDataMerged_FromBounds_and_Theta.Rdata")
+
 ###### 
 #####
 # Select only the best model
-o.best = merged_datasets %>%
+
+#o.best = merged_datasets %>%
+
+o.best = o.l.all %>%
 		.[which(.$AIC_label == "Best"),] %>%
 		mutate(theta_est = theta/L )
 

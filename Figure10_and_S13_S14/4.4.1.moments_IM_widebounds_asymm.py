@@ -165,7 +165,7 @@ for i in range(int(iterations)): #iterations is imported from sys. argument #1
     #multinom is set to false as theta is being estimated in the model as a parameter.
     popt=moments.Inference.optimize_log(popt, fs_folded, func_moments,
                                         lower_bound=lower_bound, upper_bound=upper_bound,
-                                        verbose=False, maxiter=3,
+                                        verbose=True, maxiter=3,
                                         )
 
     #This is the moments function.

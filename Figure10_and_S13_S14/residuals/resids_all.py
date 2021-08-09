@@ -1,16 +1,23 @@
-#testing genomalicious outputs
+# This script will run the program moments by Jouganous, J., Long, W., Ragsdale, A. P., & Gravel, S. (2017)
+# Script to output residuals from metadata file
+# Generalized so it can run any model we ran, provided proper metadata input
+# Models script can process: theta split_mig, theta IMbg, widebounds split_mig, widebounds IMbg
+# Written by Keric Lamb, UVA 2021
+# ksl2za@virginia.edu
 
+#import relevant packages
 import moments
 from moments import Numerics
 from moments import Integration
 from moments import Spectrum
+from moments import Inference
 import dadi
-from dadi import Misc
+from dadi import Misc #make data dict step was not working in moments for unknown reason
 import os
 import sys
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')  # need this when DISPLAY is not defined
+matplotlib.use('Agg')  # need this when DISPLAY is not defined (i.e. slurm runs)
 import matplotlib.pyplot as plt
 import  pandas as pd
 import pylab
@@ -27,43 +34,52 @@ pop_name2 = sys.argv[6]
 pool_n1 = sys.argv[7]
 pool_n2 = sys.argv[8]
 
+#converting floats to integers
+pool_n1= int(pool_n1)
+pool_n2= int(pool_n2)
+
+#read in data as file
+dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
+data = pd.read_csv(fs_file, sep="\t", nrows=1)
+
+#setting up if else check 
+#if names fed by metadat match dd then will run as expected
+#else if names are not equal, it swaps them
+#leaves pool_n1 alone
+if pop_name1==data.columns[3]:
+    pop_id1=pop_name1
+    pop_id2=pop_name2
+else:
+    pop_id1=pop_name2
+    pop_id2=pop_name1
+
+#setting pop id's and projections from if/else
+pop_id=[pop_id1,pop_id2]
+pools=[pool_n1, pool_n2]
+
+fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
+ns = fs_folded.sample_sizes #gets sample sizes of dataset
+S = fs_folded.S()
+#fs_folded.mask[:1,:] = True
+#fs_folded.mask[ :,:1] = True
+
+#if file is not working (sfs is empty), this kills the run
+if S==0:
+    quit()
+else:
+    print("continuing")
+
+#begin model and param residual runs
+
 if param==str("theta"):
     if model_type==str("split_mig"):
+        #import relevant parameters for split mig theta models
         nu1 = float(sys.argv[9])
         nu2 = float(sys.argv[10])
         m12 = float(sys.argv[11])
         Ts = float(sys.argv[12])
         theta = float(sys.argv[13]) #note this should be theta_param, not theta_model
-
-        #converting floats to integers
-        pool_n1= int(pool_n1)
-        pool_n2= int(pool_n2)
-
-        #read in data as file
-        dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-        data = pd.read_csv(fs_file, sep="\t", nrows=1)
-
-        #setting up if else check 
-        #if names fed by metadat match dd then will run as expected
-        #else if names are not equal, it swaps them
-        #leaves pool_n1 alone
-        if pop_name1==data.columns[3]:
-            pop_id1=pop_name1
-            pop_id2=pop_name2
-        else:
-            pop_id1=pop_name2
-            pop_id2=pop_name1
-
-        #setting pop id's and projections from if/else
-        pop_id=[pop_id1,pop_id2]
-        pools=[pool_n1, pool_n2]
-
-        fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
-        ns = fs_folded.sample_sizes #gets sample sizes of dataset
-        S = fs_folded.S()
-        #fs_folded.mask[:1,:] = True
-        #fs_folded.mask[ :,:1] = True
-
+        
         #generate time
         now = datetime.now()
         #generates warning file
@@ -71,15 +87,10 @@ if param==str("theta"):
         PMmod.write(
             str("%s" % now)+'\t'+ 
             str("%s" % Pair_name)+'\t'+
+            str("slit_mig")+'\t'+
             str("theta")+'\t'+
             str("%s" % S)+'\n')
         PMmod.close()
-
-        #if file is not working (sfs is empty), this kills the script
-        if S==0:
-            quit()
-        else:
-            print("continuing")
 
         #model with symmetric migration from Moments bitbucket
         #theta is parameterized here
@@ -95,7 +106,7 @@ if param==str("theta"):
             fs.pop_ids = pop_ids
             return fs
 
-        func_moments = split_mig_moments
+        func_moments = split_mig_moments #generalizes function name for ease of c/p
 
         # Calculate the best-fit model AFS.
         popt= [nu1, nu2, Ts, m12, theta]
@@ -110,8 +121,14 @@ if param==str("theta"):
             model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
         )
         fig.savefig("%s_theta_splitmig_resids.png" % Pair_name, dpi=100)
+        
+        #grab residual array from internal moments function
+        resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+        resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+        resid.to_csv("%s_theta_splitmig_resids_array.csv" % Pair_name, sep='\t', index = True)
 
     else:
+        #import parameters relevant to IMbg theta models
         nu1B = float(sys.argv[14])
         nu2B = float(sys.argv[15])
         nu1F = float(sys.argv[16])
@@ -119,36 +136,7 @@ if param==str("theta"):
         m12 = float(sys.argv[11])
         Ts = float(sys.argv[12])
         theta = float(sys.argv[13]) #note this should be theta_param, not theta_model
-
-        #converting floats to integers
-        pool_n1= int(pool_n1)
-        pool_n2= int(pool_n2)
-
-        #read in data as file
-        dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-        data = pd.read_csv(fs_file, sep="\t", nrows=1)
-
-        #setting up if else check 
-        #if names fed by metadat match dd then will run as expected
-        #else if names are not equal, it swaps them
-        #leaves pool_n1 alone
-        if pop_name1==data.columns[3]:
-            pop_id1=pop_name1
-            pop_id2=pop_name2
-        else:
-            pop_id1=pop_name2
-            pop_id2=pop_name1
-
-        #setting pop id's and projections from if/else
-        pop_id=[pop_id1,pop_id2]
-        pools=[pool_n1, pool_n2]
-
-        fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
-        ns = fs_folded.sample_sizes #gets sample sizes of dataset
-        S = fs_folded.S()
-        #fs_folded.mask[:1,:] = True
-        #fs_folded.mask[ :,:1] = True
-
+        
         #generate time
         now = datetime.now()
         #generates warning file
@@ -156,15 +144,10 @@ if param==str("theta"):
         PMmod.write(
             str("%s" % now)+'\t'+ 
             str("%s" % Pair_name)+'\t'+
+            str("IMbg")+'\t'+
             str("theta")+'\t'+
             str("%s" % S)+'\n')
         PMmod.close()
-
-        #if file is not working (sfs is empty), this kills the script
-        if S==0:
-            quit()
-        else:
-            print("continuing")
 
         def IM_bottle_growth(params, ns):
             """
@@ -210,43 +193,20 @@ if param==str("theta"):
             model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
         )
         fig.savefig("%s_theta_IMbg_resids.png" % Pair_name, dpi=100)
+        
+        #grab residual array from internal moments function
+        resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+        resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+        resid.to_csv("%s_theta_IMbg_resids_array.csv" % Pair_name, sep='\t', index = True)
 
 else: 
     if model_type==str("split_mig"):
+        #import parameters relevant to split_mig widebound models
         nu1 = float(sys.argv[9])
         nu2 = float(sys.argv[10])
         m12 = float(sys.argv[11])
         Ts = float(sys.argv[12])
-
-        #converting floats to integers
-        pool_n1= int(pool_n1)
-        pool_n2= int(pool_n2)
-
-        #read in data as file
-        dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-        data = pd.read_csv(fs_file, sep="\t", nrows=1)
-
-        #setting up if else check 
-        #if names fed by metadat match dd then will run as expected
-        #else if names are not equal, it swaps them
-        #leaves pool_n1 alone
-        if pop_name1==data.columns[3]:
-            pop_id1=pop_name1
-            pop_id2=pop_name2
-        else:
-            pop_id1=pop_name2
-            pop_id2=pop_name1
-
-        #setting pop id's and projections from if/else
-        pop_id=[pop_id1,pop_id2]
-        pools=[pool_n1, pool_n2]
-
-        fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
-        ns = fs_folded.sample_sizes #gets sample sizes of dataset
-        S = fs_folded.S()
-        #fs_folded.mask[:1,:] = True
-        #fs_folded.mask[ :,:1] = True
-
+        
         #generate time
         now = datetime.now()
         #generates warning file
@@ -254,15 +214,10 @@ else:
         PMmod.write(
             str("%s" % now)+'\t'+ 
             str("%s" % Pair_name)+'\t'+
+            str("split_mig")+'\t'+
             str("widebounds")+'\t'+
             str("%s" % S)+'\n')
         PMmod.close()
-
-        #if file is not working (sfs is empty), this kills the script
-        if S==0:
-            quit()
-        else:
-            print("continuing")
 
         #model with symmetric migration from Moments bitbucket
         #theta is parameterized here
@@ -292,43 +247,20 @@ else:
             model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
         )
         fig.savefig("%s_widebounds_splitmig_resids.png" % Pair_name, dpi=100)
+        
+        #grab residual array from internal moments function
+        resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+        resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+        resid.to_csv("%s_widebounds_splitmig_resids_array.csv" % Pair_name, sep='\t', index = True)
 
     else:
+        #import parameters relevant to IMbg widebound models
         nu1B = float(sys.argv[14])
         nu2B = float(sys.argv[15])
         nu1F = float(sys.argv[16])
         nu2F = float(sys.argv[17])
         m12 = float(sys.argv[11])
         Ts = float(sys.argv[12])
-
-        #converting floats to integers
-        pool_n1= int(pool_n1)
-        pool_n2= int(pool_n2)
-
-        #read in data as file
-        dd = dadi.Misc.make_data_dict(fs_file) #reads in genomalicious SNP file
-        data = pd.read_csv(fs_file, sep="\t", nrows=1)
-
-        #setting up if else check 
-        #if names fed by metadat match dd then will run as expected
-        #else if names are not equal, it swaps them
-        #leaves pool_n1 alone
-        if pop_name1==data.columns[3]:
-            pop_id1=pop_name1
-            pop_id2=pop_name2
-        else:
-            pop_id1=pop_name2
-            pop_id2=pop_name1
-
-        #setting pop id's and projections from if/else
-        pop_id=[pop_id1,pop_id2]
-        pools=[pool_n1, pool_n2]
-
-        fs_folded = Spectrum.from_data_dict(dd, pop_ids=pop_id, projections=pools, polarized=False) #takes data dict and folds
-        ns = fs_folded.sample_sizes #gets sample sizes of dataset
-        S = fs_folded.S()
-        #fs_folded.mask[:1,:] = True
-        #fs_folded.mask[ :,:1] = True
 
         #generate time
         now = datetime.now()
@@ -337,15 +269,10 @@ else:
         PMmod.write(
             str("%s" % now)+'\t'+ 
             str("%s" % Pair_name)+'\t'+
+            str("IMbg")+'\t'+
             str("widebounds")+'\t'+
             str("%s" % S)+'\n')
         PMmod.close()
-
-        #if file is not working (sfs is empty), this kills the script
-        if S==0:
-            quit()
-        else:
-            print("continuing")
 
         def IM_bottle_growth(params, ns):
             """
@@ -391,3 +318,10 @@ else:
             model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
         )
         fig.savefig("%s_widebounds_IMbg_resids.png" % Pair_name, dpi=100)
+        
+        #grab residual array from internal moments function
+        resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+        resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+        resid.to_csv("%s_widebounds_IMbg_resids_array.csv" % Pair_name, sep='\t', index = True)
+
+print("residual script is done running %s" % Pair_name)

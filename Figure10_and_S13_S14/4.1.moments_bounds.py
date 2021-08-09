@@ -1,5 +1,5 @@
 # This script will run the program moments by Jouganous, J., Long, W., Ragsdale, A. P., & Gravel, S. (2017)
-# Parameters are constrained at 1e-2 for this run 
+# Parameters are constrained at 1e-5 for this run 
 # Written by Keric Lamb, UVA 2021
 # ksl2za@virginia.edu
 # import packages that'll be used
@@ -123,7 +123,7 @@ func_moments = split_mig_moments
 #boundaries
 #bounded to same standards as theta param script
 upper_bound = [10, 10, 5, 50]
-lower_bound = [1e-2, 1e-2, 1e-2, 0]
+lower_bound = [1e-5, 1e-5, 1e-5, 0]
 
 #constants
 mu = 2.8e-9 #from Keightley et al. 2014

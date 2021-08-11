@@ -12,7 +12,8 @@
 #SBATCH -a berglandlab
 
 ### sbatch --array=1-$( sed '1d' /project/berglandlab/moments/resid_meta.delim | wc -l ) /scratch/aob2x/data-paper/Figure10_and_S13_S14/residuals/moments_resid.sh
-### sacct -j 24349837
+### sacct -j 24353835
+### cat /scratch/aob2x/moments/slurmOut/resid.24352047_1.out
 
 echo "began at"  `date`
 

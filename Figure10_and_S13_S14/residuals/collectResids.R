@@ -1,24 +1,41 @@
-library(data.table)
-library(ggplot2)
-library(lattice)
-dat <- as.matrix(fread("/Users/alanbergland/PoolSNP.binom.AT_See_16_1.AT_Mau_15_50.EW_widebounds_split_mig_asymm_resids.delim", skip=1))
-datl <- data.table(resid=expand.grid(dat[,-1])[,1],
-                   n1=rep(1:dim(dat[,-1])[1], dim(dat[,-1])[2]),
-                   n2=rep(1:dim(dat[,-1])[2], each=dim(dat[,-1])[1]))
-datl <- na.omit(datl)
+### module load intel/18.0 intelmpi/18.0 R/3.6.3; R
 
-ggplot(datl, aes(resid)) + geom_histogram()
+### libraries
+  library(data.table)
+  library(foreach)
+  library(doMC)
+  registerDoMC(10)
 
-ggplot(datl, aes(x=n1, y=n2, fill=resid)) + geom_tile()
-histogram(datl[resid>-60 & resid<60]$resid)
-levelplot(dat[,-1])
+### load metadata file
+  resid.meta <- fread("/project/berglandlab/moments/resid_meta.delim")
 
-obs<-as.matrix(fread("/Users/alanbergland/PoolSNP.binom.AT_See_16_1.AT_Mau_15_50.EW_widebounds_split_mig_asymm_resids.data", skip=1))
-levelplot(log10(obs[,-1]))
+### load resid files
+  fl <- list.files("/project/berglandlab/moments/resids/", "delim", full=T)
 
+  allResid <- foreach(fl.i=fl)%dopar%{
+    message(paste(which(fl.i==fl), length(fl), sep=" / "))
+    #fl.i<-fl[1]
+    resid.tmp <- fread(fl.i)
+    resid.tmp <- resid.tmp[,-1][-1,]
 
-model<-as.matrix(fread("/Users/alanbergland/PoolSNP.binom.AT_See_16_1.AT_Mau_15_50.EW_widebounds_split_mig_asymm_resids.model", skip=1))
-levelplot(log10(model[,-1]*417843.212514047))
+    resid.tmp.l <- data.table(resid=expand.grid(as.matrix(resid.tmp))[,1],
+                       n1=rep(1:dim(resid.tmp)[1], dim(resid.tmp)[2]),
+                       n2=rep(1:dim(resid.tmp)[2], each=dim(resid.tmp)[1]))
 
+    fl.is <- last(tstrsplit(fl.i, "/"))
+    fl.is <- tstrsplit(fl.is, "\\.")
 
-417843.212514047
+    resid.tmp.l[,Pair_name:=paste(unlist(fl.is[1:5]), collapse=".")]
+    resid.tmp.l[,param:=fl.is[[6]]]
+    resid.tmp.l[,model_type:=fl.is[[7]]]
+    resid.tmp.l[,model_sym:=fl.is[[8]]]
+    resid.tmp.l[,max_n1:=max(n1)]
+    resid.tmp.l[,max_n2:=max(n2)]
+    resid.tmp.l[,pop_name1:=fl.is[[3]]]
+    resid.tmp.l[,pop_name2:=fl.is[[4]]]
+    resid.tmp.l
+  }
+  allResid <- rbindlist(allResid)
+
+### save
+  save(allResid, file="~/allResid.Rdata")

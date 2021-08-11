@@ -481,6 +481,9 @@ modeldf = pd.DataFrame(model)
 modeldf.to_csv("{0}_{1}_{2}_{3}_resids.model".format(Pair_name, param, model_type, model_sym), sep='\t', index = True)
 
 
+datadf = pd.DataFrame(fs_folded)
+fs_folded.to_csv("{0}_{1}_{2}_{3}_resids.data".format(Pair_name, param, model_type, model_sym), sep='\t', index = True)
+
 
 
 

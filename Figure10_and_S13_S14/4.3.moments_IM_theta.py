@@ -144,7 +144,7 @@ lower_bound = [1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 0, 3.75e5]
 #constants
 mu = 2.8e-9 #from Keightley et al. 2014
 L = int(L_file) #imported from system argument #2
-g = 0.07692308 #equals 13 gen/year. Calculated based on biological intuition.
+g = 0.06666667 #equals 15 gen/year --- See Pool 2015
 theta_mean = 419800 #mean theta when multiplying 0.005*L, where Watterson's theta=0.005
 theta_sd = 41980 #sd for theta when multiplying 0.0005*L, where 0.0005 is the standard deviation of Watterson's theta
 

@@ -128,7 +128,7 @@ lower_bound = [1e-5, 1e-5, 1e-5, 0]
 #constants
 mu = 2.8e-9 #from Keightley et al. 2014
 L = int(L_file) #imported from system argument #2
-g = 0.07692308 #equals 13 gen/year. Calculated based on biological intuition.
+g = 0.06666667 #equals 15 gen/year --- See Pool 2015
 
 # run X optimizations from uniform-sampled starting params
 for i in range(int(iterations)): #iterations is imported from sys. argument #1

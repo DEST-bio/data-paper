@@ -11,7 +11,7 @@
 #SBATCH -p standard
 #SBATCH -a berglandlab
 
-### sbatch --array=1-i moments_resid.sh
+### sbatch --array=1-$( sed '1d' /project/berglandlab/moments/resid_meta.delim | wc -l ) /scratch/aob2x/data-paper/Figure10_and_S13_S14/residuals/moments_resid.sh
 
 echo "began at"  `date`
 
@@ -22,7 +22,7 @@ module load anaconda/2020.11-py3.8
 #Activate dadi kernel
 source activate moments_kern
 
-moments=/scratch/aob2x/data-paper/Figure10_and_S13_S14/residuals/resids_all.py
+moments=/scratch/aob2x/data-paper/Figure10_and_S13_S14/residuals/resids_all.v2.py
 
 #Load the metadata object into memory
 metadata=/project/berglandlab/moments/resid_meta.delim #Address to the metadata.
@@ -32,7 +32,7 @@ metadata=/project/berglandlab/moments/resid_meta.delim #Address to the metadata.
 #iterations=> number of times for the script to loop
 
 #===> Want to fix SLURM_ARRAY_TASK_ID? this is useful for debugging <====
-#=# SLURM_ARRAY_TASK_ID=120
+#=# SLURM_ARRAY_TASK_ID=1
 
 #Mining the metadata file
 fsfile=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $1 }' )

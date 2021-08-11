@@ -118,17 +118,17 @@ if param==str("theta"):
         ll_model= moments.Inference.ll(model, fs_folded)
         print("Maximum log composite likelihood: {0}".format(ll_model))
 
-        fig = pylab.figure(1)
-        fig.clear()
-        moments.Plotting.plot_2d_comp_Poisson(
-            model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
-        )
-        fig.savefig("%s_theta_splitmig_resids.png" % Pair_name, dpi=100)
-
-        #grab residual array from internal moments function
-        resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
-        resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
-        resid.to_csv("%s_theta_splitmig_resids_array.csv" % Pair_name, sep='\t', index = True)
+        #fig = pylab.figure(1)
+        #fig.clear()
+        #moments.Plotting.plot_2d_comp_Poisson(
+        #    model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+        #)
+        #fig.savefig("%s_theta_splitmig_resids.png" % Pair_name, dpi=100)
+#
+        ##grab residual array from internal moments function
+        #resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+        #resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+        #resid.to_csv("%s_theta_splitmig_resids_array.csv" % Pair_name, sep='\t', index = True)
 
     else:
         #bring in system inputs
@@ -191,17 +191,17 @@ if param==str("theta"):
         ll_model= moments.Inference.ll(model, fs_folded)
         print("Maximum log composite likelihood: {0}".format(ll_model))
 
-        fig = pylab.figure(1)
-        fig.clear()
-        moments.Plotting.plot_2d_comp_Poisson(
-            model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
-        )
-        fig.savefig("%s_theta_IMbg_resids.png" % Pair_name, dpi=100)
-
-        #grab residual array from internal moments function
-        resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
-        resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
-        resid.to_csv("%s_theta_IMbg_resids_array.csv" % Pair_name, sep='\t', index = True)
+        #fig = pylab.figure(1)
+        #fig.clear()
+        #moments.Plotting.plot_2d_comp_Poisson(
+        #    model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+        #)
+        #fig.savefig("%s_theta_IMbg_resids.png" % Pair_name, dpi=100)
+#
+        ##grab residual array from internal moments function
+        #resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+        #resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+        #resid.to_csv("%s_theta_IMbg_resids_array.csv" % Pair_name, sep='\t', index = True)
 
 else: #non-theta models
     if model_sym==str("symm"):
@@ -248,17 +248,17 @@ else: #non-theta models
             ll_model= moments.Inference.ll_multinom(model, fs_folded)
             print("Maximum log composite likelihood: {0}".format(ll_model))
 
-            fig = pylab.figure(1)
-            fig.clear()
-            moments.Plotting.plot_2d_comp_multinom(
-                model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
-            )
-            fig.savefig("%s_widebounds_splitmig_resids.png" % Pair_name, dpi=100)
-
-            #grab residual array from internal moments function
-            resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
-            resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
-            resid.to_csv("%s_widebounds_splitmig_resids_array.csv" % Pair_name, sep='\t', index = True)
+            #fig = pylab.figure(1)
+            #fig.clear()
+            #moments.Plotting.plot_2d_comp_multinom(
+            #    model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+            #)
+            #fig.savefig("%s_widebounds_splitmig_resids.png" % Pair_name, dpi=100)
+#
+            ##grab residual array from internal moments function
+            #resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+            #resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+            #resid.to_csv("%s_widebounds_splitmig_resids_array.csv" % Pair_name, sep='\t', index = True)
 
         else: #symmetric widebounds IMbg
             #bring in system inputs
@@ -320,17 +320,17 @@ else: #non-theta models
             ll_model= moments.Inference.ll_multinom(model, fs_folded)
             print("Maximum log composite likelihood: {0}".format(ll_model))
 
-            fig = pylab.figure(1)
-            fig.clear()
-            moments.Plotting.plot_2d_comp_multinom(
-                model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
-            )
-            fig.savefig("%s_widebounds_IMbg_resids.png" % Pair_name, dpi=100)
-
-            #grab residual array from internal moments function
-            resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
-            resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
-            resid.to_csv("%s_widebounds_IMbg_resids_array.csv" % Pair_name, sep='\t', index = True)
+            #fig = pylab.figure(1)
+            #fig.clear()
+            #moments.Plotting.plot_2d_comp_multinom(
+            #    model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+            #)
+            #fig.savefig("%s_widebounds_IMbg_resids.png" % Pair_name, dpi=100)
+#
+            ##grab residual array from internal moments function
+            #resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+            #resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+            #resid.to_csv("%s_widebounds_IMbg_resids_array.csv" % Pair_name, sep='\t', index = True)
 
     else: #asymmetric runs
         if model_type==str("split_mig"):
@@ -375,17 +375,17 @@ else: #non-theta models
             ll_model= moments.Inference.ll_multinom(model, fs_folded)
             print("Maximum log composite likelihood: {0}".format(ll_model))
 
-            fig = pylab.figure(1)
-            fig.clear()
-            moments.Plotting.plot_2d_comp_multinom(
-                model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
-            )
-            fig.savefig("%s_widebounds_splitmig_asymm_resids.png" % Pair_name, dpi=100)
-
-            #grab residual array from internal moments function
-            resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
-            resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
-            resid.to_csv("%s_widebounds_splitmig_asymm_resids_array.csv" % Pair_name, sep='\t', index = True)
+            #fig = pylab.figure(1)
+            #fig.clear()
+            #moments.Plotting.plot_2d_comp_multinom(
+            #    model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+            #)
+            #fig.savefig("%s_widebounds_splitmig_asymm_resids.png" % Pair_name, dpi=100)
+#
+            ##grab residual array from internal moments function
+            #resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+            #resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+            #resid.to_csv("%s_widebounds_splitmig_asymm_resids_array.csv" % Pair_name, sep='\t', index = True)
 
         else: #asymmetric IMbg widebounds model
             #bring in system inputs
@@ -449,18 +449,44 @@ else: #non-theta models
             print("Maximum log composite likelihood: {0}".format(ll_model))
 
             #plot the figure
-            fig = pylab.figure(1)
-            fig.clear()
-            moments.Plotting.plot_2d_comp_multinom(
-                model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
-            )
-            fig.savefig("%s_widebounds_IMbg_asymm_resids.png" % Pair_name, dpi=100)
+            #fig = pylab.figure(1)
+            #fig.clear()
+            #moments.Plotting.plot_2d_comp_multinom(
+            #    model, fs_folded, resid_range=10, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+            #)
+            #fig.savefig("%s_widebounds_IMbg_asymm_resids.png" % Pair_name, dpi=100)
+#
+            ##grab residual array from internal moments function
+#
+#
+            #resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+            #resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+            #resid.to_csv("%s_widebounds_IMbg_asymm_resids_array.csv" % Pair_name, sep='\t', index = True)
 
-            #grab residual array from internal moments function
+### export
+fig = pylab.figure(1)
+fig.clear()
+moments.Plotting.plot_2d_comp_multinom(
+    model, fs_folded, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
+)
+fig.savefig("%s_%s_%s_%s_resids.png" % Pair_name % param % model_type % model_sym, dpi=100)
 
 
-            resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
-            resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
-            resid.to_csv("%s_widebounds_IMbg_asymm_resids_array.csv" % Pair_name, sep='\t', index = True)
+#grab residual array from internal moments function
+resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
+resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
+resid.to_csv("%s_%s_%s_%s_resids.png" % Pair_name % param % model_type % model_sym, sep='\t', index = True)
+
+
+
+
+
+
+
+
+
+
+
+
 
 print("residual script is done running %s" % Pair_name)

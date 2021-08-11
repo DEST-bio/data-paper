@@ -4,8 +4,8 @@
 #SBATCH -N 1 # on one node
 #SBATCH -n 1
 #SBATCH --ntasks=1 # one core
-#SBATCH -t 2:00:00
-#SBATCH --mem=20G
+#SBATCH -t 0:15:00
+#SBATCH --mem=8G
 #SBATCH -o moments_resids.out
 #SBATCH -e moments_resids.error
 #SBATCH -p standard
@@ -22,10 +22,10 @@ module load anaconda/2020.11-py3.8
 #Activate dadi kernel
 source activate moments_kern
 
-moments=/scratch/GitHub/data-paper/Figure10_and_S13_S14/residuals/resids_all.py
+moments=/scratch/aob2x/data-paper/Figure10_and_S13_S14/residuals/resids_all.py
 
 #Load the metadata object into memory
-metadata=/scratch/GitHub/data-paper/Figure10_and_S13_S14/residuals/example_meta.txt #Address to the metadata. 
+metadata=/project/berglandlab/moments/resid_meta.delim #Address to the metadata.
 
 #Pair_names=> the names of the two pools being considered. Separated by a predictable delimiter like "|" (do not use "_")!!!
 #fs=> the address of the file containing the 2D SFS
@@ -81,7 +81,8 @@ echo $Pair "is running" $iter "iterations"
 
 #edit cd to desired location
 #MPLBACKEND=Agg deals with matplotlib calling a display, which won't work in slurm
-cd ~/DEST_playground/
+cd /project/berglandlab/moments/resids
+
 MPLBACKEND=Agg python $moments \
 $fsfile \
 $Pair \
@@ -101,7 +102,7 @@ $theta \
 $nu1B \
 $nu2B \
 $nu1F \
-$nu2F
+$nu2F &
 
 #De-Activate moments kernel
 conda deactivate

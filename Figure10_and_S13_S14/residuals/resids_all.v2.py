@@ -469,14 +469,16 @@ fig.clear()
 moments.Plotting.plot_2d_comp_multinom(
     model, fs_folded, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
 )
-fig.savefig("%s_%s_%s_%s_resids.png" % (Pair_name, param, model_type, model_sym), dpi=100)
+fig.savefig("{0}_{1}_{2}_{3}_resids.png".format(Pair_name, param, model_type, model_sym), dpi=100)
 
 
 #grab residual array from internal moments function
 resid = moments.Inference.Anscombe_Poisson_residual(model, fs_folded)
 resid = pd.DataFrame(resid) #convert the spectrum residual object to a df
-resid.to_csv("%s_%s_%s_%s_resids.delim" % (Pair_name, param, model_type, model_sym), sep='\t', index = True)
+resid.to_csv("{0}_{1}_{2}_{3}_resids.delim".format(Pair_name, param, model_type, model_sym), sep='\t', index = True)
 
+modeldf = pd.DataFrame(model)
+modeldf.to_csv("{0}_{1}_{2}_{3}_resids.model".format(Pair_name, param, model_type, model_sym), sep='\t', index = True)
 
 
 

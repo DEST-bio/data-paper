@@ -29,8 +29,9 @@ R
 	#"/project/berglandlab/moments_jcbn_keric/binombound_thetacount_outputs/output/",
 	#"/project/berglandlab/moments_jcbn_keric/alan/moments_BoundsCount/output/",
 	#"/project/berglandlab/moments_jcbn_keric/jcbn_runs/",
-	"/project/berglandlab/moments_jcbn_keric/IM_alan/IMtheBinom/output",
-	"/project/berglandlab/moments_jcbn_keric/IMtheBinom/output"
+	#"/project/berglandlab/moments_jcbn_keric/IM_alan/IMtheBinom/output",
+	#"/project/berglandlab/moments_jcbn_keric/IMtheBinom/output"
+	"/project/berglandlab/moments_jcbn_keric/Model_test/output"
 	)
 
 o.l <- list()
@@ -41,7 +42,12 @@ for(j in 1:length(paths)){
   ### run loop internal
     fs <- list.files(file_path, full.names=T)
     fsl <- gsub(file_path, "", fs)
+    fsl <- gsub("bound.txt", "SM.bound.symm.txt", fsl)
+    fsl <- gsub("bound.asymm.txt", "SM.bound.asymm.txt", fsl)
+    fsl <- gsub("widebounds.txt", "widebounds.symm.txt", fsl)
+    fsl <- gsub("widebounds", "bound", fsl)
     
+        
     fsl %<>%
     	data.frame(files=.) %>% 
     	separate(files, into=c(
@@ -50,19 +56,23 @@ for(j in 1:length(paths)){
     	"pop1",
     	"pop2",
     	"Demo_cluster",
-    	"Demo_model", # <---- only activate for IM models
+    	"Demo_model", 
     	"inference_method",
+    	"migration_model",
     	"file"
     	), sep ="\\.")
     
     fsl$caller = gsub("/", "",  fsl$caller)
-	fsl$Demo_cluster = gsub("_output", "",  fsl$Demo_cluster)
+	  fsl$Demo_cluster = gsub("_output", "",  fsl$Demo_cluster)
   
     o = list()
     for(i in 1:length(fs)){ #Open i
     
 	  ##Read the file
       tmp <- fread(fs[i])
+      
+      dim(tmp)[1] -> num_o_runs
+      
 	  ##Add metadata	  	  
       tmp[,caller:=fsl[i,"caller"]]
       tmp[,SFSmethod:=fsl[i,"SFSmethod"]]
@@ -71,14 +81,23 @@ for(j in 1:length(paths)){
       tmp[,Demo_cluster:=fsl[i,"Demo_cluster"]]
       tmp[,Demo_model:=fsl[i,"Demo_model"]] # <---- only activate for IM models
       tmp[,inference_method:=fsl[i,"inference_method"]]
+      tmp[,migration_model:=fsl[i,"migration_model"]]
+      tmp[,Chains_ran:=num_o_runs]
       
       #if(fsl[i,"inference_method"] == "theta"){
       #names(tmp)[10] = "theta"
       #}
       
      aic_col = which(names(tmp) == "aic" ) 
-     
      names(tmp)[aic_col] = "AIC" 
+     
+
+     ll_col = which(names(tmp) == "ll_model" ) 
+     names(tmp)[ll_col] = "-2LL_model" 
+
+     S_col = which(names(tmp) == "fs_sanitycheck" ) 
+     names(tmp)[S_col] = "S" 
+     
      
 	  ##Evaluate models      		
       		##Add model fir
@@ -95,109 +114,6 @@ for(j in 1:length(paths)){
 
 o.l.all <- rbindlist(o.l, fill=T)
 
-#rm(list = ls())
-save(o.l.all, file = "Data.from.IMmodels.Rdata")
-
-####
-#load("./DataFrom4.1.and4.2.Rdata")
-load("./Data.from.IMmodels.Rdata")
-
-##### Bring data from first run
-load("/project/berglandlab/moments_jcbn_keric/moments_all_backconvert.RData")
-
-df[,c(
-"Pair_name",
-"L",
-"pop1_size",
-"pop2_size",
-"divergence_time",
-"mig_pop1",
-"mig_pop2",
-"theta",
-"LL",
-"AIC",
-"Nref",
-"Ts",
-"nu1",
-"nu2",
-"mij",
-"m12"
-)] -> run1
-
-#Update names
-names(run1)[9] = "-2LL_model"
-
-#Expand metadata
-run1 %<>%
-	separate(Pair_name, remove = F,
-			 into = c("caller","SFSmethod","etc1","pop2","pop1"),
-			 sep = "\\.")
-			 
-#Remove etcs			 
-run1 = run1[,-4]
-
-run1 %<>%
-	mutate(inference_method = "wide-bounds")
-
-#find best models
-
-run1 %>%
-	group_by(Pair_name) %>%
-	summarize(MinAIC=min(AIC)) ->
-	min_aic_run1
-
-left_join(run1, min_aic_run1) %>% 
-	mutate(AIC_label = ifelse(.$AIC == .$MinAIC, "Best", "NotBest")) ->
-	run1_aic
-
-## Set 2
-o.l.all[,c(
-"Pair_name",
-"L",
-"pop1_size",
-"pop2_size",
-"divergence_time",
-"mig_pop1",
-"mig_pop2",
-"theta",
-"nu1",
-"nu2",
-"Ts",
-"m12",
-"-2LL_model",
-"AIC",
-"caller",
-"SFSmethod",
-"pop1",
-"pop2",
-"Demo_cluster",
-"inference_method",
-"AIC_label")] -> run2_3_aic
-
-run2_3_aic$inference_method = gsub("bound", "shallow-bounds", run2_3_aic$inference_method)
-run2_3_aic$inference_method = gsub("theta", "theta-prior",  run2_3_aic$inference_method)
-
-
-##### Merging datasets
-names(run1_aic) 
-names(run2_3_aic)
-
-run1_aic$mig_pop1 = as.numeric(run1_aic$mig_pop1)
-run1_aic$mig_pop2 = as.numeric(run1_aic$mig_pop2)
-
-run2_3_aic$mig_pop1 = as.numeric(run2_3_aic$mig_pop1) 
-run2_3_aic$mig_pop2 = as.numeric(run2_3_aic$mig_pop2)
-
-run1_aic$`-2LL_model` = as.numeric(run1_aic$`-2LL_model` )
-
-run2_3_aic$`-2LL_model` = as.numeric(run2_3_aic$`-2LL_model`) 
-
-list_allsets = list()
-list_allsets[[1]] = run1_aic
-list_allsets[[2]] = run2_3_aic
-
-merged_datasets <- rbindlist(list_allsets, fill=T)
-
 
 #Add metadata
 meatadata <- "/scratch/yey2sn/moments/data-paper/additionalAnalyses/moments/pairs_all.txt"
@@ -205,33 +121,203 @@ meatadata_df <- fread(meatadata)
 
 names(meatadata_df)[3:5] = c("caller","pop1","pop2") 
 
-left_join(merged_datasets, meatadata_df) -> merged_datasets
+left_join(o.l.all , meatadata_df) -> o.l.all_mapped
 
-save(merged_datasets, file = "AllDataMerged_FromBounds_and_Theta.Rdata")
+save(o.l.all_mapped, file = "AllData_IM_SM_Mig_models.Rdata")
 
+#rm(list = ls())
+#save(o.l.all, file = "Data.from.IMmodels.Rdata")
+#
+#####
+##load("./DataFrom4.1.and4.2.Rdata")
+#load("./Data.from.IMmodels.Rdata")
+#
+###### Bring data from first run
+#load("/project/berglandlab/moments_jcbn_keric/moments_all_backconvert.RData")
+#
+#df[,c(
+#"Pair_name",
+#"L",
+#"pop1_size",
+#"pop2_size",
+#"divergence_time",
+#"mig_pop1",
+#"mig_pop2",
+#"theta",
+#"LL",
+#"AIC",
+#"Nref",
+#"Ts",
+#"nu1",
+#"nu2",
+#"mij",
+#"m12"
+#)] -> run1
+#
+##Update names
+#names(run1)[9] = "-2LL_model"
+#
+##Expand metadata
+#run1 %<>%
+#	separate(Pair_name, remove = F,
+#			 into = c("caller","SFSmethod","etc1","pop2","pop1"),
+#			 sep = "\\.")
+#			 
+##Remove etcs			 
+#run1 = run1[,-4]
+#
+#run1 %<>%
+#	mutate(inference_method = "wide-bounds")
+#
+##find best models
+#
+#run1 %>%
+#	group_by(Pair_name) %>%
+#	summarize(MinAIC=min(AIC)) ->
+#	min_aic_run1
+#
+#left_join(run1, min_aic_run1) %>% 
+#	mutate(AIC_label = ifelse(.$AIC == .$MinAIC, "Best", "NotBest")) ->
+#	run1_aic
+#
+### Set 2
+#o.l.all[,c(
+#"Pair_name",
+#"L",
+#"pop1_size",
+#"pop2_size",
+#"divergence_time",
+#"mig_pop1",
+#"mig_pop2",
+#"theta",
+#"nu1",
+#"nu2",
+#"Ts",
+#"m12",
+#"-2LL_model",
+#"AIC",
+#"caller",
+#"SFSmethod",
+#"pop1",
+#"pop2",
+#"Demo_cluster",
+#"inference_method",
+#"AIC_label")] -> run2_3_aic
+#
+#run2_3_aic$inference_method = gsub("bound", "shallow-bounds", run2_3_aic$inference_method)
+#run2_3_aic$inference_method = gsub("theta", "theta-prior",  run2_3_aic$inference_method)
+#
+#
+###### Merging datasets
+#names(run1_aic) 
+#names(run2_3_aic)
+#
+#run1_aic$mig_pop1 = as.numeric(run1_aic$mig_pop1)
+#run1_aic$mig_pop2 = as.numeric(run1_aic$mig_pop2)
+#
+#run2_3_aic$mig_pop1 = as.numeric(run2_3_aic$mig_pop1) 
+#run2_3_aic$mig_pop2 = as.numeric(run2_3_aic$mig_pop2)
+#
+#run1_aic$`-2LL_model` = as.numeric(run1_aic$`-2LL_model` )
+#
+#run2_3_aic$`-2LL_model` = as.numeric(run2_3_aic$`-2LL_model`) 
+#
+#list_allsets = list()
+#list_allsets[[1]] = run1_aic
+#list_allsets[[2]] = run2_3_aic
+#
+#merged_datasets <- rbindlist(list_allsets, fill=T)
+#
+#
 
 ################################
 #### Start here:
 ################################
 
-load("./Data.from.IMmodels.Rdata")
+load("./AllData_IM_SM_Mig_models.Rdata")
 #load("./AllDataMerged_FromBounds_and_Theta.Rdata")
 
-###### 
-#####
-# Select only the best model
-
-#o.best = merged_datasets %>%
-
-o.best = o.l.all %>%
+o.best = o.l.all_mapped %>%
 		.[which(.$AIC_label == "Best"),] %>%
 		mutate(theta_est = theta/L )
 
-o.best %>%
-.[which(.$inference_method == "theta-prior"),] ->
-o.best.theta
+save(o.best, file = "o.best.models.Rdata")
 
-save(o.best.theta, file = "o.best.models.theta.Rdata")
+### Number of models running
+o.best %<>% 
+  mutate(full_model = paste(Demo_model, 
+                            migration_model, 
+                            sep = "_") )
+
+o.best %>%
+  ggplot(aes(
+    Chains_ran,
+    fill = full_model
+  )) + geom_histogram() ->
+  Chains_ran_plot
+
+ggsave(Chains_ran_plot,
+       file = "Chains_ran_plot.pdf")
+
+#Set minimum run size
+o.best %>%
+  .[which(.$full_model == "IM_asymm" &
+          .$Chains_ran > 20 )] %>%
+  .$Pair_name -> pairs_w_runsize
+
+#Set minimum run size
+o.best %>%
+  .[which(.$Pair_name %in% 
+            pairs_w_runsize)] %>%
+  group_by(Pair_name) %>%
+  summarise(AIC = min(AIC) ) -> min_aic_models
+
+
+left_join(min_aic_models, o.best) %>% 
+  .$full_model %>% 
+  table %>%
+  prop.table()
+  
+  
+o.best %>%
+  group_by(full_model) %>%
+  summarise(DT_m = mean(divergence_time),
+            DT_low = ci(divergence_time)[2],
+            DT_high = ci(divergence_time)[3]
+            )
+
+o.best %>%
+  ggplot(aes(
+    theta_est,
+    fill=full_model
+  )) + geom_histogram() +
+  facet_wrap(~full_model) ->
+  theta_plot
+
+ggsave(theta_plot,
+       file = "theta_plot.pdf")
+
+
+o.best %>%
+  ggplot(aes(
+    y=log10(divergence_time),
+    x=(dist),
+    color=full_model
+  )) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~full_model, scales = "free") ->
+  divergence_dist_plot
+
+ggsave(divergence_dist_plot,
+       file = "divergence_dist_plot.pdf")
+
+
+cor.test(o.best$dist[which(o.best$full_model == "SM_asymm")],
+         log10(o.best$divergence_time[which(o.best$full_model == "SM_asymm")])
+)
+
+
 
 ################################
 #### Explore theta

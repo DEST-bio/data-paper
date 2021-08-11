@@ -12,7 +12,7 @@
 #SBATCH -a berglandlab
 
 ### sbatch --array=1-$( sed '1d' /project/berglandlab/moments/resid_meta.delim | wc -l ) /scratch/aob2x/data-paper/Figure10_and_S13_S14/residuals/moments_resid.sh
-### sacct -j 24349686
+### sacct -j 24349725
 
 echo "began at"  `date`
 
@@ -51,7 +51,7 @@ m12=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t"
 m21=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $13 }' )
 Ts=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $14 }' )
 theta=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $15 }' )
-nu1B=$$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $16 }' )
+nu1B=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $16 }' )
 nu2B=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $17 }' )
 nu1F=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $18 }' )
 nu2F=$( cat $metadata  | sed '1d' | sed "${SLURM_ARRAY_TASK_ID}q;d" | awk -F "\t" '{ print $19 }' )

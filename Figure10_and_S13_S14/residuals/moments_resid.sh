@@ -6,12 +6,13 @@
 #SBATCH --ntasks=1 # one core
 #SBATCH -t 0:15:00
 #SBATCH --mem=8G
-#SBATCH -o moments_resids.out
-#SBATCH -e moments_resids.error
+#SBATCH -o /scratch/aob2x/moments/slurmOut/overlap_test.%A_%a.out # Standard output
+#SBATCH -e /scratch/aob2x/moments/slurmOut/overlap_test.%A_%a.err # Standard error
 #SBATCH -p standard
 #SBATCH -a berglandlab
 
 ### sbatch --array=1-$( sed '1d' /project/berglandlab/moments/resid_meta.delim | wc -l ) /scratch/aob2x/data-paper/Figure10_and_S13_S14/residuals/moments_resid.sh
+### sacct -j 24349686
 
 echo "began at"  `date`
 

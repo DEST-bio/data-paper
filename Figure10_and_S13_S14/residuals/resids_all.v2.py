@@ -469,7 +469,7 @@ fig.clear()
 moments.Plotting.plot_2d_comp_multinom(
     model, fs_folded, pop_ids=('%s' % pop_id1, '%s' % pop_id2), adjust=True
 )
-fig.savefig("{0}_{1}_{2}_{3}_resids.png".format(Pair_name, param, model_type, model_sym), dpi=100)
+fig.savefig("{0}.{1}.{2}.{3}.resids.png".format(Pair_name, param, model_type, model_sym), dpi=100)
 
 
 #grab residual array from internal moments function

@@ -159,6 +159,17 @@ ${wd}/data-paper/Figure10_and_S13_S14/4.3.moments_IM_theta.py \
 binom
 ```
 
+### Whats are the variations to the moments python scripts, i.e., 4.x.x 
+
+Each script numenrated 4.x.x represents a different parametrization of a given model or a different model altogether. For example:
+
+| Script                               | Model     |
+|--------------------------------------|-----------|
+| 4.1.0.moments_bounds.py              | S+SyM     |
+| 4.1.1.moments_bounds_asymm.py        | S+AsyM    |
+| 4.4.0.moments_IM_widebounds.py       | S+BG+SyM  |
+| 4.4.1.moments_IM_widebounds_asymm.py | S+BG+AsyM |
+
 ### Whats inside the *moments* wrapper
 The script 5.run_moments_between.sh runs a wrapper of the python code for moments. However, because we are running the program as an array the script provides python with different data for each population pair. For example, we first load all the packages needed to activate python and run the array
 ```bash
@@ -450,7 +461,10 @@ for i in range(int(iterations)): #iterations is imported from sys. argument name
 print("Moments finished running")
 #exmaple do not run
 ```
-# Script 6. Collate, analyze, and plot all outputs 
-Since we are running the moments script over multiple pairs we need to centralize all the  outputs into a single file for data mining. This is done here --  Collect moments data (`data-paper/Figure10_and_S13_S14/5.collection_and_analysis_of_moments_output.r`)
+# Script 5. Collate, all outputs 
+Since we are running the moments script over multiple pairs we need to centralize all the  outputs into a single file for data mining. This is done here 
+
+# Script 6. Analyze and Plot.
+This script has the code to reproduce the figures in the paper.
 Additional plotting options are given in the folder named "Residuals"
 

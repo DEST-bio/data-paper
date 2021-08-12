@@ -7,12 +7,16 @@
 #### Figure 10A
 
 # frist load the data for this ... this was made using script 5.
-load("/project/berglandlab/moments_jcbn_keric/R_data/AllDataMerged_FromBounds_and_Theta.Rdata")
+#load("/project/berglandlab/moments_jcbn_keric/R_data/AllDataMerged_FromBounds_and_Theta.Rdata")
 
-merged_datasets %>%
-		.[which(.$AIC_label == "Best"),] %>%
-		mutate(theta_est = theta/L ) ->
-		o.best.caller.test
+#merged_datasets %>%
+#		.[which(.$AIC_label == "Best"),] %>%
+#		mutate(theta_est = theta/L ) ->
+#		o.best.caller.test
+#
+#save(o.best.caller.test, file = "data.for.10A.Rdata")
+
+load("./data.for.10A.Rdata")
 
 	o.best.caller.test %>%
 		.[which(.$inference_method == "wide-bounds"),] %>%
@@ -50,29 +54,34 @@ ggsave(theta_plot_Caller,
 
 #### Figure 10B
 
-load("/project/berglandlab/moments_jcbn_keric/R_data/AllDataMerged_FromBounds_and_Theta.Rdata")
+#load("/project/berglandlab/moments_jcbn_keric/R_data/AllDataMerged_FromBounds_and_Theta#.Rdata")
+#
+#merged_datasets %>%
+#		.[which(.$AIC_label == "Best"),] %>%
+#		mutate(theta_est = theta/L ) ->
+#		o.best.caller.test
+#
+#	o.best.caller.test %>%
+#		.[which(.$inference_method == "wide-bounds"),] %>%
+#		.[which(.$caller == "PoolSNP"),] %>%
+#		.[,c(
+#		"pop1",
+#		"pop2",
+#		"SFSmethod",
+#		"inference_method",
+#		"popset",
+#		"mij"
+#		)] %>%
+#	dcast(pop1+pop2+popset ~ SFSmethod, 
+#	value.var = "mij",
+#	mean ) %>%
+#	mutate(stat = "mij") ->
+#	Mij_by_caller 
 
-merged_datasets %>%
-		.[which(.$AIC_label == "Best"),] %>%
-		mutate(theta_est = theta/L ) ->
-		o.best.caller.test
+#save(Mij_by_caller, file = "data.for.10B.Rdata")
 
-	o.best.caller.test %>%
-		.[which(.$inference_method == "wide-bounds"),] %>%
-		.[which(.$caller == "PoolSNP"),] %>%
-		.[,c(
-		"pop1",
-		"pop2",
-		"SFSmethod",
-		"inference_method",
-		"popset",
-		"mij"
-		)] %>%
-	dcast(pop1+pop2+popset ~ SFSmethod, 
-	value.var = "mij",
-	mean ) %>%
-	mutate(stat = "mij") ->
-	Mij_by_caller 
+load("./data.for.10B.Rdata")
+
 
 Mij_by_caller$binom %>% sd
 Mij_by_caller$counts %>% sd
@@ -110,11 +119,15 @@ ggsave(Mij_plot_Caller,
 #### Figure 10C
 
 # Load final runs for model testing
-load("/project/berglandlab/moments_jcbn_keric/final_runs/AllData_IM_SM_Mig_models.Rdata")
+#load("/project/berglandlab/moments_jcbn_keric/final_runs/AllData_IM_SM_Mig_models.Rdata")
+#
+#o.best = o.l.all_mapped %>%
+#		.[which(.$AIC_label == "Best"),] %>%
+#		mutate(theta_est = theta/L )
+#
+#save(o.best, file = "data.for.10C.and.all11.Rdata")
 
-o.best = o.l.all_mapped %>%
-		.[which(.$AIC_label == "Best"),] %>%
-		mutate(theta_est = theta/L )
+load("./data.for.10C.and.all11.Rdata")
 
 ### How many times was a model conisdered best?
 o.best %>%
@@ -143,24 +156,29 @@ ggsave(best_models,
 
 #### Figure 10D
 
-# Load final runs for model testing
-load("/project/berglandlab/moments_jcbn_keric/final_runs/AllData_IM_SM_Mig_models.Rdata")
+### Load final runs for model testing
+#load("/project/berglandlab/moments_jcbn_keric/final_runs/AllData_IM_SM_Mig_models.Rdata")
+#
+#o.best = o.l.all_mapped %>%
+#		.[which(.$AIC_label == "Best"),] %>%
+#		mutate(theta_est = theta/L )
+#
+#### Do model AIC improve with more iterations?
+#### This makes ---> Figure 10 panels D
+#### 
+#o.l.all_mapped %>% 
+#  as.data.frame() %>% 
+#  mutate(Sample_size_bin = 
+#           ifelse( .$Within_Sim_id <= 9, 
+#            print("1-9"),
+#            signif(Within_Sim_id, digits=1))) ->
+#  o.l.all_mapped_for_bin_plotting
+ 
+#save(o.l.all_mapped_for_bin_plotting, file = "data.for.10D.Rdata")
 
-o.best = o.l.all_mapped %>%
-		.[which(.$AIC_label == "Best"),] %>%
-		mutate(theta_est = theta/L )
+load("./data.for.10D.Rdata")
 
-### Do model AIC improve with more iterations?
-### This makes ---> Figure 10 panels D
-### 
-o.l.all_mapped %>% 
-  as.data.frame() %>% 
-  mutate(Sample_size_bin = 
-           ifelse( .$Within_Sim_id <= 9, 
-            print("1-9"),
-            signif(Within_Sim_id, digits=1))) ->
-  o.l.all_mapped_for_bin_plotting
-         
+        
 o.l.all_mapped_for_bin_plotting %>%
   group_by(Pair_name) %>%
   summarise(Min_AC_glob = min(AIC)) -> global_min_AIC
@@ -210,6 +228,7 @@ ggsave(delta_aic,
 ######
 ###### Plot the divergence time
 ######
+load("./data.for.10C.and.all11.Rdata")
 
 o.best %>%
   .[which(.$Run_Type == "final_runs"),] %>% 
@@ -260,6 +279,7 @@ o.best %>%
 #
 
 ## Figure 11B
+load("./data.for.10C.and.all11.Rdata")
 
 #### Divergence as a function of distance
 o.best %>%
@@ -302,7 +322,8 @@ cor.test(o.best$dist[which(o.best$full_model == "SM_asymm" & o.best$Demo_cluster
 
 
 ## Figure 11C
-
+ load("./data.for.10C.and.all11.Rdata")
+ 
 #### Migration as a function of distance
 
 #Import cluster metatdta

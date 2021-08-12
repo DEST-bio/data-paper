@@ -1,7 +1,0 @@
-fs_file	Pair_name	param	model_type	model_sym	pop_name1	pop_name2	pool_n1	pool_n2	nu1	nu2	m12	m21	Ts	theta	nu1B	nu2B	nu1F	nu2F
-/project/berglandlab/moments/moments_input/PoolSNP.binom.CY_Nic_14_11.UK_Lut_14_13.WW.delim	PoolSNP.binom.all.CY_Nic_14_11.UK_Lut_14_13	widebounds	split_mig	symm	CY_Nic_14_11	UK_Lut_14_13	38	36	0.05	0.23	3.5	NA	0.005	NA	NA	NA	NA	NA
-/project/berglandlab/moments/moments_input/PoolSNP.binom.CY_Nic_14_11.UK_Lut_14_13.WW.delim	PoolSNP.binom.all.CY_Nic_14_11.UK_Lut_14_13	theta	IMbg	symm	CY_Nic_14_11	UK_Lut_14_13	38	36	NA	NA	3.4	NA	0.032	420000	0.23	0.21	0.35	0.52
-/project/berglandlab/moments/moments_input/PoolSNP.binom.CY_Nic_14_11.UK_Lut_14_13.WW.delim	PoolSNP.binom.all.CY_Nic_14_11.UK_Lut_14_13	widebounds	split_mig	asymm	CY_Nic_14_11	UK_Lut_14_13	38	36	0.05	0.23	3.5	12.1	0.53	NA	NA	NA	NA	NA
-/project/berglandlab/moments/moments_input/PoolSNP.binom.CY_Nic_14_11.UK_Lut_14_13.WW.delim	PoolSNP.binom.all.CY_Nic_14_11.UK_Lut_14_13	widebounds	IMbg	asymm	CY_Nic_14_11	UK_Lut_14_13	38	36	NA	NA	3.6	8.4	0.087	NA	0.23	0.21	0.35	0.52
-/project/berglandlab/moments/moments_input/PoolSNP.binom.CY_Nic_14_11.UK_Lut_14_13.WW.delim	PoolSNP.binom.all.CY_Nic_14_11.UK_Lut_14_13	theta	split_mig	symm	CY_Nic_14_11	UK_Lut_14_13	38	36	0.07	0.34	2.2	NA	0.13	420000	NA	NA	NA	NA
-/project/berglandlab/moments/moments_input/PoolSNP.binom.CY_Nic_14_11.UK_Lut_14_13.WW.delim	PoolSNP.binom.all.CY_Nic_14_11.UK_Lut_14_13	widebounds	IMbg	symm	CY_Nic_14_11	UK_Lut_14_13	38	36	NA	NA	13.5	NA	0.008	NA	0.26	0.27	0.64	0.15

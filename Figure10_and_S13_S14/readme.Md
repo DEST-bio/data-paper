@@ -464,7 +464,7 @@ print("Moments finished running")
 # Script 5. Collate, all outputs 
 Since we are running the moments script over multiple pairs we need to centralize all the  outputs into a single file for data mining. This is done here 
 
-# Script 6. Analyze and Plot.
+# Script 6. Analyze and plot
 This script has the code to reproduce the figures in the paper.
 Additional plotting options are given in the folder named "Residuals"
 

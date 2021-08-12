@@ -36,7 +36,7 @@
     scale_fill_gradientn(colours = cols) +
     xlab("Pop. 1 allele freq") +
     ylab("Pop. 2 allele freq") +
-    labs(fill="Median\nResidual")
+    labs(fill="Median\nResidual") + theme_bw()
 
   delta_plot <-
     ggplot(data=allResid.ag.ag,
@@ -46,7 +46,7 @@
     scale_fill_gradientn(colours = cols) +
     xlab("Pop. 1 allele freq") +
     ylab("Pop. 2 allele freq") +
-    labs(fill="Delta\nResidual\n(S)-(S+BG)")
+    labs(fill="Delta\nResidual\n(S)-(S+BG)") + theme_bw()
 
 
 ### mega plot
@@ -58,6 +58,7 @@
   mega_plot <-
   sfs_plot + delta_plot +
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = 'A')
+  plot_annotation(tag_levels = 'A') +
+  theme_bw()
 
-  ggsave(mega_plot, file="~/mega_sfs.png")
+  ggsave(mega_plot, height=8, w=6.5, file="GitHub/data-paper/Figure10_and_S13_S14/residuals/S14_moments_residual_summary.png")

@@ -1,5 +1,24 @@
 ### This code builds the panels for figures 10 and 11 
 
+library(data.table)
+library(SeqArray)
+library(foreach)
+library(sp)
+library(doMC)
+registerDoMC(8)
+library(tidyverse)
+library(magrittr)
+library(gmodels)
+library(FactoMineR)
+library(factoextra)
+library(ggridges)
+library(viridis)
+library(hrbrthemes)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggdist)
+library(patchwork)
+
 #########################
 ### figure 10
 #########################

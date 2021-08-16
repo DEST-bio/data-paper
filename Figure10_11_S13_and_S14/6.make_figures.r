@@ -72,8 +72,7 @@ ggsave(theta_plot_Caller,
 
 
 #### Figure 10B
-
-#load("/project/berglandlab/moments_jcbn_keric/R_data/AllDataMerged_FromBounds_and_Theta#.Rdata")
+#load("/project/berglandlab/moments_jcbn_keric/R_data/AllDataMerged_FromBounds_and_Theta.Rdata")
 #
 #merged_datasets %>%
 #		.[which(.$AIC_label == "Best"),] %>%
@@ -89,28 +88,27 @@ ggsave(theta_plot_Caller,
 #		"SFSmethod",
 #		"inference_method",
 #		"popset",
-#		"mij"
+#		"nu1"
 #		)] %>%
 #	dcast(pop1+pop2+popset ~ SFSmethod, 
-#	value.var = "mij",
+#	value.var = "nu1",
 #	mean ) %>%
-#	mutate(stat = "mij") ->
-#	Mij_by_caller 
-
-#save(Mij_by_caller, file = "data.for.10B.Rdata")
+#	mutate(stat = "nu1") ->
+#	nu1_by_caller 
+#
+#save(nu1_by_caller, file = "data.for.10B.Rdata")
 
 load("./data.for.10B.Rdata")
 
+nu1_by_caller$binom %>% sd
+nu1_by_caller$counts %>% sd
 
-Mij_by_caller$binom %>% sd
-Mij_by_caller$counts %>% sd
-
-	o.best.caller.test %>%
-		.[which(.$inference_method == "wide-bounds"),] %>%
-		.[which(.$caller == "PoolSNP"),] %>%
-		.[complete.cases(.$popset)] %>%
-	ggplot( aes(x=SFSmethod, y=(mij), fill=popset)) +
-	 ggdist::stat_halfeye(
+o.best.caller.test %>%
+  .[which(.$inference_method == "wide-bounds"),] %>%
+  .[which(.$caller == "PoolSNP"),] %>%
+  .[complete.cases(.$popset)] %>%
+  ggplot( aes(x=SFSmethod, y=log10(nu1), fill=popset)) +
+  ggdist::stat_halfeye(
     adjust = 1.5, 
     width = .6, 
     .width = 0, 
@@ -123,17 +121,17 @@ Mij_by_caller$counts %>% sd
     size = 4,
     alpha = .2
   ) + 
-  ylab(expression((m[ij]))) +
+  ylab(expression( log[10]("nu"[i]) )) +
   xlab("AF discretization method") +
   theme_classic() +
   theme(legend.pos = "none") +
   scale_fill_brewer(palette = "Pastel1") ->
-	Mij_plot_Caller
+  nu1_plot_Caller
 
-ggsave(Mij_plot_Caller,
-		file="TMij_plot_Caller.pdf",
-		 width = 4,
-	     height = 3)
+ggsave(nu1_plot_Caller,
+       file="nu1_plot_Caller.pdf",
+       width = 4,
+       height = 3)
 
 #### Figure 10C
 
